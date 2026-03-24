@@ -1,0 +1,9 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: rgb(9, 57, 45);
+  color: white;
+}
+
+body {
+  margin: 0;
+}
