@@ -39,6 +39,10 @@
         <button id="startGameBtn" style="display:none;" onclick="startGame()">Rozpocznij Grę</button>
     </div>
 
+    <div id="game-view" class="view">
+        <h1 id="gameStatusMessage">...</h1>
+    </div>
+
     <script>
         let ws = null;
         let isHost = false;
@@ -80,6 +84,17 @@
                     const li = document.createElement('li');
                     li.innerText = data.nickname;
                     ul.appendChild(li);
+                }
+
+                if (data.type === "info" && data.message === "Game start") {
+                    showView('game-view'); 
+                    
+                    const statusMsg = document.getElementById('gameStatusMessage');
+                    if (isHost) {
+                        statusMsg.innerText = "Gra rozpoczęta, poczekaj na planszę...";
+                    } else {
+                        statusMsg.innerText = "Gra rozpoczęta, patrz na ekran hosta!";
+                    }
                 }
 
                 if (data.type === "error") {
