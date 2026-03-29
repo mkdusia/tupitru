@@ -1,10 +1,9 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-import os
 
 from ConnectionManager import ConnectionManager
-from EventHandler import EventHandler
+from event_handler import EventHandler
 from GameManager import GameManager
 
 app = FastAPI()
