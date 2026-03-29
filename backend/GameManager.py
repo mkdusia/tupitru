@@ -37,11 +37,11 @@ class GameManager:
         if room is None:
             return False
         
-        room.add_player(player_id, nickname)
-        self.player_room[player_id] = room_id
-
         to_notify = list(room.players.keys())
         to_notify.append(room.host)
+
+        room.add_player(player_id, nickname)
+        self.player_room[player_id] = room_id
         
         await self.emit_event({"type": "player_joined", "notify": to_notify, "nickname": nickname})
         return True
@@ -67,7 +67,10 @@ class GameManager:
             for player in abandoned_players:
                 self.player_room.pop(player)
             self.rooms.pop(room_id)
-            await self.emit_event({"type": "room_destroyed", "to_notify": abandoned_players})
+            await self.emit_event({"type": "room_destroyed", "notify": abandoned_players})
         else:
+            name = room.players[player_id]
             room.remove_player(player_id)
-            await self.emit_event({"type": "player_disconnected", "player_id": player_id})
+            to_notify = list(room.players.keys())
+            to_notify.append(room.host)
+            await self.emit_event({"type": "player_disconnected", "nickname": name, "notify": to_notify})

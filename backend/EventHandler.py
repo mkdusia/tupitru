@@ -47,6 +47,13 @@ class EventHandler:
         await self.game_manager.player_disconnect(event["id"])
         self.con_manager.disconnect(event["id"])
 
+    async def internal_player_disconnected(self, event: dict[str,Any]):
+        await self.con_manager.broadcast(event["notify"], {"type": "info", "message": "player_disconnected", "nickname": event["nickname"]})
+
+    async def internal_room_destroyed(self, event: dict[str,Any]):
+        await self.con_manager.broadcast(event["notify"], {"type": "info", "message": "room_destroyed"})
+        
+
     def __init__(self, con_manager: ConnectionManager, game_manager: GameManager) -> None:
         self.con_manager = con_manager
         self.game_manager = game_manager
@@ -55,11 +62,13 @@ class EventHandler:
         
         self.external_handlers["host"] = self.handle_host
         self.external_handlers["game_start"] = self.handle_game_start
-        self.external_handlers["join"] = self.handle_join # REJESTRUJEMY JOIN
+        self.external_handlers["join"] = self.handle_join
         
         self.internal_handlers["game_start"] = self.internal_game_start
         self.internal_handlers["disconnect"] = self.internal_disconnect
-        self.internal_handlers["player_joined"] = self.internal_player_joined # REJESTRUJEMY PLAYER_JOINED
+        self.internal_handlers["player_joined"] = self.internal_player_joined
+        self.internal_handlers["player_disconnected"] = self.internal_player_disconnected
+        self.internal_handlers["room_destroyed"] = self.internal_room_destroyed
 
     async def handle(self, event: dict[str,Any], source: str):
         tp = event.get("type")
