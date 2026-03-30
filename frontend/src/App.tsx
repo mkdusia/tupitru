@@ -1,26 +1,97 @@
 import './App.css'
+import { useState, useRef } from 'react';
+
+import MainView from './components/MainView';
+import WaitingView from './components/WaitingView';
+import HostRoomView from './components/HostRoomView';
 
 function App() {
-  return (
-    <div className="app-container">
-      <h1 className='title'>Tupitru!</h1>
-      <div className='wrapper'>
-        <label className='label'>Nickname: </label>
-        <input name="nick" className='inputtext'/>
+
+  const ws = useRef<WebSocket | null>(null);
+
+  const [view, setView] = useState('main');
+
+  const [nick, setNick] = useState('')
+  const [roomCode, setRoomCode] = useState('')
+
+  const [currentRoomCode, setCurrentRoomCode] = useState(null);
+  const [players, setPlayers] = useState<string[]>([]);
+
+  const connectWebSocket = (role: string, onOpenCallback: () => void ) => {
+    ws.current = new WebSocket("ws://localhost:8000/ws");
+
+    ws.current.onopen = onOpenCallback;
+    
+    ws.current.onmessage = (event: { data: string; }) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "success" && data.room_id) {
+        setCurrentRoomCode(data.room_id);
+        window.history.pushState({}, "", "/room/" + data.room_id);
         
-        <label className='label'>Room code:</label> 
-        <input name="room" className='inputtext'/>
-        
-        <button className='button'>
-          Join
-        </button>
-      
-        <h2>.</h2>
-        <h4>Want to start a new game?</h4>
-        <button className='button'>Create room</button>
-      </div>
-    </div>
-  )
+        if (role === 'host') {
+          setNick(`host[${data.room_id}]`);
+          setRoomCode(data.room_id);
+          setView('hostroom'); 
+        } else {
+          setView('waiting');
+        }
+      }
+
+      if (data.type === "info" && data.message === "player_joined") {
+        setPlayers((prevPlayers) => [...prevPlayers, data.nickname]);
+      }
+
+      if (data.type === "error") {
+        alert("Error: " + data.message);
+      }
+    };
+  };
+
+  const handleHostGame = () => {
+    connectWebSocket('host', ()=>{
+      ws.current?.send(JSON.stringify({type: "host"}));
+    });
+  };
+
+  const handleJoinGame = () => { 
+    if(!roomCode || !nick) return alert("Enter the code and the nickname");
+
+    connectWebSocket('player', () => {
+      ws.current?.send(JSON.stringify({
+        type: "join",
+        room_id: roomCode,
+        nickname: nick
+      }));
+    }); 
+  }
+
+
+  if(view=='main'){
+    return (
+      <MainView 
+        setRoomCode={setRoomCode} 
+        setNick={setNick} 
+        handleJoinGame={handleJoinGame} 
+        handleHostGame={handleHostGame} 
+      />
+    );
+  }
+
+  if(view == 'waiting'){
+    return (
+      <WaitingView/>
+    )
+  }
+  
+  if(view == 'hostroom'){
+    return (
+      <HostRoomView
+        roomCode={currentRoomCode}
+        players={players}
+        />
+    )
+  }
 }
 
 export default App
