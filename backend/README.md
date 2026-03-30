@@ -6,7 +6,7 @@ Written in Python with FastAPI.
 python3 -m venv .venv # create the virtual environment
 source .venv/bin/activate
 python -m pip install --upgrade pip
-pip install -r requirements.tex
+pip install -r requirements.txt
 fastapi dev
 ```
 
