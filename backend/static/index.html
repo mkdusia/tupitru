@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Tupitru - Gra</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .view { display: none; }
+        .active { display: block; }
+        ul { list-style-type: none; padding: 0; }
+        li { background: #eee; margin: 5px auto; padding: 10px; width: 200px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="main-view" class="view active">
+        <h1>Tupitru</h1>
+        <button onclick="hostGame()">Zostań Hostem</button>
+        <br><br>
+        <button onclick="showJoinMenu()">Dołącz do gry</button>
+    </div>
+
+    <div id="join-view" class="view">
+        <h1>Dołączanie</h1>
+        <input type="text" id="roomCodeInput" placeholder="Kod pokoju (10 cyfr)">
+        <br><br>
+        <input type="text" id="nicknameInput" placeholder="Twój Nick">
+        <br><br>
+        <button onclick="joinGame()">Połącz</button>
+    </div>
+
+    <div id="room-view" class="view">
+        <h1 id="roomTitle">Pokój: <span id="roomCodeDisplay">...</span></h1>
+        <h3 id="waitingMessage">Oczekiwanie na graczy...</h3>
+        
+        <ul id="playersList">
+            </ul>
+        
+        <button id="startGameBtn" style="display:none;" onclick="startGame()">Rozpocznij Grę</button>
+    </div>
+
+    <div id="game-view" class="view">
+        <h1 id="gameStatusMessage">...</h1>
+    </div>
+
+    <script>
+        let ws = null;
+        let isHost = false;
+        let currentRoomId = null;
+
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        function showJoinMenu() {
+            showView('join-view');
+        }
+
+        function connectWebSocket(onOpenCallback) {
+            ws = new WebSocket("ws://localhost:8000/ws");
+            
+            ws.onopen = onOpenCallback;
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                console.log("Odebrano:", data);
+
+                if (data.type === "success" && data.room_id) {
+                    currentRoomId = data.room_id;
+                    document.getElementById('roomCodeDisplay').innerText = data.room_id;
+                    window.history.pushState({}, "", "/room/" + currentRoomId);
+                    showView('room-view');
+                    
+                    if (isHost) {
+                        document.getElementById('startGameBtn').style.display = "inline-block";
+                    } else {
+                        document.getElementById('waitingMessage').innerText = "Czekaj, aż host wystartuje grę...";
+                    }
+                }
+
+                if (data.type === "info" && data.message === "player_joined") {
+                    const ul = document.getElementById('playersList');
+                    const li = document.createElement('li');
+                    li.innerText = data.nickname;
+                    ul.appendChild(li);
+                }
+
+                if (data.type === "info" && data.message === "Game start") {
+                    showView('game-view'); 
+                    
+                    const statusMsg = document.getElementById('gameStatusMessage');
+                    if (isHost) {
+                        statusMsg.innerText = "Gra rozpoczęta, poczekaj na planszę...";
+                    } else {
+                        statusMsg.innerText = "Gra rozpoczęta, patrz na ekran hosta!";
+                    }
+                }
+
+                if (data.type === "error") {
+                    alert("Błąd: " + data.message);
+                }
+            };
+        }
+
+        function hostGame() {
+            isHost = true;
+            connectWebSocket(() => {
+                ws.send(JSON.stringify({ type: "host" }));
+            });
+        }
+
+        function joinGame() {
+            isHost = false;
+            const code = document.getElementById('roomCodeInput').value;
+            const nick = document.getElementById('nicknameInput').value;
+            
+            if (!code || !nick) return alert("Wpisz kod i nick!");
+
+            connectWebSocket(() => {
+                ws.send(JSON.stringify({ 
+                    type: "join", 
+                    room_id: code, 
+                    nickname: nick 
+                }));
+            });
+        }
+
+        function startGame() {
+            ws.send(JSON.stringify({ type: "game_start", room_id: currentRoomId }));
+        }
+        window.onload = function() {
+            const path = window.location.pathname;
+            
+            if (path.startsWith("/room/")) {
+                const parts = path.split("/");
+                const roomIdFromUrl = parts[2];
+                
+                if (roomIdFromUrl) {
+                    document.getElementById('roomCodeInput').value = roomIdFromUrl;
+                    showJoinMenu();
+                }
+            }
+        };
+    </script>
+</body>
+</html>
