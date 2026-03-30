@@ -31,3 +31,10 @@
 .label {
   
 }
+
+.info-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
