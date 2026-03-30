@@ -16,14 +16,14 @@ return (
           <input 
             name="nick" 
             className='inputtext'
-            onChange={(event) => setRoomCode(event.target.value)}
+            onChange={(event) => setNick(event.target.value)}
             />
           
           <label className='label'>Room code:</label> 
           <input 
             name="room" 
             className='inputtext'
-            onChange={(event)=> setNick(event.target.value)}  
+            onChange={(event)=> setRoomCode(event.target.value)}  
           />
           
           <button className='button' onClick={handleJoinGame}>
