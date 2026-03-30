@@ -42,6 +42,10 @@ function App() {
         setPlayers((prevPlayers) => [...prevPlayers, data.nickname]);
       }
 
+      if (data.type === "info" && data.message === "player_disconnected") {
+        setPlayers((prevPlayers) => prevPlayers.filter((player) => player !== data.nickname));
+      }
+
       if (data.type === "error") {
         alert("Error: " + data.message);
       }
@@ -66,6 +70,12 @@ function App() {
     }); 
   }
 
+  const handleWaitingViewExit = () => {
+    ws.current?.close();
+    
+    setView('main');
+  }
+
 
   if(view=='main'){
     return (
@@ -83,6 +93,7 @@ function App() {
       <WaitingView
         nick={nick}
         roomCode={currentRoomCode}
+        handleExit={handleWaitingViewExit}
       />
     )
   }

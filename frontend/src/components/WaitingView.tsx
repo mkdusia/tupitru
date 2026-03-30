@@ -3,12 +3,13 @@ import '../App.css'
 interface WaitingViewProps {
     nick : string | null
     roomCode : string | null
+    handleExit: () => void;
 }
 
-function WaitingView({nick, roomCode} : WaitingViewProps) {
+function WaitingView({nick, roomCode, handleExit} : WaitingViewProps) {
   return (
     <div className="app-container">
-        <h1 className='title'>Tupitru</h1>
+        <h1 className='title'>Tupitru!</h1>
         
         <div className='wrapper'>
         
@@ -24,7 +25,7 @@ function WaitingView({nick, roomCode} : WaitingViewProps) {
 
           <h3 style={{ marginTop: '20px' }}>Waiting for host to start the game...</h3>
 
-          <button className='button'>Exit</button>
+          <button className='button' onClick={handleExit}>Exit</button>
 
         </div>
     </div>

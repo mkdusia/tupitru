@@ -8,7 +8,7 @@ interface HostRoomViewProps {
 function HostRoomView({roomCode, players} : HostRoomViewProps) {
 return (
       <div className="app-container">
-        <h1 className='title'>Game code:{roomCode}</h1>
+        <h1 className='title'>Game code: {roomCode}</h1>
 
         <div className='wrapper'>
         <h3>Already joined:</h3>
