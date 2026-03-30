@@ -80,7 +80,10 @@ function App() {
 
   if(view == 'waiting'){
     return (
-      <WaitingView/>
+      <WaitingView
+        nick={nick}
+        roomCode={currentRoomCode}
+      />
     )
   }
   
@@ -89,7 +92,7 @@ function App() {
       <HostRoomView
         roomCode={currentRoomCode}
         players={players}
-        />
+      />
     )
   }
 }
