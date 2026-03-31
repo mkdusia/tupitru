@@ -3,3 +3,38 @@
   background-color: rgb(9, 57, 45);
   margin: 0;
 }
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.button {
+  width: 10%;
+}
+
+.inputtext {
+    margin: 10px auto;
+    width: 20%;
+}
+
+.label {
+  
+}
+
+.info-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
