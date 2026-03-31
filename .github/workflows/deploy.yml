@@ -1,0 +1,22 @@
+name: "Deploy main on tupitru.tfkls.dev"
+on:
+  push:
+    branches:
+    - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-main
+      cancel-in-progress: false
+    name: "Deploy main on tupitru.tfkls.dev"
+    steps:
+    - name: Set up the SSH key
+      run: |
+        install -m 600 -D /dev/null ~/.ssh/id_ed25519
+        echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+        ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+    - name: Build the container
+      run: ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'nix build --refresh --no-link github:mkdusia/tupitru/main#nixosConfigurations.container.config.system.build.toplevel'
+    - name: Deploy the container
+      run: ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'sudo /run/current-system/sw/bin/extra-container create /srv/pub/tupitru/deploy.nix -s -u'
