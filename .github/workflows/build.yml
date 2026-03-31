@@ -1,0 +1,27 @@
+name: "Build"
+on:
+  pull_request:
+  push:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        action:
+        - name: "flake sanity check"
+          run: "nix flake check"
+        - name: "frontend"
+          run: "nix build .#frontend"
+        - name: "backend"
+          run: "nix build .#backend"
+        - name: "container image"
+          run: "nix build .#nixosConfigurations.container.config.system.build.toplevel"
+    name: Build ${{ matrix.action.name }}
+    steps:
+    - uses: actions/checkout@v5
+    - uses: cachix/install-nix-action@v31
+      with:
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
+    - run: ${{ matrix.action.run }}
