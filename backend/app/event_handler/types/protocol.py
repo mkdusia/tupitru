@@ -1,6 +1,7 @@
 from typing import Protocol
-from ConnectionManager import ConnectionManager
-from GameManager import GameManager
+from app.ConnectionManager import ConnectionManager
+from app.GameManager import GameManager
+
 
 class EventHandlerProtocol(Protocol):
     con_manager: ConnectionManager
