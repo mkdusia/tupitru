@@ -1,6 +1,6 @@
 from app.event_handler.router import internal_event
-from app.event_handler.types.internal import InternalGameStartEvent, PlayerJoinedEvent
-from app.event_handler.types.protocol import EventHandlerProtocol
+from app.event_handler.schemas.internal import InternalGameStartEvent, PlayerJoinedEvent
+from app.event_handler.schemas.protocol import EventHandlerProtocol
 
 
 @internal_event("game_start", InternalGameStartEvent)

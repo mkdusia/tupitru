@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .ConnectionManager import ConnectionManager
 from .event_handler import EventHandler
-from .GameManager import GameManager
+from .game_state.GameManager import GameManager
 
 app = FastAPI()
 app.mount(

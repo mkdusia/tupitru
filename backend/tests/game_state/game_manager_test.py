@@ -1,6 +1,6 @@
 import uuid
 import pytest
-from app.GameManager import GameManager
+from app.game_state.GameManager import GameManager
 
 
 @pytest.mark.asyncio

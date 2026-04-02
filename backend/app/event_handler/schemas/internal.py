@@ -34,3 +34,10 @@ class PropagateErrorEvent(BaseModel):
     type: Literal["propagate_error"]
     message: str
     recipient: UUID
+
+
+class WinnerAnnouncementEvent(BaseModel):
+    type: Literal["winner_announcement"]
+    nickname: str
+    answer: int
+    notify: list[UUID]
