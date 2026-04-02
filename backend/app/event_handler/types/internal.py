@@ -28,3 +28,9 @@ class PlayerDisconnectEvent(BaseModel):
 class RoomDestroyedEvent(BaseModel):
     type: Literal["room_destroyed"]
     notify: list[UUID]
+
+
+class PropagateErrorEvent(BaseModel):
+    type: Literal["propagate_error"]
+    message: str
+    recipient: UUID

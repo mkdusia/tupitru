@@ -8,9 +8,9 @@ async def handle_join(handler: EventHandlerProtocol, event: JoinEvent) -> None:
     success = await handler.game_manager.join(event.id, event.room_id, event.nickname)
     if success:
         await handler.con_manager.send(
-            event.id, {"type": "success", "message": "joined", "room_id": event.room_id}
+            event.id, {"type": "success", "message": "join", "room_id": event.room_id}
         )
     else:
         await handler.con_manager.send(
-            event.id, {"type": "error", "message": "No room with this PIN"}
+            event.id, {"type": "error", "message": "No room with this PIN."}
         )

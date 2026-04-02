@@ -50,8 +50,22 @@ class GameManager:
     async def game_start(self, host_id: UUID, room_id: str) -> None:
         room = self.rooms.get(room_id)
         if room is None:
+            await self.emit_event(
+                {
+                    "type": "propagate_error",
+                    "message": "There is no room with this id.",
+                    "recipient": host_id,
+                }
+            )
             return
         if room.host != host_id:
+            await self.emit_event(
+                {
+                    "type": "propagate_error",
+                    "message": "You are not the host.",
+                    "recipient": host_id,
+                }
+            )
             return
         to_notify = list(room.players.keys())
         to_notify.append(room.host)
