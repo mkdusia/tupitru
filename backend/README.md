@@ -1,13 +1,19 @@
 # Tupitru backend
-Written in Python with FastAPI.
+Written in Python with [FastAPI](https://fastapi.tiangolo.com/), using [uv](https://docs.astral.sh/uv/) as a package manager.
 
 ## Setup
+Ensure you have `uv` installed and run the following.
 ```bash
-python3 -m venv .venv # create the virtual environment
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-fastapi dev
+uv sync # loads the dependencies from the uv.lock file and creates a virtual environment at .venv
+```
+
+After that you can use:
+```bash
+uv run mypy . # runs the typechecker mypy on the current directory
+uv run ruff check # runs the ruff linter on the project
+uv run ruff format # runs the ruff formatter
+uv run pytest # runs the pytest testing suite
+uv run fastapi dev # run the application in dev environment
 ```
 
 ## Usage
