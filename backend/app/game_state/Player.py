@@ -6,3 +6,4 @@ class Player:
         self.nickname: str = nickname
         self.id: UUID = id
         self.answer: int = -1
+        self.points = 0

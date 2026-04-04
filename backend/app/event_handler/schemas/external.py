@@ -17,15 +17,10 @@ class JoinEvent(ExternalEvent):
     nickname: str
 
 
-class GameStartEvent(ExternalEvent):
-    type: Literal["game_start"]
-    room_id: str
+class ChangeStateEvent(ExternalEvent):
+    type: Literal["change_state"]
 
 
 class AnswerEvent(ExternalEvent):
     type: Literal["answer"]
     answer: int
-
-
-class TimeUpEvent(ExternalEvent):
-    type: Literal["time_up"]

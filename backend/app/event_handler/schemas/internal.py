@@ -12,6 +12,8 @@ class PlayerJoinedEvent(BaseModel):
     type: Literal["player_joined"]
     notify: list[UUID]
     nickname: str
+    player_id: UUID
+    room_id: str
 
 
 class DisconnectEvent(BaseModel):
@@ -36,8 +38,16 @@ class PropagateErrorEvent(BaseModel):
     recipient: UUID
 
 
-class WinnerAnnouncementEvent(BaseModel):
-    type: Literal["winner_announcement"]
-    nickname: str
-    answer: int
+class InternalGameEndEvent(BaseModel):
+    type: Literal["game_end"]
     notify: list[UUID]
+
+
+class AwaitingResponseEvent(BaseModel):
+    type: Literal["awaiting_response"]
+    notify: list[UUID]
+
+
+class RespondEvent(BaseModel):
+    type: Literal["respond"]
+    notify: UUID
