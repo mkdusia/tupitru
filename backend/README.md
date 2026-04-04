@@ -22,12 +22,15 @@ The app uses WebSockets for real-time client-server communication. The client se
 ### List of types
 #### Client-types
 - `host`: Host a room. The server returns `room_id` that is a 10 digit number.
-- `game_start`: Start the game in a room. Requires appropriate `room_id`. Sends back an info to the host and the players or an error to the sender if the room doesn't exist, the sender isn't the host or the game has already started.
+- `change_state`: Change the game state in the room you are a host of. Sends back an info to the host and the players or an error to the sender if the room doesn't exist or the sender isn't the host. Changing state means starting the game, ending the time for player's responses or changing the player who shows their answer.
 - `join`: Join a room. Requires appropriate `room_id` and `nickname`. Sends back an info to the host and the players or an error to the sender if the room doesn't exist.
-- `answer`: Give the answer to a game instance. Requires `answer` that is an integer. Sends back an error to the sender if they aren't taking a part in a game. Sending a non-positive value clears the answer.
-- `time_up`: Finish a round. Sends back an error to the sender if they aren't a host of an ongoing game.
+- `answer`: Give the answer to a game round. Requires `answer` that is an integer. Sends back an error to the sender if they aren't taking a part in a game. Sending a non-positive value clears the answer.
 
 #### Server-types (messages)
 - `player_disconnected`: A player has disconnected from your room. Sends their `nickname`.
 - `room_destroyed`: The host of your room has disconnected.
-- `winner_announcement`: A winner of a round has been decided. Gets sent to the host and the winner, contains the `nickname` of the winner and their `answer`.
+- `game_start`: The game in your room was started.
+- `player_joined`: A player with the nickname `nickname` entered your room.
+- `game_end`: The game in your room ended.
+- `awaiting_response`: The game awaits a solution from the player who claimed the best solution.
+- `respond`: You are the player who claimed the best solution. You are expected to provide the solution.
