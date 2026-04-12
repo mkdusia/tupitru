@@ -5,6 +5,20 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-root.url = "github:srid/flake-root";
+    uv2nix = {
+      url = "github:pyproject-nix/uv2nix";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -27,16 +41,21 @@
             config,
             ...
           }:
+          let
+            backendArgs = {
+              inherit (inputs) uv2nix pyproject-nix pyproject-build-systems;
+            };
+          in
           {
             devShells.frontend = pkgs.callPackage ./frontend/devshell.nix {
               flakeRoot = config.flake-root.devShell;
             };
-            devShells.backend = pkgs.callPackage ./backend/devshell.nix {
-              flakeRoot = config.flake-root.devShell;
-            };
+            devShells.backend = pkgs.callPackage ./backend/devshell.nix (
+              backendArgs // { flakeRoot = config.flake-root.devShell; }
+            );
 
             packages.frontend = pkgs.callPackage ./frontend/package.nix { };
-            packages.backend = pkgs.callPackage ./backend/package.nix { };
+            packages.backend = pkgs.callPackage ./backend/package.nix backendArgs;
           };
         flake = rec {
           nixosModules = rec {
