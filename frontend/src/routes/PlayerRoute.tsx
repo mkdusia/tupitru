@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 
 import WaitingView from '../components/player/WaitingView';
 import AnswerView from '../components/player/AnswerView';
+import RespondView from '../components/player/RespondView';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 export default function PlayerRoute() {
@@ -50,13 +51,17 @@ export default function PlayerRoute() {
                 setCurrentAnswer(answer);
             }
 
-            if (data.message === "room_destroyed") {
+            if (data.type === "info" && data.message === "room_destroyed") {
                 navigate('/', { state: { previousNick: nick } });
                 alert("Room was destroyed.");
             }
 
             if (data.type === "info" && data.message === "game_start") {
                 setStatus('playing');
+            }
+
+            if (data.type === "info" && data.message === "respond") {
+                setStatus('showing_solution')
             }
 
             if (data.type === "error") {
@@ -99,11 +104,21 @@ export default function PlayerRoute() {
         );
     }
 
-    return (
-      <WaitingView
-        nick={nick}
-        roomCode={roomCode}
-        handleExit={handleWaitingViewExit}
-      />
-    )
+    if (status === 'waiting') {
+        return (
+            <WaitingView
+                nick={nick}
+                roomCode={roomCode}
+                handleExit={handleWaitingViewExit}
+            />
+        );
+    }
+
+    if (status === "showing_solution") {
+        return (
+            <RespondView
+                answer={current_answer}
+            />
+        );
+    }
 }

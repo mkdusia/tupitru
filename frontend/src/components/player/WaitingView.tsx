@@ -1,4 +1,4 @@
-import '../App.css'
+import '../../App.css'
 import TupitruTitle from '../Title'
 
 interface WaitingViewProps {
