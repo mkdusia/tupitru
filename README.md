@@ -9,7 +9,7 @@ The stars of the game are colourful moles. In every round, one of the moles need
 
 * **Join the Party:** Other players connect via their own smartphones/devices.
 
-* **Visit:** *[Link to be inserted here]* and join the game!
+* **Visit:** [Tupitru!](https://tupitru.tfkls.dev/) and join the game!
 
 ## $\color{#87bf4b}{\text{Rules}}$
 [To be revealed]
