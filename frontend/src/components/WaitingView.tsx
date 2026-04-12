@@ -3,7 +3,7 @@ import TupitruTitle from './Title'
 
 interface WaitingViewProps {
     nick : string | null
-    roomCode : string | null
+    roomCode : string | undefined
     handleExit: () => void;
 }
 

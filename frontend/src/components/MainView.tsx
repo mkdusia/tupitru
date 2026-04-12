@@ -3,13 +3,14 @@ import TupitruTitle from './Title';
 
 interface MainViewProps {
   roomCode: string;
+  savedNick: string;
   setRoomCode: (roomCode: string) => void;
   setNick: (nick: string) => void;
   handleJoinGame: () => void;
   handleHostGame: () => void;
 }
 
-function MainView({roomCode, setRoomCode, setNick, handleJoinGame, handleHostGame} : MainViewProps) {
+function MainView({roomCode, savedNick, setRoomCode, setNick, handleJoinGame, handleHostGame} : MainViewProps) {
 return (
       <div className="app-container">
         <TupitruTitle/>
@@ -17,6 +18,7 @@ return (
           <label className='label'>Nickname: </label>
           <input 
             name="nick" 
+            value={savedNick}
             className='inputtext'
             onChange={(event) => setNick(event.target.value)}
             />
