@@ -1,8 +1,8 @@
 import '../App.css'
 import { useState, useEffect, useRef } from 'react';
 
-import WaitingView from '../components/WaitingView';
-import AnswerView from '../components/AnswerView';
+import WaitingView from '../components/player/WaitingView';
+import AnswerView from '../components/player/AnswerView';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 export default function PlayerRoute() {

@@ -1,5 +1,5 @@
 import '../App.css'
-import TupitruTitle from './Title'
+import TupitruTitle from '../Title'
 
 interface WaitingViewProps {
     nick : string | null

@@ -1,7 +1,7 @@
 import '../App.css'
 import { useState, useEffect, useRef } from 'react';
 
-import HostRoomView from '../components/HostRoomView';
+import HostRoomView from '../components/host/HostRoomView';
 import { useNavigate, useParams} from 'react-router';
 
 export default function HostRoute() {

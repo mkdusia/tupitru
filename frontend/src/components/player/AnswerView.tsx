@@ -1,5 +1,5 @@
 import '../App.css'
-import TupitruTitle from './Title';
+import TupitruTitle from '../Title';
 
 interface AnswerViewProps {
   current_answer: number;
