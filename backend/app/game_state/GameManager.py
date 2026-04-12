@@ -1,4 +1,3 @@
-from typing import Any, Awaitable, Callable
 from uuid import UUID
 from secrets import randbelow
 from .Room import Room
@@ -13,7 +12,7 @@ class GameManager:
         self.player_room: dict[UUID, str]
         self.player_room = {}
 
-    def set_emitter(self, emitter: Callable[[dict[str, Any]], Awaitable[None]]) -> None:
+    def set_emitter(self, emitter: Emitter) -> None:
         self.emit_event = emitter
 
     async def no_action_error(self, id: UUID) -> None:
@@ -75,7 +74,7 @@ class GameManager:
             self.rooms.pop(room_id)
             await self.emit_event({"type": "room_destroyed", "notify": abandoned_players})
         else:
-            name = room.players[player_id]
+            name = room.players[player_id].nickname
             room.remove_player(player_id)
             to_notify = list(room.players.keys())
             to_notify.append(room.host)
