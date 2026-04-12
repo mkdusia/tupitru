@@ -25,10 +25,8 @@ export default function PlayerRoute() {
         
         const socket = new WebSocket("ws://localhost:8000/ws");
         ws.current = socket;
-        console.log("INICJALIZACJA");
 
         socket.onopen = () => {
-            console.log("OTWARTE");
             if (socket.readyState === WebSocket.OPEN) {
                 socket.send(JSON.stringify({
                 type: "join",
@@ -41,7 +39,7 @@ export default function PlayerRoute() {
         socket.onmessage = (event: { data: string; }) => {
             const data = JSON.parse(event.data);
 
-            console.log("DATAAAAA: "+data.type + " " + data.message);
+            console.log(data.type + " " + data.message);
             
             if(data.type === "success" && data.message === "join"){
                 setStatus('waiting');

@@ -52,9 +52,7 @@ export default function HostRoute() {
         };
 
         return () => {
-            console.log("ROOM DESTROYED");
             if (socket.readyState === WebSocket.OPEN) {
-                console.log("JESTEM TU");
                 socket.send(JSON.stringify({ type: "room_destroyed" }));
                 navigate('/');
             }
@@ -71,7 +69,6 @@ export default function HostRoute() {
             ws.current.send(JSON.stringify({
                 type: "change_state"
             }));
-            console.log("STARTING...");
             setStatus('start_game');
         }
     }
