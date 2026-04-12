@@ -25,7 +25,7 @@ function App() {
     ws.current.onmessage = (event: { data: string; }) => {
       const data = JSON.parse(event.data);
 
-      if (data.type === "success" && data.room_id) {
+      if (data.type === "success" && data.message === "host") {
         setCurrentRoomCode(data.room_id);
         window.history.pushState({}, "", "/room/" + data.room_id);
         

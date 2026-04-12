@@ -1,4 +1,5 @@
 import '../App.css'
+import TupitruTitle from './Title';
 
 interface MainViewProps {
   setRoomCode: (roomCode: string) => void;
@@ -10,7 +11,7 @@ interface MainViewProps {
 function MainView({setRoomCode, setNick, handleJoinGame, handleHostGame} : MainViewProps) {
 return (
       <div className="app-container">
-        <h1 className='title'>Tupitru!</h1>
+        <TupitruTitle/>
         <div className='wrapper'>
           <label className='label'>Nickname: </label>
           <input 

@@ -1,4 +1,5 @@
 import '../App.css'
+import TupitruTitle from './Title'
 
 interface WaitingViewProps {
     nick : string | null
@@ -9,8 +10,8 @@ interface WaitingViewProps {
 function WaitingView({nick, roomCode, handleExit} : WaitingViewProps) {
   return (
     <div className="app-container">
-        <h1 className='title'>Tupitru!</h1>
-        
+        <TupitruTitle/>
+      
         <div className='wrapper'>
         
           <div className="info-row">
