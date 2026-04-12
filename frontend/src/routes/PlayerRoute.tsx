@@ -13,7 +13,8 @@ export default function PlayerRoute() {
 
     const ws = useRef<WebSocket | null>(null);
     const [status, setStatus] = useState('connecting');
-    const [answer, setAnswer] = useState(-1);
+    const [answer, setAnswer] = useState(0);
+    const [current_answer, setCurrentAnswer] = useState(0)
 
     useEffect(()=> {
         if (!nick || !roomCode) {
@@ -45,6 +46,10 @@ export default function PlayerRoute() {
                 setStatus('waiting');
             }
 
+            if(data.type === "success" && data.message == "answer"){
+                setCurrentAnswer(answer);
+            }
+
             if (data.message === "room_destroyed") {
                 navigate('/', { state: { previousNick: nick } });
                 alert("Room was destroyed.");
@@ -73,13 +78,13 @@ export default function PlayerRoute() {
     }
 
     const handleSendAnswer = () => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({
-            type: "answer",
-            answer: answer
-        }));
-    }
-};
+        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+            ws.current.send(JSON.stringify({
+                type: "answer",
+                answer: answer
+            }));
+        }
+    };
 
     if (status === 'connecting') 
         return <div>Connecting...</div>;
@@ -87,6 +92,7 @@ export default function PlayerRoute() {
     if (status === 'playing') {
         return (
             <AnswerView 
+                current_answer={current_answer}
                 setAnswer={setAnswer} 
                 handleSendAnswer={handleSendAnswer} 
             />
