@@ -14,6 +14,7 @@ export default function PlayerRoute() {
 
     const ws = useRef<WebSocket | null>(null);
     const [status, setStatus] = useState('connecting');
+    const [countdown, setCountdown] = useState(5);
     const [answer, setAnswer] = useState(0);
     const [current_answer, setCurrentAnswer] = useState(0)
 
@@ -25,6 +26,15 @@ export default function PlayerRoute() {
         
         const socket = new WebSocket("ws://localhost:8000/ws");
         ws.current = socket;
+
+        const connectingTimeout = setTimeout(() => {
+            alert("Room not found or session has expired.");
+            navigate('/');
+        }, 5000);
+
+        const countdownInterval = setInterval(() => {
+            setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
 
         socket.onopen = () => {
             if (socket.readyState === WebSocket.OPEN) {
@@ -40,6 +50,11 @@ export default function PlayerRoute() {
             const data = JSON.parse(event.data);
 
             console.log(data.type + " " + data.message);
+
+            if (data.type === "success" || data.type === "error") {
+                clearTimeout(connectingTimeout);
+                clearInterval(countdownInterval); // Stopujemy licznik przy sukcesie
+            }
             
             if(data.type === "success" && data.message === "join"){
                 setStatus('waiting');
@@ -68,7 +83,16 @@ export default function PlayerRoute() {
             }
         };
 
+        socket.onclose = (event) => {
+            if (!event.wasClean) {
+                clearTimeout(connectingTimeout);
+                navigate('/');
+            }
+        };
+
         return () => {
+            clearTimeout(connectingTimeout);
+            clearInterval(countdownInterval);
             socket.close();
             if(socket === ws.current){
                 ws.current = null;
@@ -90,7 +114,12 @@ export default function PlayerRoute() {
     };
 
     if (status === 'connecting') 
-        return <div>Connecting...</div>;
+        return (
+        <div className="wrapper">
+            <h1>Connecting...</h1>
+            <p>Remaining seconds to connect: <strong>{countdown}s</strong></p>
+        </div>
+    );
 
     if (status === 'playing') {
         return (
