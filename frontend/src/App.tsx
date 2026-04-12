@@ -1,5 +1,5 @@
 import './App.css'
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import MainView from './components/MainView';
 import WaitingView from './components/WaitingView';
@@ -10,16 +10,38 @@ function App() {
 
   const ws = useRef<WebSocket | null>(null);
 
+  const [roomCode, setRoomCode] = useState(() => {
+    const path = window.location.pathname;
+    if (path.startsWith("/room/")) {
+      return path.replace("/room/", "");
+    }
+    return '';
+  });
+
   const [view, setView] = useState('main');
-
   const [nick, setNick] = useState('')
-  const [roomCode, setRoomCode] = useState('')
-
   const [currentRoomCode, setCurrentRoomCode] = useState(null);
   const [players, setPlayers] = useState<string[]>([]);
 
   const [answer, setAnswer] = useState(-1);
 
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      
+      if (path === "/" || path === "") {
+        setView('main');
+        
+        if (ws.current) {
+          ws.current.close();
+          ws.current = null;
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const connectWebSocket = (role: string, onOpenCallback: () => void ) => {
     ws.current = new WebSocket("ws://localhost:8000/ws");
@@ -30,6 +52,7 @@ function App() {
       const data = JSON.parse(event.data);
 
       console.log(data.type+" "+data.message);
+
       if (data.type === "success" && (data.message === "host" || data.message === "join")) {
         setCurrentRoomCode(data.room_id);
         window.history.pushState({}, "", "/room/" + data.room_id);
@@ -90,7 +113,8 @@ function App() {
 
   const handleWaitingViewExit = () => {
     ws.current?.close();
-    
+    ws.current = null;
+    window.history.pushState({}, "", "/");
     setView('main');
   }
 
@@ -106,6 +130,7 @@ function App() {
   if(view=='main') {
     return (
       <MainView 
+        roomCode={roomCode}
         setRoomCode={setRoomCode} 
         setNick={setNick} 
         handleJoinGame={handleJoinGame} 
