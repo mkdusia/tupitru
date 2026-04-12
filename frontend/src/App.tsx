@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import MainView from './components/MainView';
 import WaitingView from './components/WaitingView';
 import HostRoomView from './components/HostRoomView';
+import AnswerView from './components/AnswerView';
 
 function App() {
 
@@ -16,6 +17,9 @@ function App() {
 
   const [currentRoomCode, setCurrentRoomCode] = useState(null);
   const [players, setPlayers] = useState<string[]>([]);
+
+  const [answer, setAnswer] = useState(-1);
+
 
   const connectWebSocket = (role: string, onOpenCallback: () => void ) => {
     ws.current = new WebSocket("ws://localhost:8000/ws");
@@ -45,6 +49,19 @@ function App() {
 
       if (data.type === "info" && data.message === "player_disconnected") {
         setPlayers((prevPlayers) => prevPlayers.filter((player) => player !== data.nickname));
+      }
+
+      if(data.type == "info" && data.message === "room_destroyed") {
+        setView('main');
+      }
+
+      if(data.type == "info" && data.message === "game_start") {
+        if(role === 'host') {
+
+        }
+        else {
+          setView('answer');
+        }
       }
 
       if (data.type === "error") {
@@ -77,8 +94,16 @@ function App() {
     setView('main');
   }
 
+  const handleSendAnswer = () => {
+    connectWebSocket('player', () => {
+      ws.current?.send(JSON.stringify({
+        type: "answer",
+        answer: answer,
+      }));
+    });
+  }
 
-  if(view=='main'){
+  if(view=='main') {
     return (
       <MainView 
         setRoomCode={setRoomCode} 
@@ -89,7 +114,7 @@ function App() {
     );
   }
 
-  if(view == 'waiting'){
+  if(view == 'waiting') {
     return (
       <WaitingView
         nick={nick}
@@ -99,11 +124,20 @@ function App() {
     )
   }
   
-  if(view == 'hostroom'){
+  if(view == 'hostroom') {
     return (
       <HostRoomView
         roomCode={currentRoomCode}
         players={players}
+      />
+    )
+  }
+
+  if(view == 'answer') {
+    return (
+      <AnswerView
+        setAnswer={setAnswer}
+        handleSendAnswer={handleSendAnswer}
       />
     )
   }
