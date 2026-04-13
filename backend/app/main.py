@@ -15,6 +15,7 @@ game_manager = GameManager()
 event_handler = EventHandler(con_manager, game_manager)
 game_manager.set_emitter(lambda event: event_handler.handle(event, "internal"))
 
+
 @app.websocket("/ws")
 async def host_endpoint(socket: WebSocket) -> None:
     id = await con_manager.connect(socket)

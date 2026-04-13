@@ -92,8 +92,6 @@ class GameManager:
             await self.no_action_error(player_id)
             return
         room.set_answer(player_id, answer)
-        await self.emit_event({
-            "type" : "answer_saved",
-            "notify" : [player_id, room.host],
-            "player_id": player_id
-        })
+        await self.emit_event(
+            {"type": "answer_saved", "notify": [player_id, room.host], "player_id": player_id}
+        )
