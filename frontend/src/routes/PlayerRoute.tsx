@@ -8,6 +8,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 export default function PlayerRoute() {
     const navigate = useNavigate();
+    const baseUrl = import.meta.env.VITE_BASE_URL;
     const { roomId: roomCode } = useParams();
     const [searchParams] = useSearchParams();
     const nick = searchParams.get('nick') || "";
@@ -24,7 +25,7 @@ export default function PlayerRoute() {
             return;
         }
         
-        const socket = new WebSocket("ws://localhost:8000/ws");
+        const socket = new WebSocket(baseUrl);
         ws.current = socket;
 
         const connectingTimeout = setTimeout(() => {

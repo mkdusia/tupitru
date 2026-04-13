@@ -7,7 +7,8 @@ import { useNavigate, useParams} from 'react-router-dom';
 
 export default function HostRoute() {
     const navigate = useNavigate();
-    const currentURL = window.location.href;
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+    // const currentURL = window.location.href;
 
     const { roomId: roomCode } = useParams();
 
@@ -20,7 +21,7 @@ export default function HostRoute() {
     useEffect(()=> {
         if (ws.current) return;
         
-        const socket = new WebSocket("ws://localhost:8000/ws");
+        const socket = new WebSocket(baseUrl);
         ws.current = socket;
 
         socket.onopen = () => {
@@ -97,7 +98,7 @@ export default function HostRoute() {
         players={players}
         handleStartGame={handleGameStart}
         handleCloseRoom={handleCloseRoom}
-        currentURL={currentURL}
+        currentURL='https://kwejk.pl/obrazek/3295329/peppepepa.html'
       />
     )
 }
