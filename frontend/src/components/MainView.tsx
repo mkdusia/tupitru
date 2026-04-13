@@ -1,20 +1,24 @@
 import '../App.css'
+import TupitruTitle from './Title';
 
 interface MainViewProps {
+  roomCode: string;
+  savedNick: string;
   setRoomCode: (roomCode: string) => void;
   setNick: (nick: string) => void;
   handleJoinGame: () => void;
   handleHostGame: () => void;
 }
 
-function MainView({setRoomCode, setNick, handleJoinGame, handleHostGame} : MainViewProps) {
+function MainView({roomCode, savedNick, setRoomCode, setNick, handleJoinGame, handleHostGame} : MainViewProps) {
 return (
       <div className="app-container">
-        <h1 className='title'>Tupitru!</h1>
+        <TupitruTitle/>
         <div className='wrapper'>
           <label className='label'>Nickname: </label>
           <input 
             name="nick" 
+            value={savedNick}
             className='inputtext'
             onChange={(event) => setNick(event.target.value)}
             />
@@ -22,6 +26,7 @@ return (
           <label className='label'>Room code:</label> 
           <input 
             name="room" 
+            value={roomCode}
             className='inputtext'
             onChange={(event)=> setRoomCode(event.target.value)}  
           />
