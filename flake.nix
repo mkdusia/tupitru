@@ -72,30 +72,51 @@
             );
           };
 
-          nixosConfigurations.container = withSystem "x86_64-linux" (
-            {
-              config,
-              inputs',
-              self',
-              ...
-            }:
-            inputs.nixpkgs.lib.nixosSystem {
-              system = "x86_64-linux";
+          nixosConfigurations =
+            let
+              mkContainer =
+                {
+                  hostname,
+                  useWSS,
+                }:
+                withSystem "x86_64-linux" (
+                  {
+                    config,
+                    inputs',
+                    self',
+                    ...
+                  }:
+                  inputs.nixpkgs.lib.nixosSystem {
+                    system = "x86_64-linux";
 
-              modules = [
-                {
-                  boot.isNspawnContainer = true;
-                  networking.firewall.allowedTCPPorts = [ 80 ];
-                  system.stateVersion = "25.11";
-                }
-                nixosModules.tupitru
-                {
-                  services.tupitru.enable = true;
-                  services.tupitru.hostname = "localhost";
-                }
-              ];
-            }
-          );
+                    modules = [
+                      {
+                        boot.isNspawnContainer = true;
+                        networking.firewall.allowedTCPPorts = [ 80 ];
+                        system.stateVersion = "25.11";
+                      }
+                      nixosModules.tupitru
+                      {
+                        services.tupitru = {
+                          enable = true;
+                          frontend.useWSS = useWSS;
+                          inherit hostname;
+                        };
+                      }
+                    ];
+                  }
+                );
+            in
+            {
+              container = mkContainer {
+                hostname = "localhost";
+                useWSS = false;
+              };
+              _cicd = mkContainer {
+                hostname = "tupitru.tfkls.dev";
+                useWSS = true;
+              };
+            };
         };
       }
     );

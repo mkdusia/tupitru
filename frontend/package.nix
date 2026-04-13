@@ -1,21 +1,41 @@
-{
-  buildNpmPackage,
-  bash,
-  nodejs,
-  importNpmLock,
-}@attrs:
-buildNpmPackage {
-  pname = "tupitru-frontend";
-  inherit ((builtins.fromJSON (builtins.readFile ./package.json))) version;
-  inherit (importNpmLock) npmConfigHook;
-  inherit (attrs) nodejs;
+let
+  mkPackage =
+    {
+      backendHost ? "localhost",
+      useWSS ? false,
 
-  src = ./.;
-  npmDeps = importNpmLock {
-    npmRoot = ./.;
-  };
-  installPhase = ''
-    mkdir -p $out
-    cp -r ./dist/* $out/
-  '';
-}
+      buildNpmPackage,
+      nodejs,
+      importNpmLock,
+    }@attrs:
+    let
+      backendUrl = "ws${if useWSS then "s" else ""}://${backendHost}/ws";
+    in
+    buildNpmPackage {
+      passthru = {
+        withConfig =
+          {
+            backendHost ? "localhost",
+            useWSS ? false,
+          }@args:
+          mkPackage (attrs // args);
+      };
+
+      pname = "tupitru-frontend";
+      inherit ((builtins.fromJSON (builtins.readFile ./package.json))) version;
+      inherit (importNpmLock) npmConfigHook;
+      inherit (attrs) nodejs;
+
+      VITE_BASE_URL = backendUrl;
+
+      src = ./.;
+      npmDeps = importNpmLock {
+        npmRoot = ./.;
+      };
+      installPhase = ''
+        mkdir -p $out
+        cp -r ./dist/* $out/
+      '';
+    };
+in
+mkPackage

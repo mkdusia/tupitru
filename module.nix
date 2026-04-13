@@ -49,7 +49,7 @@ in
           example = "0.0.0.0";
           description = ''
             To which addresses should the backend server bind to.
-            Defaults due to the expected use of reverse-proxy.
+            Defaults to localhost (127.0.0.1) due to the expected use of reverse-proxy.
           '';
         };
         extraFlags = mkOption {
@@ -61,10 +61,25 @@ in
       };
       frontend = {
         package = lib.mkOption {
-          default = frontend;
+          default = frontend.withConfig {
+            backendHost = this.hostname;
+            inherit (this.frontend) useWSS;
+          };
+          defaultText = literalExpression ''
+            frontend.withConfig {
+              backendHost = config.services.tupitru.hostname;
+              useWSS = config.services.tupitru.frontend.useWSS;
+            }'';
           example = literalExpression "pkgs.my-tupitru-frontend";
           type = types.package;
           description = "Compiled frontend package to serve via the proxy.";
+        };
+        useWSS = lib.mkOption {
+          type = types.bool;
+          default = this.forceSSL;
+          defaultText = literalExpression "config.services.tupitru.forceSSL";
+          example = true;
+          description = "Whether the frontend should use secure websockets when connecting to the backend";
         };
       };
       hostname = lib.mkOption {
@@ -72,11 +87,9 @@ in
         type = types.str;
         description = "Hostname for the Tupitru! frontend & backend to be served on";
       };
-
       forceSSL = lib.mkOption {
         type = types.bool;
-        default = config.services.tupitru.hostname != "localhost";
-        defaultText = literalExpression "config.services.tupitru.hostname != \"localhost\"";
+        default = false;
         example = false;
         description = "Whether to force users to use HTTPS by redirecting them from the HTTP port.";
       };
