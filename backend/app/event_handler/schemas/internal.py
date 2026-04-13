@@ -53,7 +53,15 @@ class RespondEvent(BaseModel):
     notify: UUID
 
 
-class AnswerSavedEvent(BaseModel):
-    type: Literal["answer_saved"]
+class AnswerEvent(BaseModel):
+    type: Literal["answer"]
     notify: list[UUID]
     player_id: UUID
+    nickname: str
+    answer: int
+
+
+class PropagateError(BaseModel):
+    type: Literal["propagate_error"]
+    message: str
+    recipient: UUID

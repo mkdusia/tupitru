@@ -26,6 +26,9 @@ class Room:
         if player in self.players:
             self.players.pop(player)
 
+    def get_player(self, player: UUID) -> Player | None:
+        return self.players.get(player)
+
     def can_change_state(self, host: UUID) -> bool:
         return self.host == host
 

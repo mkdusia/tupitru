@@ -1,7 +1,4 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
-from pathlib import Path
 
 from .ConnectionManager import ConnectionManager
 from .event_handler import EventHandler

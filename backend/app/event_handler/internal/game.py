@@ -1,10 +1,10 @@
 from app.event_handler.router import internal_event
 from app.event_handler.schemas.protocol import EventHandlerProtocol
 from app.event_handler.schemas.internal import (
+    AnswerEvent,
     AwaitingResponseEvent,
     InternalGameEndEvent,
     RespondEvent,
-    AnswerSavedEvent,
 )
 
 
@@ -27,9 +27,17 @@ async def respond_event(handler: EventHandlerProtocol, event: RespondEvent) -> N
     await handler.con_manager.send(event.notify, {"type": "info", "message": "respond"})
 
 
-@internal_event("answer_saved", AnswerSavedEvent)
-async def handle_answer_saved(handler: EventHandlerProtocol, event: AnswerSavedEvent) -> None:
-    for uid in event.notify:
-        await handler.con_manager.send(
-            uid, {"type": "answer_confirmed", "player_id": str(event.player_id)}
-        )
+@internal_event("answer", AnswerEvent)
+async def handle_answer_saved(handler: EventHandlerProtocol, event: AnswerEvent) -> None:
+    await handler.con_manager.broadcast(
+        event.notify,
+        {
+            "type": "info",
+            "message": "player_answered",
+            "nickname": event.nickname,
+            "answer": event.answer,
+        },
+    )
+    await handler.con_manager.send(
+        event.player_id, {"type": "success", "message": "answer", "answer": event.answer}
+    )
