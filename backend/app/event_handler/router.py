@@ -1,6 +1,6 @@
 from typing import Callable, Awaitable, Type, TypeVar, Any
 from pydantic import BaseModel
-from app.event_handler.types.protocol import EventHandlerProtocol
+from app.event_handler.schemas.protocol import EventHandlerProtocol
 
 T = TypeVar("T", bound=BaseModel)
 HandlerFunc = Callable[[EventHandlerProtocol, T], Awaitable[None]]

@@ -1,16 +1,13 @@
 from app.event_handler.router import external_event
-from app.event_handler.types.external import JoinEvent
-from app.event_handler.types.protocol import EventHandlerProtocol
+from app.event_handler.schemas.external import AnswerEvent, JoinEvent
+from app.event_handler.schemas.protocol import EventHandlerProtocol
 
 
 @external_event("join", JoinEvent)
 async def handle_join(handler: EventHandlerProtocol, event: JoinEvent) -> None:
-    success = await handler.game_manager.join(event.id, event.room_id, event.nickname)
-    if success:
-        await handler.con_manager.send(
-            event.id, {"type": "success", "message": "joined", "room_id": event.room_id}
-        )
-    else:
-        await handler.con_manager.send(
-            event.id, {"type": "error", "message": "No room with this PIN"}
-        )
+    await handler.game_manager.join(event.id, event.room_id, event.nickname)
+
+
+@external_event("answer", AnswerEvent)
+async def handle_answer(handler: EventHandlerProtocol, event: AnswerEvent) -> None:
+    await handler.game_manager.answer(event.id, event.answer)

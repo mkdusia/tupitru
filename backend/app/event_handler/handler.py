@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import ValidationError
 from app.ConnectionManager import ConnectionManager
-from app.GameManager import GameManager
+from app.game_state.GameManager import GameManager
 from app.event_handler.router import external_registry, internal_registry
 
 

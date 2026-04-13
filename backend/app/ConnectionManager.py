@@ -16,11 +16,11 @@ class ConnectionManager:
     def disconnect(self, id: UUID) -> None:
         self.user_id.pop(id)
 
-    async def send(self, id: UUID, data: dict[str, str]) -> None:
+    async def send(self, id: UUID, data: dict[str, str | int]) -> None:
         if id in self.user_id:
             await self.user_id[id].send_json(data)
 
-    async def broadcast(self, ids: list[UUID], data: dict[str, str]) -> None:
+    async def broadcast(self, ids: list[UUID], data: dict[str, str | int]) -> None:
         for id in ids:
             try:
                 await self.send(id, data)

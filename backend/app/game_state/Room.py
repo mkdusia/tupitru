@@ -1,0 +1,68 @@
+from typing import Awaitable, Callable
+from uuid import UUID
+from .schemas import RoomStatus
+from .Player import Player
+from app.schemas import Emitter
+
+
+class Room:
+    def __init__(self, host: UUID) -> None:
+        self.host = host
+
+        self.players: dict[UUID, Player] = {}
+        self.state: RoomStatus = "awaiting_start"
+        self.ranking: list[Player] = []
+        self.current_respondent: Player
+        self.change_state: dict[RoomStatus, Callable[[Emitter], Awaitable[None]]] = {
+            "awaiting_start": self.start_game,
+            "awaiting_answers": self.settle_round,
+            "settling_round": self.next_player,
+        }
+
+    def add_player(self, player: UUID, nickname: str) -> None:
+        self.players[player] = Player(player, nickname)
+
+    def remove_player(self, player: UUID) -> None:
+        if player in self.players:
+            self.players.pop(player)
+
+    def get_player(self, player: UUID) -> Player | None:
+        return self.players.get(player)
+
+    def can_change_state(self, host: UUID) -> bool:
+        return self.host == host
+
+    def can_answer(self, id: UUID) -> bool:
+        return not (self.state != "awaiting_answers" or self.players.get(id) is None)
+
+    def set_answer(self, player: UUID, answer: int) -> None:
+        self.players[player].answer = answer
+
+    async def start_game(self, emitter: Emitter) -> None:
+        self.state = "awaiting_answers"
+        to_notify = list(self.players.keys())
+        to_notify.append(self.host)
+        await emitter({"type": "game_start", "notify": to_notify})
+
+    async def settle_round(self, emitter: Emitter) -> None:
+        self.state = "settling_round"
+        self.ranking = list(self.players.values())
+        self.ranking = list(filter(lambda player: player.answer > 0, self.ranking))
+        self.ranking.sort(key=lambda player: player.answer, reverse=True)
+        await self.next_player(emitter)
+
+    async def next_player(self, emitter: Emitter) -> None:
+        to_notify = list(self.players.keys())
+        to_notify.append(self.host)
+        if len(self.ranking) == 0:
+            self.state = "game_ended"
+            await emitter({"type": "game_end", "notify": to_notify})
+            return
+
+        self.current_respondent = self.ranking.pop()
+        to_notify.remove(self.current_respondent.id)
+        await emitter({"type": "awaiting_response", "notify": to_notify})
+        await emitter({"type": "awaiting_response", "notify": self.current_respondent.id})
+
+    async def next_stage(self, emitter: Emitter) -> None:
+        await self.change_state[self.state](emitter)

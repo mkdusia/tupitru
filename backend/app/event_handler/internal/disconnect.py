@@ -1,10 +1,10 @@
 from app.event_handler.router import internal_event
-from app.event_handler.types.internal import (
+from app.event_handler.schemas.internal import (
     DisconnectEvent,
     PlayerDisconnectEvent,
     RoomDestroyedEvent,
 )
-from app.event_handler.types.protocol import EventHandlerProtocol
+from app.event_handler.schemas.protocol import EventHandlerProtocol
 
 
 @internal_event("disconnect", DisconnectEvent)
