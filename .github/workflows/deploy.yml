@@ -17,6 +17,6 @@ jobs:
         echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_ed25519
         ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
     - name: Build the container
-      run: ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'nix build --refresh --no-link github:mkdusia/tupitru/main#nixosConfigurations.container.config.system.build.toplevel'
+      run: ssh tupitru@${{ secrets.DEPLOY_HOST }} 'nix build --refresh github:mkdusia/tupitru/main#nixosConfigurations.container.config.system.build.toplevel'
     - name: Deploy the container
-      run: ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'sudo /run/current-system/sw/bin/extra-container create /srv/pub/tupitru/deploy.nix -s -u'
+      run: ssh tupitru@${{ secrets.DEPLOY_HOST }} 'sudo /run/current-system/sw/bin/extra-container create /srv/pub/tupitru/deploy.nix -s -u'
