@@ -3,10 +3,12 @@ import { useState, useEffect, useRef } from 'react';
 
 import HostRoomView from '../components/host/HostRoomView';
 import GameView from '../components/host/GameView';
-import { useNavigate, useParams} from 'react-router';
+import { useNavigate, useParams} from 'react-router-dom';
 
 export default function HostRoute() {
     const navigate = useNavigate();
+    const currentURL = window.location.href;
+
     const { roomId: roomCode } = useParams();
 
     const ws = useRef<WebSocket | null>(null);
@@ -95,6 +97,7 @@ export default function HostRoute() {
         players={players}
         handleStartGame={handleGameStart}
         handleCloseRoom={handleCloseRoom}
+        currentURL={currentURL}
       />
     )
 }
