@@ -51,3 +51,8 @@ class AwaitingResponseEvent(BaseModel):
 class RespondEvent(BaseModel):
     type: Literal["respond"]
     notify: UUID
+
+class AnswerSavedEvent(BaseModel):
+    type: Literal["answer_saved"]
+    notify: list[UUID]
+    player_id: UUID

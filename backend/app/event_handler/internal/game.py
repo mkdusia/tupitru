@@ -4,6 +4,7 @@ from app.event_handler.schemas.internal import (
     AwaitingResponseEvent,
     InternalGameEndEvent,
     RespondEvent,
+    AnswerSavedEvent
 )
 
 
@@ -24,3 +25,15 @@ async def awaiting_response_event(
 @internal_event("respond", RespondEvent)
 async def respond_event(handler: EventHandlerProtocol, event: RespondEvent) -> None:
     await handler.con_manager.send(event.notify, {"type": "info", "message": "respond"})
+
+
+@internal_event("answer_saved", AnswerSavedEvent)
+async def handle_answer_saved(handler: EventHandlerProtocol, event: AnswerSavedEvent) -> None:
+    for uid in event.notify:
+        await handler.con_manager.send(
+            uid, 
+            {
+                "type": "answer_confirmed", 
+                "player_id": str(event.player_id)
+            }
+        )
