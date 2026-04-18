@@ -46,6 +46,7 @@ class InternalGameEndEvent(BaseModel):
 class AwaitingResponseEvent(BaseModel):
     type: Literal["awaiting_response"]
     notify: list[UUID]
+    respondent: str
 
 
 class RespondEvent(BaseModel):
@@ -65,3 +66,21 @@ class PropagateError(BaseModel):
     type: Literal["propagate_error"]
     message: str
     recipient: UUID
+
+
+class ResponseReceivedEvent(BaseModel):
+    type: Literal["response_received"]
+    notify: list[UUID]
+    player_id: UUID
+
+
+class GiveUpEvent(BaseModel):
+    type: Literal["give_up"]
+    notify: list[UUID]
+    player_id: UUID
+
+
+class RevertEvent(BaseModel):
+    type: Literal["revert"]
+    notify: list[UUID]
+    player_id: UUID

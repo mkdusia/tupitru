@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Literal
 from uuid import UUID
+from app.game_state.schemas import Mole, Direction
 
 
 class ExternalEvent(BaseModel):
@@ -24,3 +25,17 @@ class ChangeStateEvent(ExternalEvent):
 class AnswerEvent(ExternalEvent):
     type: Literal["answer"]
     answer: int
+
+
+class RespondEvent(ExternalEvent):
+    type: Literal["respond"]
+    mole: Mole
+    direction: Direction
+
+
+class GiveUpEvent(ExternalEvent):
+    type: Literal["give_up"]
+
+
+class RevertEvent(ExternalEvent):
+    type: Literal["revert"]

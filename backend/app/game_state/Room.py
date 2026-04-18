@@ -1,6 +1,8 @@
 from typing import Awaitable, Callable
 from uuid import UUID
-from .schemas import RoomStatus
+
+from .BoardState import BoardState
+from .schemas import Direction, Mole, RoomStatus
 from .Player import Player
 from app.schemas import Emitter
 
@@ -18,6 +20,7 @@ class Room:
             "awaiting_answers": self.settle_round,
             "settling_round": self.next_player,
         }
+        self.board_state = BoardState()
 
     def add_player(self, player: UUID, nickname: str) -> None:
         self.players[player] = Player(player, nickname)
@@ -61,8 +64,42 @@ class Room:
 
         self.current_respondent = self.ranking.pop()
         to_notify.remove(self.current_respondent.id)
-        await emitter({"type": "awaiting_response", "notify": to_notify})
-        await emitter({"type": "awaiting_response", "notify": self.current_respondent.id})
+        await emitter(
+            {
+                "type": "awaiting_response",
+                "notify": to_notify,
+                "respondent": self.current_respondent.nickname,
+            }
+        )
+        await emitter({"type": "respond", "notify": self.current_respondent.id})
 
     async def next_stage(self, emitter: Emitter) -> None:
         await self.change_state[self.state](emitter)
+
+    def respond(self, player: UUID, mole: Mole, direction: Direction) -> bool:
+        if self.state != "settling_round" or player != self.current_respondent.id:
+            return False
+        pl = self.players[player]
+        if self.board_state.moves < pl.answer:
+            self.board_state.modify(mole, direction)
+        return True
+
+    def is_response_full(self) -> bool:
+        return self.state == "settling_round" and self.board_state.finish_state()
+
+    def end_settling(self) -> None:
+        if self.state == "settling_round":
+            self.board_state.flush()
+            self.ranking = []
+
+    def give_up(self, player: UUID) -> bool:
+        if self.state != "settling_round" or player != self.current_respondent.id:
+            return False
+        self.board_state.clear()
+        return True
+
+    def revert_move(self, player: UUID) -> bool:
+        if self.state != "settling_round" or player != self.current_respondent.id:
+            return False
+        self.board_state.revert()
+        return True

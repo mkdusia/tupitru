@@ -3,8 +3,11 @@ from app.event_handler.schemas.protocol import EventHandlerProtocol
 from app.event_handler.schemas.internal import (
     AnswerEvent,
     AwaitingResponseEvent,
+    GiveUpEvent,
     InternalGameEndEvent,
     RespondEvent,
+    ResponseReceivedEvent,
+    RevertEvent,
 )
 
 
@@ -18,7 +21,7 @@ async def awaiting_response_event(
     handler: EventHandlerProtocol, event: AwaitingResponseEvent
 ) -> None:
     await handler.con_manager.broadcast(
-        event.notify, {"type": "info", "message": "awaiting_response"}
+        event.notify, {"type": "info", "message": "awaiting_response", "from": event.respondent}
     )
 
 
@@ -41,3 +44,25 @@ async def handle_answer_saved(handler: EventHandlerProtocol, event: AnswerEvent)
     await handler.con_manager.send(
         event.player_id, {"type": "success", "message": "answer", "answer": event.answer}
     )
+
+
+@internal_event("response_received", ResponseReceivedEvent)
+async def response_event(handler: EventHandlerProtocol, event: ResponseReceivedEvent) -> None:
+    await handler.con_manager.broadcast(
+        event.notify, {"type": "info", "message": "player_responded"}
+    )
+    await handler.con_manager.send(event.player_id, {"type": "success", "message": "respond"})
+
+
+@internal_event("give_up", GiveUpEvent)
+async def give_up_event(handler: EventHandlerProtocol, event: GiveUpEvent) -> None:
+    await handler.con_manager.broadcast(event.notify, {"type": "info", "message": "player_gave_up"})
+    await handler.con_manager.send(event.player_id, {"type": "success", "message": "give_up"})
+
+
+@internal_event("revert", RevertEvent)
+async def revert_event(handler: EventHandlerProtocol, event: RevertEvent) -> None:
+    await handler.con_manager.broadcast(
+        event.notify, {"type": "info", "message": "player_reverted"}
+    )
+    await handler.con_manager.send(event.player_id, {"type": "success", "message": "revert"})
