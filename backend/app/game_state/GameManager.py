@@ -119,8 +119,7 @@ class GameManager:
             }
         )
         if room.is_response_full():
-            room.end_settling()
-            await room.next_stage(self.emit_event)
+            await room.win_round(self.emit_event)
 
     async def give_up(self, player_id: UUID) -> None:
         room = self.get_room(player_id)

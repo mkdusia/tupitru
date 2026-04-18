@@ -8,6 +8,7 @@ from app.event_handler.schemas.internal import (
     RespondEvent,
     ResponseReceivedEvent,
     RevertEvent,
+    WinnerEvent,
 )
 
 
@@ -79,3 +80,11 @@ async def revert_event(handler: EventHandlerProtocol, event: RevertEvent) -> Non
     await handler.con_manager.send(
         event.player_id, {"type": "success", "message": "revert", "board": event.board.model_dump()}
     )
+
+
+@internal_event("announce_winner", WinnerEvent)
+async def winner_event(handler: EventHandlerProtocol, event: WinnerEvent) -> None:
+    await handler.con_manager.broadcast(
+        event.notify, {"type": "info", "message": "winner", "nickname": event.nickname}
+    )
+    await handler.con_manager.send(event.player_id, {"type": "info", "message": "won"})

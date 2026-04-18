@@ -89,3 +89,10 @@ class RevertEvent(BaseModel):
     notify: list[UUID]
     player_id: UUID
     board: BoardData
+
+
+class WinnerEvent(BaseModel):
+    type: Literal["announce_winner"]
+    notify: list[UUID]
+    player_id: UUID
+    nickname: str

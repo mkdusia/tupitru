@@ -41,6 +41,8 @@ The app uses WebSockets for real-time client-server communication. The client se
 - `response_received`: A step of the response was given by the appropriate player. `board` is the current board.
 - `player_gave_up`: The player giving the response gave up. `board` is the current board.
 - `player_reverted`: A step of the response was taken back. `board` is the current board.
+- `winner`: The player `nickname` won the round.
+- `won`: You won the round.
 
 ### Board description
 TODO

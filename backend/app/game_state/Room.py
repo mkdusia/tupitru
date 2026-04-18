@@ -87,6 +87,20 @@ class Room:
     def is_response_full(self) -> bool:
         return self.state == "settling_round" and self.board_state.finish_state()
 
+    async def win_round(self, emitter: Emitter) -> None:
+        if self.state == "settling_round":
+            self.current_respondent.points += 1
+            await emitter(
+                {
+                    "type": "announce_winner",
+                    "notify": [self.host],
+                    "player_id": self.current_respondent.id,
+                    "nickname": self.current_respondent.nickname,
+                }
+            )
+            self.end_settling()
+            await self.next_stage(emitter)
+
     def end_settling(self) -> None:
         if self.state == "settling_round":
             self.board_state.flush()
