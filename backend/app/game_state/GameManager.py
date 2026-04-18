@@ -149,3 +149,11 @@ class GameManager:
                 "board": room.board_state.data,
             }
         )
+
+    async def skip(self, host_id: UUID) -> None:
+        room = self.get_room(host_id)
+        if room is None or not room.can_skip_round(host_id):
+            await self.error(host_id, "You do not have permission to perform this action.")
+            return
+        room.end_settling()
+        await room.next_stage(self.emit_event)

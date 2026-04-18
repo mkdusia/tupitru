@@ -23,6 +23,7 @@ The app uses WebSockets for real-time client-server communication. The client se
 #### Client-types
 - `host`: Host a room. The server returns `room_id` that is a 10 digit number.
 - `change_state`: Change the game state in the room you are a host of. Sends back an info to the host and the players or an error to the sender if the room doesn't exist or the sender isn't the host. Changing state means starting the game, ending the time for player's responses or changing the player who shows their answer.
+- `skip_round`: Skip the current round. Can only be performed by the host when the players present their solutions. Otherwise sends back an error.
 - `join`: Join a room. Requires appropriate `room_id` and `nickname`. Sends back an info to the host and the players or an error to the sender if the room doesn't exist.
 - `answer`: Give the answer to a game round. Requires `answer` that is an integer. Sends back an error to the sender if they aren't taking a part in a game. Sending a non-positive value clears the answer. Sends back the saved `answer` to the sender and informs the host.
 - `respond`: Give a step of your response. Takes `mole` and `direction` that are integers representing the move. Sends back an error if the action is not permitted. Sends back the current `board`.

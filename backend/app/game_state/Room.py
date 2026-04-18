@@ -35,6 +35,9 @@ class Room:
     def can_change_state(self, host: UUID) -> bool:
         return self.host == host
 
+    def can_skip_round(self, host: UUID) -> bool:
+        return self.host == host and self.state == "settling_round"
+
     def can_answer(self, id: UUID) -> bool:
         return not (self.state != "awaiting_answers" or self.players.get(id) is None)
 

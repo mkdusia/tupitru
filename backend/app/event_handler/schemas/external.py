@@ -39,3 +39,7 @@ class GiveUpEvent(ExternalEvent):
 
 class RevertEvent(ExternalEvent):
     type: Literal["revert"]
+
+
+class SkipEvent(ExternalEvent):
+    type: Literal["skip_round"]
