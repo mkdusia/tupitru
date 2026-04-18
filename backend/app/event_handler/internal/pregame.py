@@ -5,7 +5,9 @@ from app.event_handler.schemas.protocol import EventHandlerProtocol
 
 @internal_event("game_start", InternalGameStartEvent)
 async def internal_game_start(handler: EventHandlerProtocol, event: InternalGameStartEvent) -> None:
-    await handler.con_manager.broadcast(event.notify, {"type": "info", "message": "game_start"})
+    await handler.con_manager.broadcast(
+        event.notify, {"type": "info", "message": "game_start", "board": event.board.model_dump()}
+    )
 
 
 @internal_event("player_joined", PlayerJoinedEvent)

@@ -111,7 +111,12 @@ class GameManager:
             await self.error(player_id, "You cannot give your response now.")
             return
         await self.emit_event(
-            {"type": "response_received", "notify": [room.host], "player_id": player_id}
+            {
+                "type": "response_received",
+                "notify": [room.host],
+                "player_id": player_id,
+                "board": room.board_state.data,
+            }
         )
         if room.is_response_full():
             room.end_settling()
@@ -122,7 +127,14 @@ class GameManager:
         if room is None or not room.give_up(player_id):
             await self.error(player_id, "You cannot end your response now.")
             return
-        await self.emit_event({"type": "give_up", "notify": [room.host], "player_id": player_id})
+        await self.emit_event(
+            {
+                "type": "give_up",
+                "notify": [room.host],
+                "player_id": player_id,
+                "board": room.board_state.data,
+            }
+        )
         await room.next_stage(self.emit_event)
 
     async def revert_move(self, player_id: UUID) -> None:
@@ -130,4 +142,11 @@ class GameManager:
         if room is None or not room.revert_move(player_id):
             await self.error(player_id, "You cannot revert your move.")
             return
-        await self.emit_event({"type": "revert", "notify": [room.host], "player_id": player_id})
+        await self.emit_event(
+            {
+                "type": "revert",
+                "notify": [room.host],
+                "player_id": player_id,
+                "board": room.board_state.data,
+            }
+        )

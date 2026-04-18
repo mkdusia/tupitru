@@ -49,20 +49,33 @@ async def handle_answer_saved(handler: EventHandlerProtocol, event: AnswerEvent)
 @internal_event("response_received", ResponseReceivedEvent)
 async def response_event(handler: EventHandlerProtocol, event: ResponseReceivedEvent) -> None:
     await handler.con_manager.broadcast(
-        event.notify, {"type": "info", "message": "player_responded"}
+        event.notify,
+        {"type": "info", "message": "player_responded", "board": event.board.model_dump()},
     )
-    await handler.con_manager.send(event.player_id, {"type": "success", "message": "respond"})
+    await handler.con_manager.send(
+        event.player_id,
+        {"type": "success", "message": "respond", "board": event.board.model_dump()},
+    )
 
 
 @internal_event("give_up", GiveUpEvent)
 async def give_up_event(handler: EventHandlerProtocol, event: GiveUpEvent) -> None:
-    await handler.con_manager.broadcast(event.notify, {"type": "info", "message": "player_gave_up"})
-    await handler.con_manager.send(event.player_id, {"type": "success", "message": "give_up"})
+    await handler.con_manager.broadcast(
+        event.notify,
+        {"type": "info", "message": "player_gave_up", "board": event.board.model_dump()},
+    )
+    await handler.con_manager.send(
+        event.player_id,
+        {"type": "success", "message": "give_up", "board": event.board.model_dump()},
+    )
 
 
 @internal_event("revert", RevertEvent)
 async def revert_event(handler: EventHandlerProtocol, event: RevertEvent) -> None:
     await handler.con_manager.broadcast(
-        event.notify, {"type": "info", "message": "player_reverted"}
+        event.notify,
+        {"type": "info", "message": "player_reverted", "board": event.board.model_dump()},
     )
-    await handler.con_manager.send(event.player_id, {"type": "success", "message": "revert"})
+    await handler.con_manager.send(
+        event.player_id, {"type": "success", "message": "revert", "board": event.board.model_dump()}
+    )

@@ -1,5 +1,8 @@
 from fastapi import WebSocket
 from uuid import uuid4, UUID
+from typing import Any
+
+Data = dict[str, str | int | dict[str, Any]]
 
 
 class ConnectionManager:
@@ -16,11 +19,11 @@ class ConnectionManager:
     def disconnect(self, id: UUID) -> None:
         self.user_id.pop(id)
 
-    async def send(self, id: UUID, data: dict[str, str | int]) -> None:
+    async def send(self, id: UUID, data: Data) -> None:
         if id in self.user_id:
             await self.user_id[id].send_json(data)
 
-    async def broadcast(self, ids: list[UUID], data: dict[str, str | int]) -> None:
+    async def broadcast(self, ids: list[UUID], data: Data) -> None:
         for id in ids:
             try:
                 await self.send(id, data)

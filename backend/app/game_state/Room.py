@@ -45,7 +45,7 @@ class Room:
         self.state = "awaiting_answers"
         to_notify = list(self.players.keys())
         to_notify.append(self.host)
-        await emitter({"type": "game_start", "notify": to_notify})
+        await emitter({"type": "game_start", "notify": to_notify, "board": self.board_state.data})
 
     async def settle_round(self, emitter: Emitter) -> None:
         self.state = "settling_round"

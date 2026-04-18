@@ -24,20 +24,23 @@ The app uses WebSockets for real-time client-server communication. The client se
 - `host`: Host a room. The server returns `room_id` that is a 10 digit number.
 - `change_state`: Change the game state in the room you are a host of. Sends back an info to the host and the players or an error to the sender if the room doesn't exist or the sender isn't the host. Changing state means starting the game, ending the time for player's responses or changing the player who shows their answer.
 - `join`: Join a room. Requires appropriate `room_id` and `nickname`. Sends back an info to the host and the players or an error to the sender if the room doesn't exist.
-- `answer`: Give the answer to a game round. Requires `answer` that is an integer. Sends back an error to the sender if they aren't taking a part in a game. Sending a non-positive value clears the answer. Sends back the saved answer to the sender and informs the host.
-- `respond`: Give a step of your response. Takes `mole` and `direction` that are integers representing the move. Sends back an error if the action is not permitted.
-- `give_up`: Give up trying to prove your answer. Sends back an error if the action is not permitted.
-- `revert`: Revert the previous step in your response. Sends back an error if the action is not permitted.
+- `answer`: Give the answer to a game round. Requires `answer` that is an integer. Sends back an error to the sender if they aren't taking a part in a game. Sending a non-positive value clears the answer. Sends back the saved `answer` to the sender and informs the host.
+- `respond`: Give a step of your response. Takes `mole` and `direction` that are integers representing the move. Sends back an error if the action is not permitted. Sends back the current `board`.
+- `give_up`: Give up trying to prove your answer. Sends back an error if the action is not permitted. Sends back the current `board`.
+- `revert`: Revert the previous step in your response. Sends back an error if the action is not permitted. Sends back the current `board`.
 
 #### Server-types (messages)
 - `player_disconnected`: A player has disconnected from your room. Sends their `nickname`.
 - `room_destroyed`: The host of your room has disconnected.
-- `game_start`: The game in your room was started.
+- `game_start`: The game in your room was started. `board` is the current game board.
 - `player_joined`: A player with the nickname `nickname` entered your room.
 - `game_end`: The game in your room ended.
 - `awaiting_response`: The game awaits a solution from the player who claimed the best solution.
 - `respond`: You are the player who claimed the best solution. You are expected to provide the solution.
 - `player_answered`: The player `nickname` gave answer `answer`.
-- `response_received`: A step of the response was given by the appropriate player.
-- `player_gave_up`: The player giving the response gave up.
-- `player_reverted`: A step of the response was taken back.
+- `response_received`: A step of the response was given by the appropriate player. `board` is the current board.
+- `player_gave_up`: The player giving the response gave up. `board` is the current board.
+- `player_reverted`: A step of the response was taken back. `board` is the current board.
+
+### Board description
+TODO

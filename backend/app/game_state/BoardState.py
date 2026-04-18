@@ -1,4 +1,9 @@
+from pydantic import BaseModel
 from app.game_state.schemas import Direction, Mole
+
+
+class BoardData(BaseModel):
+    pass
 
 
 class BoardState:
@@ -20,3 +25,7 @@ class BoardState:
 
     def revert(self) -> None:
         pass
+
+    @property
+    def data(self) -> BoardData:
+        return BoardData()
