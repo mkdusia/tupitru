@@ -54,7 +54,7 @@ export default function PlayerRoute() {
 
             if (data.type === "success" || data.type === "error") {
                 clearTimeout(connectingTimeout);
-                clearInterval(countdownInterval); // Stopujemy licznik przy sukcesie
+                clearInterval(countdownInterval);
             }
             
             if(data.type === "success" && data.message === "join"){
