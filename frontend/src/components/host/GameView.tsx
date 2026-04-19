@@ -1,4 +1,5 @@
 import '../../App.css'
+import GameWrapper from './GameWrapper';
 
 interface GameViewProps {
     totalPlayers: number;
@@ -16,6 +17,7 @@ return (
           {players.length} / {totalPlayers} 
           {/*some type of placeholder */}
         </h2>
+      <GameWrapper></GameWrapper>
       </div>
     </div>
   );
