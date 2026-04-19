@@ -1,5 +1,6 @@
 import '../App.css'
 import { useState, useEffect, useRef } from 'react';
+import type { PlayerAnswer } from '../types';
 
 import HostRoomView from '../components/host/HostRoomView';
 import GameView from '../components/host/GameView';
@@ -17,6 +18,8 @@ export default function HostRoute() {
     const [status, setStatus] = useState('waiting_for_players');
     const [currentRoomCode, setCurrentRoomCode] = useState(null);
     const [players, setPlayers] = useState<string[]>([]);
+
+    const [playersAnswered, setPlayersAnswered] = useState<PlayerAnswer[]>([]);
     
     useEffect(()=> {
         if (ws.current) return;
@@ -46,6 +49,27 @@ export default function HostRoute() {
 
             if (data.type === "info" && data.message === "player_disconnected") {
                 setPlayers((prevPlayers) => prevPlayers.filter((player) => player !== data.nickname));
+            }
+
+            if(data.type === 'info' && data.message === 'player_answered') {
+                setPlayersAnswered(prevPlayers => {
+                    let tmpPlayersAnswered = [...prevPlayers];
+                    console.log(tmpPlayersAnswered);
+                    const playerIdx = tmpPlayersAnswered.findIndex(p => p.nick === data.nickname);
+                    console.log('idx:', {playerIdx}, 'nick:', data.nickname, data.answer);
+
+                    if(playerIdx === -1){
+                        tmpPlayersAnswered.push({nick: data.nickname, answer: data.answer});
+                    }
+                    else{
+                        tmpPlayersAnswered[playerIdx] = {nick: data.nickname, answer: data.answer};
+                    }
+                    console.log(tmpPlayersAnswered);
+
+                    tmpPlayersAnswered.sort((a,b)=>a.answer-b.answer);
+
+                    return tmpPlayersAnswered;
+                })
             }
 
             if (data.type === "error") {
@@ -87,7 +111,8 @@ export default function HostRoute() {
         return (
             <GameView
             totalPlayers={players.length}
-            players={players}
+            players={playersAnswered}
+            handleCloseRoom={handleCloseRoom}
             />
         );
     };
