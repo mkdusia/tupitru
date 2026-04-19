@@ -102,7 +102,7 @@ export default function PlayerRoute() {
     }, [roomCode, nick, navigate]);
 
     const handleWaitingViewExit = () => {
-        navigate('/', { state: { previousRoomCode: roomCode}});
+        navigate('/', { state: { previousRoomCode: roomCode, previousNick: nick}});
     }
 
     const handleSendAnswer = () => {
