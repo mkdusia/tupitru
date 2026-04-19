@@ -1,6 +1,6 @@
 from app.event_handler.router import external_event
 from app.event_handler.schemas.protocol import EventHandlerProtocol
-from app.event_handler.schemas.external import ChangeStateEvent, HostEvent
+from app.event_handler.schemas.external import ChangeStateEvent, HostEvent, SkipEvent
 
 
 @external_event("host", HostEvent)
@@ -14,3 +14,8 @@ async def handle_host(handler: EventHandlerProtocol, event: HostEvent) -> None:
 @external_event("change_state", ChangeStateEvent)
 async def handle_game_start(handler: EventHandlerProtocol, event: ChangeStateEvent) -> None:
     await handler.game_manager.change_game_state(event.id)
+
+
+@external_event("skip_round", SkipEvent)
+async def handle_skip(handler: EventHandlerProtocol, event: SkipEvent) -> None:
+    await handler.game_manager.skip(event.id)

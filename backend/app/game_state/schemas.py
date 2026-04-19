@@ -6,3 +6,7 @@ RoomStatus = (
     | Literal["settling_round"]
     | Literal["game_ended"]
 )
+
+Mole = Literal[0, 1, 2, 3, 4, 5]
+
+Direction = Literal[0, 1, 2, 3]
