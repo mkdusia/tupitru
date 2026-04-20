@@ -54,9 +54,9 @@ export default function HostRoute() {
             if(data.type === 'info' && data.message === 'player_answered') {
                 setPlayersAnswered(prevPlayers => {
                     let tmpPlayersAnswered = [...prevPlayers];
-                    console.log(tmpPlayersAnswered);
+                    // console.log(tmpPlayersAnswered);
                     const playerIdx = tmpPlayersAnswered.findIndex(p => p.nick === data.nickname);
-                    console.log('idx:', {playerIdx}, 'nick:', data.nickname, data.answer);
+                    // console.log('idx:', {playerIdx}, 'nick:', data.nickname, data.answer);
 
                     if(playerIdx === -1){
                         tmpPlayersAnswered.push({nick: data.nickname, answer: data.answer});
@@ -64,7 +64,7 @@ export default function HostRoute() {
                     else{
                         tmpPlayersAnswered[playerIdx] = {nick: data.nickname, answer: data.answer};
                     }
-                    console.log(tmpPlayersAnswered);
+                    // console.log(tmpPlayersAnswered);
 
                     tmpPlayersAnswered.sort((a,b)=>a.answer-b.answer);
 
@@ -107,12 +107,21 @@ export default function HostRoute() {
         }
     }
 
+    const handleEndRound = () => {
+        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+            ws.current.send(JSON.stringify({
+                type: "change_state"
+            }));
+        }
+    }
+
     if(status === 'start_game') {
         return (
             <GameView
             totalPlayers={players.length}
             players={playersAnswered}
             handleCloseRoom={handleCloseRoom}
+            handleEndRound={handleEndRound}
             />
         );
     };

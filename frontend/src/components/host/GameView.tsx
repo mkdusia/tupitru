@@ -6,9 +6,10 @@ interface GameViewProps {
     totalPlayers: number;
     players : PlayerAnswer[]
     handleCloseRoom : () => void;
+    handleEndRound : () => void;
 }
 
-const GameView = ({totalPlayers, players, handleCloseRoom } : GameViewProps) => {
+const GameView = ({totalPlayers, players, handleCloseRoom, handleEndRound } : GameViewProps) => {
 return (
     <div className="app-container">
       {/* <h1 className='title'>Game View</h1> */}
@@ -29,8 +30,11 @@ return (
           {players.length} / {totalPlayers} 
           {/*some type of placeholder */}
         </h2>
+      <button className='button' onClick={handleEndRound}> 
+        End Round
+      </button>
       <button className='button' onClick={handleCloseRoom}>
-              Close Room
+          Close Room
       </button>
       </div>
     </div>
