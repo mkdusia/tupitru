@@ -19,6 +19,8 @@ uv run fastapi dev # run the application in dev environment
 ## Usage
 The app uses WebSockets for real-time client-server communication. The client sends JSON with the key `type` (see the list below) and other appropriate parameters. The server sends (back) JSON with the key `type` that can be `error`, `info` or `success`. In all cases the key `message` is specified to give more detailed information. In the case of an `error` `message` is just the error message. `success` is used to communicate a previously sent request has been processed. `info` is used to give asynchronous information about the game state. In both cases `message` is the type of information being passed to the client. In particular when the server responds to a request of a given type, it sends a `success` with `message` set to the type of the request in question. `info`'s and `success`'s can contain other keys, specific to their type.
 
+All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is not provided, the server creates a new user connection and returns a `user_id` (in a `success` of type `connect`). If `user_id` is provided, the server assumes user with this id wants to reconnect. If the id is invalid (e.g. the user disconnected more than 30 seconds ago) error 403 is returned. Otherwise a `success` of type `reconnect` is issued. The server also provides the user with their current [game state](#reconnection-game-state).
+
 ### List of types
 #### Client-types
 - `host`: Host a room. The server returns `room_id` that is a 10 digit number.
@@ -47,3 +49,14 @@ The app uses WebSockets for real-time client-server communication. The client se
 
 ### Board description
 TODO
+
+### Reconnection game state
+The game state during reconnection can contain the following fields.
+- `game_state`: The state of the current game. Can be `no_game` (no room), `awaiting_start` (room exists, game not started), `awaiting_answers` (round started, players are thinking), `settling_round` (players are providing their solutions) or `game_end` (game ended). In case of `no_game` no other data is provided.
+- `host`: Whether the user is a host.
+- `room_id`: The room id. Provided when `host` is true.
+- `nickname`: The nickname. Provided when `host` is false.
+- `answer`: The current answer. Provided when `host` is false and `game_state` is `awaiting_answers` or `settling_round`. Can also be provided when `host` is true and `game_state` is `settling_round`. In this case this is the answer given by the player currently providing a solution.
+- `respond`: Whether the user is expected to provide a solution. Provided when `host` is false and `game_state` is `settling_round`.
+- `board` The state of the board. Provided when `respond` is true or `host` is true and `game_state` is `awaiting_answers` or `settling_round`.
+- `respondent`: The nickname of the player currently providing a solution. Provided when `host` is true and `game_state` is `settling_round`.
