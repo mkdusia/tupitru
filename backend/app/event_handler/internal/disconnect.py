@@ -1,3 +1,4 @@
+import asyncio
 from app.event_handler.router import internal_event
 from app.event_handler.schemas.internal import (
     DisconnectEvent,
@@ -5,12 +6,23 @@ from app.event_handler.schemas.internal import (
     RoomDestroyedEvent,
 )
 from app.event_handler.schemas.protocol import EventHandlerProtocol
+from app.config import DISCONNECT_TIME
 
 
 @internal_event("disconnect", DisconnectEvent)
 async def internal_disconnect(handler: EventHandlerProtocol, event: DisconnectEvent) -> None:
+    lock = handler.con_manager.get_lock(event.id)
+    if lock is None:
+        return
+    async with lock:
+        handler.con_manager.disconnect(event.id)
+    await asyncio.sleep(DISCONNECT_TIME)
+    async with lock:
+        if not handler.con_manager.is_connected(event.id):
+            handler.con_manager.remove(event.id)
+        else:
+            return
     await handler.game_manager.player_disconnect(event.id)
-    handler.con_manager.disconnect(event.id)
 
 
 @internal_event("player_disconnected", PlayerDisconnectEvent)
