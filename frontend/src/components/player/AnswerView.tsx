@@ -12,10 +12,12 @@ return (
       <div className="app-container">
         <TupitruTitle/>
         <div className='wrapper'>
-          <h2> Your current answer: </h2>
-          { current_answer > 0 && (
+          <div className="info-row">
+            <label className='label'>Your current answer:</label>
+            { current_answer > 0 && (
                 <span className="num">{current_answer}</span>
-          )}
+            )}
+          </div>
           <label className='label'>Answer: </label>
           <input 
             name="nick" 

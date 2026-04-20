@@ -62,7 +62,7 @@ export default function PlayerRoute() {
             }
 
             if(data.type === "success" && data.message == "answer"){
-                setCurrentAnswer(answer);
+                setCurrentAnswer(data.answer);
             }
 
             if (data.type === "info" && data.message === "room_destroyed") {
