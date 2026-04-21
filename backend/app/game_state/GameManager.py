@@ -1,5 +1,6 @@
 from uuid import UUID
 from secrets import randbelow
+from typing import Any
 from .Room import Room
 from app.schemas import Emitter
 from .schemas import Mole, Direction
@@ -91,10 +92,7 @@ class GameManager:
             await self.error(player_id, "You cannot give your answer now.")
             return
         room.set_answer(player_id, answer)
-        player = room.get_player(player_id)
-        nickname = ""
-        if player is not None:
-            nickname = player.nickname
+        nickname = room.get_player(player_id).nickname
         await self.emit_event(
             {
                 "type": "answer",
@@ -157,3 +155,12 @@ class GameManager:
             return
         room.end_settling()
         await room.next_stage(self.emit_event)
+
+    def get_state(self, id: UUID) -> dict[str, Any]:
+        room = self.get_room(id)
+        if room is None:
+            return {"game_state": "no_game"}
+        data = room.get_state(id)
+        if data["host"]:
+            data["room_id"] = self.player_room[id]
+        return data

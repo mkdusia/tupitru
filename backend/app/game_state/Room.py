@@ -1,4 +1,4 @@
-from typing import Awaitable, Callable
+from typing import Awaitable, Callable, Any
 from uuid import UUID
 
 from .BoardState import BoardState
@@ -29,8 +29,8 @@ class Room:
         if player in self.players:
             self.players.pop(player)
 
-    def get_player(self, player: UUID) -> Player | None:
-        return self.players.get(player)
+    def get_player(self, player: UUID) -> Player:
+        return self.players[player]
 
     def can_change_state(self, host: UUID) -> bool:
         return self.host == host
@@ -120,3 +120,24 @@ class Room:
             return False
         self.board_state.revert()
         return True
+
+    def get_state(self, id: UUID) -> dict[str, Any]:
+        res: dict[str, Any] = {}
+        res["game_state"] = self.state
+        res["host"] = id == self.host
+        if not res["host"]:
+            player = self.get_player(id)
+            res["nickname"] = player.nickname
+            if res["game_state"] == "awaiting_answers" or res["game_state"] == "settling_round":
+                res["answer"] = player.answer
+            if res["game_state"] == "settling_round":
+                res["respond"] = self.current_respondent.id == id
+                if res["respond"]:
+                    res["board"] = self.board_state.data.model_dump()
+        else:
+            if res["game_state"] == "awaiting_answers" or res["game_state"] == "settling_round":
+                res["board"] = self.board_state.data.model_dump()
+            if res["game_state"] == "settling_round":
+                res["respondent"] = self.current_respondent.nickname
+                res["answer"] = self.current_respondent.answer
+        return res
