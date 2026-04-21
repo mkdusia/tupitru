@@ -74,7 +74,13 @@ class Room:
                 "respondent": self.current_respondent.nickname,
             }
         )
-        await emitter({"type": "respond", "notify": self.current_respondent.id})
+        await emitter(
+            {
+                "type": "respond",
+                "notify": self.current_respondent.id,
+                "board": self.board_state.data,
+            }
+        )
 
     async def next_stage(self, emitter: Emitter) -> None:
         await self.change_state[self.state](emitter)

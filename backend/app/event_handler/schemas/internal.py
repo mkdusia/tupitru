@@ -54,6 +54,7 @@ class AwaitingResponseEvent(BaseModel):
 class RespondEvent(BaseModel):
     type: Literal["respond"]
     notify: UUID
+    board: BoardData
 
 
 class AnswerEvent(BaseModel):

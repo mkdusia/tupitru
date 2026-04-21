@@ -22,13 +22,16 @@ async def awaiting_response_event(
     handler: EventHandlerProtocol, event: AwaitingResponseEvent
 ) -> None:
     await handler.con_manager.broadcast(
-        event.notify, {"type": "info", "message": "awaiting_response", "from": event.respondent}
+        event.notify,
+        {"type": "info", "message": "awaiting_response", "respondent": event.respondent},
     )
 
 
 @internal_event("respond", RespondEvent)
 async def respond_event(handler: EventHandlerProtocol, event: RespondEvent) -> None:
-    await handler.con_manager.send(event.notify, {"type": "info", "message": "respond"})
+    await handler.con_manager.send(
+        event.notify, {"type": "info", "message": "respond", "board": event.board.model_dump()}
+    )
 
 
 @internal_event("answer", AnswerEvent)
