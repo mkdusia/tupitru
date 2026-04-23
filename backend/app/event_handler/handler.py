@@ -13,8 +13,6 @@ class EventHandler:
 
     async def handle(self, event: dict[str, Any], source: str) -> None:
         tp = event.get("type")
-        if tp is None:
-            return
 
         try:
             if source == "external" and tp in external_registry:
@@ -25,6 +23,12 @@ class EventHandler:
                 schema, fn = internal_registry[tp]
                 parsed = schema(**event)
                 await fn(self, parsed)
+            else:
+                # TODO: Add logging here!
+                if source == "external" and "id" in event:
+                    await self.con_manager.send(
+                        event["id"], {"type": "error", "message": "Invalid event type"}
+                    )
         except ValidationError:
             if source == "external" and "id" in event:
                 await self.con_manager.send(

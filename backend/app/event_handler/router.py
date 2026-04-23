@@ -8,12 +8,11 @@ HandlerFunc = Callable[[EventHandlerProtocol, T], Awaitable[None]]
 external_registry: dict[str, tuple[Type[BaseModel], HandlerFunc[Any]]] = {}
 internal_registry: dict[str, tuple[Type[BaseModel], HandlerFunc[Any]]] = {}
 
-
 def external_event(
     event_type: str, schema: Type[T]
 ) -> Callable[
-    [Callable[[EventHandlerProtocol, T], Awaitable[None]]],
-    Callable[[EventHandlerProtocol, T], Awaitable[None]],
+    [HandlerFunc[T]],
+    HandlerFunc[T]
 ]:
     def decorator(func: HandlerFunc[T]) -> HandlerFunc[T]:
         external_registry[event_type] = (schema, func)
@@ -25,8 +24,8 @@ def external_event(
 def internal_event(
     event_type: str, schema: Type[T]
 ) -> Callable[
-    [Callable[[EventHandlerProtocol, T], Awaitable[None]]],
-    Callable[[EventHandlerProtocol, T], Awaitable[None]],
+    [HandlerFunc[T]],
+    HandlerFunc[T]
 ]:
     def decorator(func: HandlerFunc[T]) -> HandlerFunc[T]:
         internal_registry[event_type] = (schema, func)
