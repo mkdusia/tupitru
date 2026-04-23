@@ -15,29 +15,39 @@ return (
       <div className="app-container">
         <TupitruTitle/>
         <div className='wrapper'>
-          <label className='label'>Nickname: </label>
+          {/* <label className='label'>Nickname: </label> */}
           <input 
             name="nick" 
             value={savedNick}
             className='inputtext'
             onChange={(event) => setNick(event.target.value)}
+            placeholder='Nickname'
             />
           
-          <label className='label'>Room code:</label> 
+          {/* <label className='label'>Room code:</label>  */}
           <input 
             name="room" 
             value={roomCode}
             className='inputtext'
-            onChange={(event)=> setRoomCode(event.target.value)}  
+            onChange={(event)=> setRoomCode(event.target.value)} 
+            placeholder='Room Code' 
           />
           
           <button className='button' onClick={handleJoinGame}>
             Join
           </button>
         
-          <h2>.</h2>
-          <h4>Want to start a new game?</h4>
+          <p className='tmp'>___</p> 
+          <h3>Want to start a new game?</h3>
           <button className='button' onClick={handleHostGame}>Create room</button>
+
+          <div className='button-container'>
+            <button className="button-circle"></button>
+            <button className="button-circle"></button>
+            <button className="button-rules">Rules</button>
+          </div>
+
+           <button className='button button-orange'>Training mode</button>
         </div>
       </div>
   )
