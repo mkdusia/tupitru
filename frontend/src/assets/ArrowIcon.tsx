@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Definiujemy typy dla propsów (className jest opcjonalne, stąd znak zapytania)
 interface ArrowIconProps {
   className?: string;
 }
