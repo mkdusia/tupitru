@@ -1,4 +1,4 @@
 export type PlayerAnswer = {
-    nick : string,
-    answer : number;
-}
+  nick: string;
+  answer: number;
+};
