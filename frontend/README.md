@@ -18,5 +18,7 @@ Before running the project, ensure you have the following installed:
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run lint # runs the ESlint linter on the project
+npm run format # runs the Prettier formatter
+npm run dev # runs the application in dev environment
 ```

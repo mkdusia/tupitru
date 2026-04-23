@@ -13,7 +13,7 @@ uv run mypy . # runs the typechecker mypy on the current directory
 uv run ruff check # runs the ruff linter on the project
 uv run ruff format # runs the ruff formatter
 uv run pytest # runs the pytest testing suite
-uv run fastapi dev # run the application in dev environment
+uv run fastapi dev # runs the application in dev environment
 ```
 
 ## Usage
