@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import WaitingView from '../components/player/WaitingView';
 import AnswerView from '../components/player/AnswerView';
 import RespondView from '../components/player/RespondView';
+import AwaitingResponseView from '../components/player/AwaitingResponseView';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 export default function PlayerRoute() {
@@ -17,14 +18,15 @@ export default function PlayerRoute() {
     const [status, setStatus] = useState('connecting');
     const [countdown, setCountdown] = useState(5);
     const [answer, setAnswer] = useState(0);
-    const [current_answer, setCurrentAnswer] = useState(0)
+    const [current_answer, setCurrentAnswer] = useState(0);
+    const [respondent, setRespondent] = useState('');
 
     useEffect(()=> {
         if (!nick || !roomCode) {
             navigate('/');
             return;
         }
-        
+
         const socket = new WebSocket(baseUrl);
         ws.current = socket;
 
@@ -46,7 +48,7 @@ export default function PlayerRoute() {
                 }));
             }
         };
-    
+
         socket.onmessage = (event: { data: string; }) => {
             const data = JSON.parse(event.data);
 
@@ -56,7 +58,7 @@ export default function PlayerRoute() {
                 clearTimeout(connectingTimeout);
                 clearInterval(countdownInterval);
             }
-            
+
             if(data.type === "success" && data.message === "join"){
                 setStatus('waiting');
             }
@@ -74,8 +76,13 @@ export default function PlayerRoute() {
                 setStatus('playing');
             }
 
+            if (data.type === "info" && data.message === "awaiting_response") {
+                setRespondent(data.respondent);
+                setStatus("awaiting_response");
+            }
+
             if (data.type === "info" && data.message === "respond") {
-                setStatus('showing_solution')
+                setStatus('showing_solution');
             }
 
             if (data.type === "error") {
@@ -142,7 +149,15 @@ export default function PlayerRoute() {
         );
     }
 
-    if (status === "showing_solution") {
+    if (status === 'awaiting_response') {
+        return (
+            <AwaitingResponseView
+                respondent={respondent}
+            />
+        );
+    }
+
+    if (status === 'showing_solution') {
         return (
             <RespondView
                 answer={current_answer}
