@@ -25,6 +25,9 @@ class BoardData(BaseModel):
     finish_mole: Mole | Literal[-1]
 
     def blocked_by_wall(self, pos: Position, direction: Direction) -> bool:
+        """
+        Check whether a move from a given position in a given direction is blocked by a wall
+        """
         dx, dy = [(0, -1), (1, 0), (0, 1), (-1, 0)][direction]
         cell = self.grid[pos.x][pos.y]
         return (
@@ -36,6 +39,9 @@ class BoardData(BaseModel):
         )
 
     def contains_mole(self, pos: Position) -> bool:
+        """
+        Check whether a given position contains a mole
+        """
         return any([mole == pos for mole in self.mole_position])
 
 
@@ -56,6 +62,9 @@ class BoardState:
         self.board = BoardData.model_validate(data)
 
     def _get_move(self, pos: Position, direction: Direction) -> Position:
+        """
+        Get the ending position of a move from a given position in a given direction
+        """
         dx, dy = [(0, -1), (1, 0), (0, 1), (-1, 0)][direction]
         while True:
             next_pos = Position(x=pos.x + dx, y=pos.y + dy)
@@ -65,6 +74,9 @@ class BoardState:
         return pos
 
     def finish_state(self) -> bool:
+        """
+        Check whether the current state is the finish state for the round
+        """
         mole = self.board.finish_mole
         if mole == -1:
             return any([self.board.finish == pos for pos in self.board.mole_position])
@@ -73,6 +85,9 @@ class BoardState:
             return pos == self.board.finish
 
     def next_round(self) -> bool:
+        """
+        Prepare the board for the next round, returns False if there is no next round
+        """
         if len(self.finish_positions) == 0:
             return False
         pos, mole = self.finish_positions.pop()
@@ -81,6 +96,9 @@ class BoardState:
         return True
 
     def modify(self, mole_id: Mole, direction: Direction) -> None:
+        """
+        Perform a single move
+        """
         self.move_stack.append((mole_id, direction))
         curr_pos = self.board.mole_position[mole_id]
         next_pos = self._get_move(curr_pos, direction)
@@ -88,6 +106,9 @@ class BoardState:
         self.board.mole_position[mole_id].y = next_pos.y
 
     def revert(self) -> None:
+        """
+        Revert the previous un-flushed move
+        """
         if len(self.move_stack) > 0:
             mole, direction = self.move_stack.pop()
             curr_pos = self.board.mole_position[mole]
@@ -96,17 +117,29 @@ class BoardState:
             self.board.mole_position[mole].y = next_pos.y
 
     def clear(self) -> None:
+        """
+        Revert all the un-flushed moves
+        """
         while len(self.move_stack) > 0:
             self.revert()
 
     def flush(self) -> None:
+        """
+        Make the previously made changes permanent (flush them)
+        """
         self.move_stack = []
 
     @property
     def moves(self) -> int:
+        """
+        Get the number of un-flushed moves
+        """
         return len(self.move_stack)
 
     @property
     def data(self) -> BoardData:
+        """
+        Get the board data
+        """
         self.board.moves = self.moves
         return self.board.model_copy()
