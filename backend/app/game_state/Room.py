@@ -46,6 +46,8 @@ class Room:
 
     async def start_game(self, emitter: Emitter) -> None:
         self.state = "awaiting_answers"
+        for player in self.players.values():
+            player.answer = 0
         to_notify = list(self.players.keys())
         to_notify.append(self.host)
         await emitter({"type": "game_start", "notify": to_notify, "board": self.board_state.data})
@@ -61,8 +63,13 @@ class Room:
         to_notify = list(self.players.keys())
         to_notify.append(self.host)
         if len(self.ranking) == 0:
-            self.state = "game_ended"
-            await emitter({"type": "game_end", "notify": to_notify})
+            if not self.board_state.next_round():
+                self.state = "game_ended"
+                players = [(player.points, player.nickname) for player in self.players.values()]
+                players.sort(key=lambda pr: pr[0])
+                await emitter({"type": "game_end", "notify": to_notify, "ranking": players})
+            else:
+                await self.start_game(emitter)
             return
 
         self.current_respondent = self.ranking.pop()

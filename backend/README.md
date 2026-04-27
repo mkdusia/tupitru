@@ -28,16 +28,16 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `skip_round`: Skip the current round. Can only be performed by the host when the players present their solutions. Otherwise sends back an error.
 - `join`: Join a room. Requires appropriate `room_id` and `nickname`. Sends back an info to the host and the players or an error to the sender if the room doesn't exist. Sends back the `room_id` of the room.
 - `answer`: Give the answer to a game round. Requires `answer` that is an integer. Sends back an error to the sender if they aren't taking a part in a game. Sending a non-positive value clears the answer. Sends back the saved `answer` to the sender and informs the host.
-- `respond`: Give a step of your response. Takes `mole` and `direction` that are integers representing the move. Sends back an error if the action is not permitted. Sends back the current `board`.
+- `respond`: Give a step of your response. Takes `mole` and `direction`. `mole` is the index of the moving mole, i.e. index in the `mole_position` array (see [Board description](#board-description)). `direction` is one of the characters `U`, `R`, `D`, `L`. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `give_up`: Give up trying to prove your answer. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `revert`: Revert the previous step in your response. Sends back an error if the action is not permitted. Sends back the current `board`.
 
 #### Server-types (messages)
 - `player_disconnected`: A player has disconnected from your room. Sends their `nickname`. This gets sent to the other players and the host.
 - `room_destroyed`: The host of your room has disconnected. This gets sent to the players.
-- `game_start`: The game in your room was started. `board` is the current game board. This gets sent to the players and the host.
+- `game_start`: The round in your room was started. `board` is the current game board. This gets sent to the players and the host.
 - `player_joined`: A player with the nickname `nickname` entered your room. This gets sent to the other players and the host.
-- `game_end`: The game in your room ended. This gets sent to the players and the host.
+- `game_end`: The game in your room ended. `ranking` is a sorted list of pairs `(points, nickname)`. This gets sent to the players and the host.
 - `awaiting_response`: The game awaits a solution from the player with nickname `respondent` who claimed the best solution. This gets sent to the other players and the host.
 - `respond`: You are the player who claimed the best solution. You are expected to provide the solution. `board` is the current board.
 - `player_answered`: The player `nickname` gave answer `answer`. This gets sent to the host.

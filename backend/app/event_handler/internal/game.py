@@ -14,7 +14,9 @@ from app.event_handler.schemas.internal import (
 
 @internal_event("game_end", InternalGameEndEvent)
 async def internal_game_end(handler: EventHandlerProtocol, event: InternalGameEndEvent) -> None:
-    await handler.con_manager.broadcast(event.notify, {"type": "info", "message": "game_end"})
+    await handler.con_manager.broadcast(
+        event.notify, {"type": "info", "message": "game_end", "ranking": event.ranking}
+    )
 
 
 @internal_event("awaiting_response", AwaitingResponseEvent)

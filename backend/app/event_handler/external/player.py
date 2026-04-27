@@ -7,6 +7,7 @@ from app.event_handler.schemas.external import (
     RevertEvent,
 )
 from app.event_handler.schemas.protocol import EventHandlerProtocol
+from app.game_state.schemas import Direction
 
 
 @external_event("join", JoinEvent)
@@ -21,7 +22,8 @@ async def handle_answer(handler: EventHandlerProtocol, event: AnswerEvent) -> No
 
 @external_event("respond", RespondEvent)
 async def handle_respond(handler: EventHandlerProtocol, event: RespondEvent) -> None:
-    await handler.game_manager.respond(event.id, event.mole, event.direction)
+    change: dict[str, Direction] = {"U": 0, "R": 1, "D": 2, "L": 3}
+    await handler.game_manager.respond(event.id, event.mole, change[event.direction])
 
 
 @external_event("give_up", GiveUpEvent)

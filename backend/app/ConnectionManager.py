@@ -3,7 +3,7 @@ from uuid import uuid4, UUID
 from typing import Any
 from asyncio import Lock
 
-Data = dict[str, str | int | dict[str, Any]]
+Data = dict[str, Any]
 
 
 class ConnectionManager:
