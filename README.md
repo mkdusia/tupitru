@@ -12,4 +12,4 @@ The stars of the game are colourful moles. In every round, one of the moles need
 * **Visit:** [Tupitru!](https://tupitru.tfkls.dev/) and join the game!
 
 ## $\color{#87bf4b}{\text{Rules}}$
-[To be revealed]
+To see how the game works, read the [Game Rules](./rules.md).
