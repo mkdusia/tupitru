@@ -2,7 +2,8 @@ import json
 
 from pydantic import BaseModel, model_validator
 from app.game_state.schemas import Direction, Mole
-from typing import Dict, List, Optional
+from typing import Dict, List
+from pathlib import Path
 
 
 class Cell(BaseModel):
@@ -42,7 +43,7 @@ class Board(BaseModel):
     finish: FinishField
 
     @classmethod
-    def from_json_file(cls, file_path: str) -> "Board":
+    def from_json_file(cls, file_path: Path) -> "Board":
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         return cls.model_validate(data)
@@ -79,7 +80,7 @@ class BoardState:
     #    }
     #    self._moves: int = 0
     #    self._history: List[Dict[int, Position]] = []
-    def __init__(self, file_path: str = "static/board1.json"):
+    def __init__(self, file_path: Path = Path(__file__).parent.resolve() / "static/board1.json"):
         self.board = Board.from_json_file(file_path)
         self.moles: Dict[int, Position] = {
             i: pos.model_copy() for i, pos in enumerate(self.board.mole_spawn_points)
