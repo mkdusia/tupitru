@@ -1,14 +1,19 @@
 {
   "width": 3,
   "height": 3,
-  "mole_spawn_points": [
+  "mole_position": [
     {"x": 0, "y": 0},
-    {"x": 2, "y": 0}
+    {"x": 2, "y": 0},
+    {"x": 0, "y": 2},
+    {"x": 2, "y": 2},
+    {"x": 1, "y": 1}
   ],
   "finish": {
-    "pos": {"x": 2, "y": 2},
-    "color": "gold"
+    "x": 1,
+    "y": 2
   },
+  "finish_mole": -1,
+  "moves": 0,
   "grid": [
     [
       {},
