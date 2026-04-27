@@ -19,7 +19,11 @@ export default function PlayerRoute() {
   const [countdown, setCountdown] = useState(5);
   const [answer, setAnswer] = useState(0);
   const [current_answer, setCurrentAnswer] = useState(0);
+
   const [respondent, setRespondent] = useState('');
+
+  const [mole, setMole] = useState(-1);
+  const [direction, setDirection] = useState(-1);
 
   useEffect(() => {
     if (!nick || !roomCode) {
@@ -125,11 +129,33 @@ export default function PlayerRoute() {
     }
   };
 
+  const handleSendStep = () => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(
+        JSON.stringify({
+          type: 'respond',
+          mole: mole,
+          direction: direction,
+        })
+      );
+    }
+  };
+
   const handleGiveUp = () => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(
         JSON.stringify({
           type: 'give_up',
+        })
+      );
+    }
+  };
+
+  const handleRevert = () => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(
+        JSON.stringify({
+          type: 'revert',
         })
       );
     }
@@ -164,6 +190,15 @@ export default function PlayerRoute() {
   }
 
   if (status === 'showing_solution') {
-    return <RespondView answer={current_answer} handleGiveUp={handleGiveUp} />;
+    return (
+      <RespondView
+        answer={current_answer}
+        setMole={setMole}
+        setDirection={setDirection}
+        handleSendStep={handleSendStep}
+        handleGiveUp={handleGiveUp}
+        handleRevert={handleRevert}
+      />
+    );
   }
 }
