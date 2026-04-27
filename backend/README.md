@@ -48,7 +48,14 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `won`: You won the round.
 
 ### Board description
-TODO
+The board data is sent as a JSON dictionary that contains the following fields:
+- `width [int]`: The width of the board.
+- `height [int]`: The height of the board.
+- `grid [list[list[Cell]]]`: The cells on the board. This is a two-dimensional list (indexed first by the vertical coordinate and then by the horizontal) of `Cells` - dictionaries with a four-element array `walls` of bools that denote whether the upper, right, lower, and left side of the cell contains a wall.
+- `mole_position [list[Position]]`: The five-element list of the positions of the moles. The moles are always referred to by their index in this array. A single entry in this array is a dictionary with int fields `x` and `y` that denote respectively the horizontal and vertical coordinates of the field.
+- `moves [int]`: Moves made so far by the player showing their solution.
+- `finish [Position]`: The field where one is supposed to lead the mole in order to win. This a dictionary with int fields `x` and `y` that denote respectively the horizontal and vertical coordinates of the field.
+- `finish_mole [int]`: The color of the mole that one is supposed to lead to `finish`. This is a mole index (one of `0,1,2,3,4`) or `-1` if `finish` is a multicolor target.
 
 ### Reconnection game state
 The game state during reconnection can contain the following fields.

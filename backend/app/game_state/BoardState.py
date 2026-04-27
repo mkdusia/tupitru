@@ -29,7 +29,7 @@ class BoardData(BaseModel):
         Check whether a move from a given position in a given direction is blocked by a wall
         """
         dx, dy = [(0, -1), (1, 0), (0, 1), (-1, 0)][direction]
-        cell = self.grid[pos.x][pos.y]
+        cell = self.grid[pos.y][pos.x]
         return (
             cell.wall[direction]
             or pos.x + dx < 0
