@@ -22,8 +22,12 @@ class FinishField(BaseModel):
     pos: Position
     color: str  
 class BoardData(BaseModel):
+    width: int
+    height: int
+    grid: List[List[Cell]]
     moles: Dict[int, Position]
     moves: int
+    finish: FinishField
 class Board(BaseModel):
     width: int
     height: int
@@ -32,7 +36,7 @@ class Board(BaseModel):
     finish: FinishField
 
     @classmethod
-    def from_json_file(cls, file_path: str):
+    def from_json_file(cls, file_path: str) -> 'Board':
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         return cls.model_validate(data)
@@ -59,13 +63,28 @@ class Board(BaseModel):
 
 
 class BoardState:
-    def __init__(self, board: Board):
-        self.board = board
+    #def __init__(self, board: Board):
+    #    self.board = board
+    #    self.moles: Dict[int, Position] = {
+    #        i: pos.model_copy() for i, pos in enumerate(self.board.mole_spawn_points)
+    #    }
+    #    self._moves: int = 0
+    #    self._history: List[Dict[int, Position]] = []
+    def __init__(self, file_path: str = "static/board1.json"):
+        self.board = Board.from_json_file(file_path)
         self.moles: Dict[int, Position] = {
             i: pos.model_copy() for i, pos in enumerate(self.board.mole_spawn_points)
         }
         self._moves: int = 0
         self._history: List[Dict[int, Position]] = []
+
+    def finish_state(self) -> bool:
+        # Zakładamy, że kret, którego trzeba doprowadzić do mety, ma ID = 0.
+        target_mole = self.moles.get(0)
+        if target_mole:
+            return target_mole.x == self.board.finish.pos.x and target_mole.y == self.board.finish.pos.y
+        return False
+    
 
     def modify(self, mole_id: Mole, direction: Direction) -> None:
         if mole_id not in self.moles:
@@ -89,26 +108,22 @@ class BoardState:
             
         if self.moles[mole_id] != curr_pos:
             self.moles[mole_id] = curr_pos
-            self._moves_count += 1
+            self._moves += 1
 
-    def _get_delta(self, direction: Direction):
-        # Mapowanie Twoich Direction (0,1,2,3) na wektory (x, y)
-        # Zakładam: 0: Góra, 1: Prawo, 2: Dół, 3: Lewo
-        return {
-            0: (0, -1),
-            1: (1, 0),
-            2: (0, 1),
-            3: (-1, 0)
-        }[direction]
+    def _get_delta(self, direction: Direction) -> tuple[int, int]:
+        if direction == 0: return (0, -1)
+        if direction == 1: return (1, 0)
+        if direction == 2: return (0, 1)
+        if direction == 3: return (-1, 0)
+        return (0, 0)
 
     def _is_blocked_by_wall(self, pos: Position, direction: Direction) -> bool:
         cell = self.board.grid[pos.y][pos.x]
-        return {
-            0: cell.wall_top,
-            1: cell.wall_right,
-            2: cell.wall_bottom,
-            3: cell.wall_left
-        }[direction]
+        if direction == 0: return bool(cell.wall_top)
+        if direction == 1: return bool(cell.wall_right)
+        if direction == 2: return bool(cell.wall_bottom)
+        if direction == 3: return bool(cell.wall_left)
+        return False
 
     def _is_occupied_by_other_mole(self, x: int, y: int, moving_mole_id: int) -> bool:
         for mid, pos in self.moles.items():
@@ -121,7 +136,7 @@ class BoardState:
     def revert(self) -> None:
         if self._history:
             self.moles = self._history.pop()
-            self._moves_count -= 1
+            self._moves -= 1
 
     def clear(self) -> None:
         self.moles = {i: p.model_copy() for i, p in enumerate(self.board.mole_spawn_points)}
@@ -137,4 +152,11 @@ class BoardState:
 
     @property
     def data(self) -> BoardData:
-        return BoardData(moles=self.moles, moves=self._moves)
+        return BoardData(
+            width=self.board.width,
+            height=self.board.height,
+            grid=self.board.grid,
+            moles=self.moles,
+            moves=self._moves,
+            finish=self.board.finish
+        )

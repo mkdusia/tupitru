@@ -2,7 +2,7 @@ import os
 import json
 from app.game_state.BoardState import Board, Position
 
-def render_board(board: Board):
+def render_board(board: Board) -> None:
     print(f"\n=== PLANSZA: {board.width}x{board.height} ===")
     
     # 1. Górna krawędź zewnętrzna
@@ -44,7 +44,7 @@ def render_board(board: Board):
             print(line_bottom[:-1] + "|")
 
 
-def print_cell_details(board: Board):
+def print_cell_details(board: Board) -> None:
     print("\n--- SZCZEGÓŁY KOMÓREK ---")
     # Iteracja przez grid zdefiniowany w Board
     for y in range(board.height):
@@ -68,7 +68,7 @@ def print_cell_details(board: Board):
             print(f"Komórka ({x}, {y}): Ściany: {wall_str}{special_str}")
 
 
-def run_tests():
+def run_tests() -> None:
     folder_path = "../board_jason"
     
     if not os.path.exists(folder_path):
