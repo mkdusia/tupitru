@@ -44,6 +44,17 @@ class GameManager:
             await self.error(player_id, "The room does not exist.")
             return
 
+        if room.state != "awaiting_start":
+            await self.error(player_id, "The game has already started or ended.")
+            return
+
+        for player in room.players.values():
+            if player.nickname == nickname:
+                await self.error(
+                    player_id, f"The nickname '{nickname}' is already taken in this room."
+                )
+                return
+
         to_notify = list(room.players.keys())
         to_notify.append(room.host)
         room.add_player(player_id, nickname)
