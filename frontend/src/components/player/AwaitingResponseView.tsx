@@ -11,7 +11,7 @@ function AwaitingResponseView({ respondent }: AwaitingResponseViewProps) {
       <TupitruTitle />
 
       <div className="wrapper">
-        <h1> Awaiting response from player: {respondent}! </h1>
+        <h1> Awaiting response from player: {respondent} </h1>
       </div>
     </div>
   );

@@ -125,6 +125,16 @@ export default function PlayerRoute() {
     }
   };
 
+  const handleGiveUp = () => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(
+        JSON.stringify({
+          type: 'give_up',
+        })
+      );
+    }
+  };
+
   if (status === 'connecting')
     return (
       <div className="wrapper">
@@ -154,6 +164,6 @@ export default function PlayerRoute() {
   }
 
   if (status === 'showing_solution') {
-    return <RespondView answer={current_answer} />;
+    return <RespondView answer={current_answer} handleGiveUp={handleGiveUp} />;
   }
 }
