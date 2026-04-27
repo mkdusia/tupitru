@@ -87,6 +87,7 @@
 }
 
 .button-circle {
+  font-family: 'SpaceMono';
   width: clamp(40px, 4vw, 60px);
   height: clamp(40px, 4vw, 60px);
   border-radius: 50%;

@@ -1,5 +1,8 @@
 import '../App.css';
 import TupitruTitle from './Title';
+import Popup from './PopUp';
+import Markdown from 'react-markdown';
+import Rules from '../../../rules.md?raw';
 
 interface MainViewProps {
   roomCode: string;
@@ -53,7 +56,9 @@ function MainView({
         <div className="button-container">
           <button className="button-circle"></button>
           <button className="button-circle"></button>
-          <button className="button-rules">Rules</button>
+          <Popup buttonText="Rules" buttonClassName="button-rules">
+            <Markdown>{Rules}</Markdown>
+          </Popup>
         </div>
 
         <button className="button button-orange">Training mode</button>
