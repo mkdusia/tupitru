@@ -19,6 +19,7 @@ class Room:
             "awaiting_start": self.start_game,
             "awaiting_answers": self.settle_round,
             "settling_round": self.next_player,
+            "game_ended": self.restart_game,
         }
         self.board_state = BoardState()
 
@@ -88,6 +89,10 @@ class Room:
                 "board": self.board_state.data,
             }
         )
+
+    async def restart_game(self, emitter: Emitter) -> None:
+        self.board_state = BoardState()
+        await self.start_game(emitter)
 
     async def next_stage(self, emitter: Emitter) -> None:
         await self.change_state[self.state](emitter)
