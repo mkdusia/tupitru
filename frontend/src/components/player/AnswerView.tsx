@@ -2,12 +2,13 @@ import '../../App.css';
 import TupitruTitle from '../Title';
 
 interface AnswerViewProps {
+  answer: string;
   current_answer: number;
-  setAnswer: (answer: number) => void;
+  setAnswer: (answer: string) => void;
   handleSendAnswer: () => void;
 }
 
-function AnswerView({ current_answer, setAnswer, handleSendAnswer }: AnswerViewProps) {
+function AnswerView({ answer, current_answer, setAnswer, handleSendAnswer }: AnswerViewProps) {
   return (
     <div className="app-container">
       <TupitruTitle />
@@ -18,9 +19,9 @@ function AnswerView({ current_answer, setAnswer, handleSendAnswer }: AnswerViewP
         </div>
         <label className="label">Answer: </label>
         <input
-          name="nick"
           className="inputtext"
-          onChange={(event) => setAnswer(parseInt(event.target.value))}
+          value={answer}
+          onChange={(event) => setAnswer(event.target.value)}
         />
 
         <button className="button" onClick={handleSendAnswer}>

@@ -12,7 +12,7 @@ The objective is to find the shortest path (the fewest number of moves) for a sp
 * Players will join the game from their own devices and use them for bidding and proving their claims.
 
 ## 4. Gameplay Flow
-### The Reveal
+### The Reveal 
 At the beginning of each round a random square on the board lights up in one of the moles' colors.
 * **Target:** The mole of that specific color must reach the target on the board.
 * **Special Case (Multicolor Target):** If a "universal" target is revealed, **any** of the moles can be used to reach that target.

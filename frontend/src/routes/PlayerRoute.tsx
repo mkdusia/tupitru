@@ -17,7 +17,7 @@ export default function PlayerRoute() {
   const ws = useRef<WebSocket | null>(null);
   const [status, setStatus] = useState('connecting');
   const [countdown, setCountdown] = useState(5);
-  const [answer, setAnswer] = useState(0);
+  const [answer, setAnswer] = useState('');
   const [current_answer, setCurrentAnswer] = useState(0);
 
   const [respondent, setRespondent] = useState('');
@@ -70,6 +70,7 @@ export default function PlayerRoute() {
       }
 
       if (data.type === 'success' && data.message == 'answer') {
+        setAnswer('');
         setCurrentAnswer(data.answer);
       }
 
@@ -123,7 +124,7 @@ export default function PlayerRoute() {
       ws.current.send(
         JSON.stringify({
           type: 'answer',
-          answer: answer,
+          answer: parseInt(answer),
         })
       );
     }
@@ -174,6 +175,7 @@ export default function PlayerRoute() {
   if (status === 'playing') {
     return (
       <AnswerView
+        answer={answer}
         current_answer={current_answer}
         setAnswer={setAnswer}
         handleSendAnswer={handleSendAnswer}
