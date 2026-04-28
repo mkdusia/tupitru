@@ -201,6 +201,14 @@ class Room:
         res: dict[str, Any] = {}
         res["game_state"] = self.state
         res["host"] = id == self.host
+        if res["game_state"] == "settling_round":
+            res["respondent"] = self.current_respondent.nickname
+        if res["game_state"] == "game_ended":
+            res["ranking"] = sorted(
+                [(player.points, player.nickname) for player in self.players.values()],
+                key=lambda pr: pr[0],
+            )
+
         if not res["host"]:
             player = self.get_player(id)
             res["nickname"] = player.nickname
@@ -214,11 +222,5 @@ class Room:
             if res["game_state"] == "awaiting_answers" or res["game_state"] == "settling_round":
                 res["board"] = self.board_state.data.model_dump()
             if res["game_state"] == "settling_round":
-                res["respondent"] = self.current_respondent.nickname
                 res["answer"] = self.current_respondent.answer
-            if res["game_state"] == "game_ended":
-                res["ranking"] = sorted(
-                    [(player.points, player.nickname) for player in self.players.values()],
-                    key=lambda pr: pr[0],
-                )
         return res

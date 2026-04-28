@@ -58,12 +58,13 @@ The board data is sent as a JSON dictionary that contains the following fields:
 - `finish_mole [int]`: The color of the mole that one is supposed to lead to `finish`. This is a mole index (one of `0,1,2,3,4`) or `-1` if `finish` is a multicolor target.
 
 ### Reconnection game state
-The game state during reconnection can contain the following fields.
-- `game_state`: The state of the current game. Can be `no_game` (no room), `awaiting_start` (room exists, game not started), `awaiting_answers` (round started, players are thinking), `settling_round` (players are providing their solutions) or `game_end` (game ended). In case of `no_game` no other data is provided.
+The game state during reconnection can contain the following fields:
+- `game_state`: The state of the current game. Can be `no_game` (no room), `awaiting_start` (room exists, game not started), `awaiting_answers` (round started, players are thinking), `settling_round` (players are providing their solutions) or `game_ended` (game ended). In case of `no_game` no other data is provided.
 - `host`: Whether the user is a host.
 - `room_id`: The room id. Provided when `host` is true.
 - `nickname`: The nickname. Provided when `host` is false.
 - `answer`: The current answer. Provided when `host` is false and `game_state` is `awaiting_answers` or `settling_round`. Can also be provided when `host` is true and `game_state` is `settling_round`. In this case this is the answer given by the player currently providing a solution.
 - `respond`: Whether the user is expected to provide a solution. Provided when `host` is false and `game_state` is `settling_round`.
 - `board` The state of the board. Provided when `respond` is true or `host` is true and `game_state` is `awaiting_answers` or `settling_round`.
-- `respondent`: The nickname of the player currently providing a solution. Provided when `host` is true and `game_state` is `settling_round`.
+- `respondent`: The nickname of the player currently providing a solution. Provided when `game_state` is `settling_round`.
+- `ranking`: The sorted list of pairs `(points, nickname)` of all players. Provided when `game_state` is `game_ended`
