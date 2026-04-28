@@ -7,6 +7,6 @@ RoomStatus = (
     | Literal["game_ended"]
 )
 
-Mole = Literal[0, 1, 2, 3, 4, 5]
+Mole = Literal[0, 1, 2, 3, 4]
 
 Direction = Literal[0, 1, 2, 3]

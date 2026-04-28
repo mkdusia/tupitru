@@ -28,16 +28,16 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `skip_round`: Skip the current round. Can only be performed by the host when the players present their solutions. Otherwise sends back an error.
 - `join`: Join a room. Requires appropriate `room_id` and `nickname`. Sends back an info to the host and the players or an error to the sender if the room doesn't exist. Sends back the `room_id` of the room.
 - `answer`: Give the answer to a game round. Requires `answer` that is an integer. Sends back an error to the sender if they aren't taking a part in a game. Sending a non-positive value clears the answer. Sends back the saved `answer` to the sender and informs the host.
-- `respond`: Give a step of your response. Takes `mole` and `direction` that are integers representing the move. Sends back an error if the action is not permitted. Sends back the current `board`.
+- `respond`: Give a step of your response. Takes `mole` and `direction`. `mole` is the index of the moving mole, i.e. index in the `mole_position` array (see [Board description](#board-description)). `direction` is one of the characters `U`, `R`, `D`, `L`. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `give_up`: Give up trying to prove your answer. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `revert`: Revert the previous step in your response. Sends back an error if the action is not permitted. Sends back the current `board`.
 
 #### Server-types (messages)
 - `player_disconnected`: A player has disconnected from your room. Sends their `nickname`. This gets sent to the other players and the host.
 - `room_destroyed`: The host of your room has disconnected. This gets sent to the players.
-- `game_start`: The game in your room was started. `board` is the current game board. This gets sent to the players and the host.
+- `game_start`: The round in your room was started. `board` is the current game board. This gets sent to the players and the host.
 - `player_joined`: A player with the nickname `nickname` entered your room. This gets sent to the other players and the host.
-- `game_end`: The game in your room ended. This gets sent to the players and the host.
+- `game_end`: The game in your room ended. `ranking` is a sorted list of pairs `(points, nickname)`. This gets sent to the players and the host.
 - `awaiting_response`: The game awaits a solution from the player with nickname `respondent` who claimed the best solution. This gets sent to the other players and the host.
 - `respond`: You are the player who claimed the best solution. You are expected to provide the solution. `board` is the current board.
 - `player_answered`: The player `nickname` gave answer `answer`. This gets sent to the host.
@@ -48,15 +48,23 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `won`: You won the round.
 
 ### Board description
-TODO
+The board data is sent as a JSON dictionary that contains the following fields:
+- `width [int]`: The width of the board.
+- `height [int]`: The height of the board.
+- `grid [list[list[Cell]]]`: The cells on the board. This is a two-dimensional list (indexed first by the vertical coordinate and then by the horizontal) of `Cells` - dictionaries with a four-element array `walls` of bools that denote whether the upper, right, lower, and left side of the cell contains a wall.
+- `mole_position [list[Position]]`: The five-element list of the positions of the moles. The moles are always referred to by their index in this array. A single entry in this array is a dictionary with int fields `x` and `y` that denote respectively the horizontal and vertical coordinates of the field.
+- `moves [int]`: Moves made so far by the player showing their solution.
+- `finish [Position]`: The field where one is supposed to lead the mole in order to win. This a dictionary with int fields `x` and `y` that denote respectively the horizontal and vertical coordinates of the field.
+- `finish_mole [int]`: The color of the mole that one is supposed to lead to `finish`. This is a mole index (one of `0,1,2,3,4`) or `-1` if `finish` is a multicolor target.
 
 ### Reconnection game state
-The game state during reconnection can contain the following fields.
-- `game_state`: The state of the current game. Can be `no_game` (no room), `awaiting_start` (room exists, game not started), `awaiting_answers` (round started, players are thinking), `settling_round` (players are providing their solutions) or `game_end` (game ended). In case of `no_game` no other data is provided.
+The game state during reconnection can contain the following fields:
+- `game_state`: The state of the current game. Can be `no_game` (no room), `awaiting_start` (room exists, game not started), `awaiting_answers` (round started, players are thinking), `settling_round` (players are providing their solutions) or `game_ended` (game ended). In case of `no_game` no other data is provided.
 - `host`: Whether the user is a host.
 - `room_id`: The room id. Provided when `host` is true.
 - `nickname`: The nickname. Provided when `host` is false.
 - `answer`: The current answer. Provided when `host` is false and `game_state` is `awaiting_answers` or `settling_round`. Can also be provided when `host` is true and `game_state` is `settling_round`. In this case this is the answer given by the player currently providing a solution.
 - `respond`: Whether the user is expected to provide a solution. Provided when `host` is false and `game_state` is `settling_round`.
 - `board` The state of the board. Provided when `respond` is true or `host` is true and `game_state` is `awaiting_answers` or `settling_round`.
-- `respondent`: The nickname of the player currently providing a solution. Provided when `host` is true and `game_state` is `settling_round`.
+- `respondent`: The nickname of the player currently providing a solution. Provided when `game_state` is `settling_round`.
+- `ranking`: The sorted list of pairs `(points, nickname)` of all players. Provided when `game_state` is `game_ended`
