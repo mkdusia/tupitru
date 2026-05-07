@@ -23,7 +23,7 @@ export default function PlayerRoute() {
   const [respondent, setRespondent] = useState('');
 
   const [mole, setMole] = useState(-1);
-  const [direction, setDirection] = useState(-1);
+  const [direction, setDirection] = useState('');
 
   useEffect(() => {
     if (!nick || !roomCode) {

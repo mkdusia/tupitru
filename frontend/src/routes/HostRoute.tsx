@@ -58,10 +58,14 @@ export default function HostRoute() {
           const playerIdx = tmpPlayersAnswered.findIndex((p) => p.nick === data.nickname);
           // console.log('idx:', {playerIdx}, 'nick:', data.nickname, data.answer);
 
-          if (playerIdx === -1) {
+          if (playerIdx !== -1) {
+            if (data.answer === -1) {
+              tmpPlayersAnswered.splice(playerIdx, 1);
+            } else {
+              tmpPlayersAnswered[playerIdx] = { nick: data.nickname, answer: data.answer };
+            }
+          } else if (data.answer !== -1) {
             tmpPlayersAnswered.push({ nick: data.nickname, answer: data.answer });
-          } else {
-            tmpPlayersAnswered[playerIdx] = { nick: data.nickname, answer: data.answer };
           }
           // console.log(tmpPlayersAnswered);
 

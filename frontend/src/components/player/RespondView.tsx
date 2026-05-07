@@ -4,7 +4,7 @@ import TupitruTitle from '../Title';
 interface RespondViewProps {
   answer: number;
   setMole: (num: number) => void;
-  setDirection: (num: number) => void;
+  setDirection: (dir: string) => void;
   handleSendStep: () => void;
   handleGiveUp: () => void;
   handleRevert: () => void;
@@ -47,16 +47,16 @@ function RespondView({
 
         <div className="button-container">
           <label> Choose direction: </label>
-          <button className="button-circle" onClick={() => setDirection(0)}>
+          <button className="button-circle" onClick={() => setDirection('L')}>
             L
           </button>
-          <button className="button-circle" onClick={() => setDirection(1)}>
+          <button className="button-circle" onClick={() => setDirection('U')}>
             U
           </button>
-          <button className="button-circle" onClick={() => setDirection(2)}>
+          <button className="button-circle" onClick={() => setDirection('R')}>
             R
           </button>
-          <button className="button-circle" onClick={() => setDirection(3)}>
+          <button className="button-circle" onClick={() => setDirection('D')}>
             D
           </button>
         </div>
