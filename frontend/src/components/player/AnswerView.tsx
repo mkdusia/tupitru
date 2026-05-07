@@ -6,9 +6,16 @@ interface AnswerViewProps {
   current_answer: number;
   setAnswer: (answer: string) => void;
   handleSendAnswer: () => void;
+  handleResetAnswer: () => void;
 }
 
-function AnswerView({ answer, current_answer, setAnswer, handleSendAnswer }: AnswerViewProps) {
+function AnswerView({
+  answer,
+  current_answer,
+  setAnswer,
+  handleSendAnswer,
+  handleResetAnswer,
+}: AnswerViewProps) {
   return (
     <div className="app-container">
       <TupitruTitle />
@@ -26,6 +33,9 @@ function AnswerView({ answer, current_answer, setAnswer, handleSendAnswer }: Ans
 
         <button className="button" onClick={handleSendAnswer}>
           Send
+        </button>
+        <button className="button" onClick={handleResetAnswer}>
+          Reset
         </button>
       </div>
     </div>

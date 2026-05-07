@@ -94,7 +94,9 @@ export default function PlayerRoute() {
 
       if (data.type === 'error') {
         alert('Error: ' + data.message);
-        navigate('/');
+        if (data.message !== 'Invalid event format') {
+          navigate('/');
+        }
       }
     };
 
@@ -125,6 +127,18 @@ export default function PlayerRoute() {
         JSON.stringify({
           type: 'answer',
           answer: parseInt(answer),
+        })
+      );
+    }
+  };
+
+  const handleResetAnswer = () => {
+    setAnswer('');
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(
+        JSON.stringify({
+          type: 'answer',
+          answer: -1,
         })
       );
     }
@@ -179,6 +193,7 @@ export default function PlayerRoute() {
         current_answer={current_answer}
         setAnswer={setAnswer}
         handleSendAnswer={handleSendAnswer}
+        handleResetAnswer={handleResetAnswer}
       />
     );
   }
