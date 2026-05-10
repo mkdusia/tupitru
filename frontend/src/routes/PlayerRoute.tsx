@@ -81,6 +81,8 @@ export default function PlayerRoute() {
       }
 
       if (data.type === 'info' && data.message === 'game_start') {
+        setAnswer('');
+        setCurrentAnswer(0);
         setStatus('playing');
       }
 

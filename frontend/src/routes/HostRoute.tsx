@@ -5,6 +5,7 @@ import type { PlayerAnswer } from '../types';
 import HostRoomView from '../components/host/HostRoomView';
 import GameView from '../components/host/GameView';
 import { useNavigate, useParams } from 'react-router-dom';
+import RoundWinnerView from '../components/host/RoundWinnerView';
 
 export default function HostRoute() {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ export default function HostRoute() {
   const [playersAnswered, setPlayersAnswered] = useState<PlayerAnswer[]>([]);
 
   const [boardData, setBoardData] = useState(null);
+
+  const [winner, setWinner] = useState('');
 
   useEffect(() => {
     if (ws.current) return;
@@ -85,6 +88,11 @@ export default function HostRoute() {
         });
       }
 
+      if (data.type === 'info' && data.message === 'winner') {
+        setWinner(data.nickname);
+        setStatus('winner');
+      }
+
       if (data.type === 'error') {
         alert('Error: ' + data.message);
         navigate('/');
@@ -104,7 +112,7 @@ export default function HostRoute() {
     };
   }, []);
 
-  const handleGameStart = () => {
+  const handleStartGame = () => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(
         JSON.stringify({
@@ -143,13 +151,17 @@ export default function HostRoute() {
     );
   }
 
+  if (status === 'winner') {
+    return <RoundWinnerView nickname={winner} handleStartGame={handleStartGame} />;
+  }
+
   const QRUrl = `${frontURL}/?room=${roomCode}`;
 
   return (
     <HostRoomView
       roomCode={currentRoomCode}
       players={players}
-      handleStartGame={handleGameStart}
+      handleStartGame={handleStartGame}
       handleCloseRoom={handleCloseRoom}
       currentURL={QRUrl}
     />
