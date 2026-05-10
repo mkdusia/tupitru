@@ -54,8 +54,11 @@ export default function HostRoute() {
       }
 
       if (data.type === 'info' && data.message === 'game_start') {
-        setBoardData(data.board);
         setStatus('start_game');
+      }
+
+      if (data.board) {
+        setBoardData(data.board);
       }
 
       if (data.type === 'info' && data.message === 'player_answered') {

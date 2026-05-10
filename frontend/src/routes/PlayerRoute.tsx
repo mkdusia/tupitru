@@ -6,6 +6,7 @@ import AnswerView from '../components/player/AnswerView';
 import RespondView from '../components/player/RespondView';
 import AwaitingResponseView from '../components/player/AwaitingResponseView';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import WonRoundView from '../components/player/WonRoundView';
 
 export default function PlayerRoute() {
   const navigate = useNavigate();
@@ -90,6 +91,10 @@ export default function PlayerRoute() {
 
       if (data.type === 'info' && data.message === 'respond') {
         setStatus('showing_solution');
+      }
+
+      if (data.type === 'info' && data.message === 'won') {
+        setStatus('won');
       }
 
       if (data.type === 'error') {
@@ -217,5 +222,9 @@ export default function PlayerRoute() {
         handleRevert={handleRevert}
       />
     );
+  }
+
+  if (status === 'won') {
+    return <WonRoundView />;
   }
 }
