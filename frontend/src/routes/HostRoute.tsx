@@ -21,6 +21,8 @@ export default function HostRoute() {
 
   const [playersAnswered, setPlayersAnswered] = useState<PlayerAnswer[]>([]);
 
+  const [boardData, setBoardData] = useState(null);
+
   useEffect(() => {
     if (ws.current) return;
 
@@ -36,7 +38,7 @@ export default function HostRoute() {
     socket.onmessage = (event: { data: string }) => {
       const data = JSON.parse(event.data);
 
-      console.log(data.type + ' ' + data.message);
+      console.log(data);
 
       if (data.type === 'success' && data.message === 'host') {
         setCurrentRoomCode(data.room_id);
@@ -49,6 +51,11 @@ export default function HostRoute() {
 
       if (data.type === 'info' && data.message === 'player_disconnected') {
         setPlayers((prevPlayers) => prevPlayers.filter((player) => player !== data.nickname));
+      }
+
+      if (data.type === 'info' && data.message === 'game_start') {
+        setBoardData(data.board);
+        setStatus('start_game');
       }
 
       if (data.type === 'info' && data.message === 'player_answered') {
@@ -101,7 +108,6 @@ export default function HostRoute() {
           type: 'change_state',
         })
       );
-      setStatus('start_game');
     }
   };
 
@@ -127,6 +133,7 @@ export default function HostRoute() {
       <GameView
         totalPlayers={players.length}
         players={playersAnswered}
+        boardData={boardData}
         handleCloseRoom={handleCloseRoom}
         handleEndRound={handleEndRound}
       />

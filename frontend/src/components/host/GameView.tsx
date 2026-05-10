@@ -1,15 +1,22 @@
 import '../../App.css';
 import GameWrapper from './GameWrapper';
-import type { PlayerAnswer } from '../../types';
+import type { PlayerAnswer, BoardData } from '../../types';
 
 interface GameViewProps {
   totalPlayers: number;
   players: PlayerAnswer[];
+  boardData: BoardData | null;
   handleCloseRoom: () => void;
   handleEndRound: () => void;
 }
 
-const GameView = ({ totalPlayers, players, handleCloseRoom, handleEndRound }: GameViewProps) => {
+const GameView = ({
+  totalPlayers,
+  players,
+  boardData,
+  handleCloseRoom,
+  handleEndRound,
+}: GameViewProps) => {
   return (
     <div className="app-container">
       {/* <h1 className='title'>Game View</h1> */}
@@ -27,7 +34,7 @@ const GameView = ({ totalPlayers, players, handleCloseRoom, handleEndRound }: Ga
             ))}
           </ul>
         )}
-        <GameWrapper></GameWrapper>
+        <GameWrapper boardData={boardData}></GameWrapper>
         <h2 className="counter">
           {players.length} / {totalPlayers}
           {/*some type of placeholder */}

@@ -58,7 +58,7 @@ export default function PlayerRoute() {
     socket.onmessage = (event: { data: string }) => {
       const data = JSON.parse(event.data);
 
-      console.log(data.type + ' ' + data.message);
+      console.log(data);
 
       if (data.type === 'success' || data.type === 'error') {
         clearTimeout(connectingTimeout);
