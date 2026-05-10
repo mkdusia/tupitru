@@ -60,7 +60,7 @@ export default function HostRoute() {
       }
 
       if (data.type === 'info' && data.message === 'game_start') {
-        setPlayers([]);
+        setPlayersAnswered([]);
         setStatus('start_game');
       }
 
