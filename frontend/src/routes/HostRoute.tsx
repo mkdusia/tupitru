@@ -4,8 +4,9 @@ import type { PlayerAnswer } from '../types';
 
 import HostRoomView from '../components/host/HostRoomView';
 import GameView from '../components/host/GameView';
-import { useNavigate, useParams } from 'react-router-dom';
+import ShowingSolutionView from '../components/host/ShowingSolutionView';
 import RoundWinnerView from '../components/host/RoundWinnerView';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function HostRoute() {
   const navigate = useNavigate();
@@ -23,6 +24,8 @@ export default function HostRoute() {
   const [playersAnswered, setPlayersAnswered] = useState<PlayerAnswer[]>([]);
 
   const [boardData, setBoardData] = useState(null);
+
+  const [respondent, setRespondent] = useState('');
 
   const [winner, setWinner] = useState('');
 
@@ -57,6 +60,7 @@ export default function HostRoute() {
       }
 
       if (data.type === 'info' && data.message === 'game_start') {
+        setPlayers([]);
         setStatus('start_game');
       }
 
@@ -86,6 +90,11 @@ export default function HostRoute() {
 
           return tmpPlayersAnswered;
         });
+      }
+
+      if (data.type === 'info' && data.message === 'awaiting_response') {
+        setRespondent(data.respondent);
+        setStatus('showing');
       }
 
       if (data.type === 'info' && data.message === 'winner') {
@@ -149,6 +158,10 @@ export default function HostRoute() {
         handleEndRound={handleEndRound}
       />
     );
+  }
+
+  if (status === 'showing') {
+    return <ShowingSolutionView nickname={respondent} boardData={boardData} />;
   }
 
   if (status === 'winner') {
