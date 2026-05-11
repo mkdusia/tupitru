@@ -104,7 +104,9 @@ export default function HostRoute() {
 
       if (data.type === 'info' && data.message === 'winner') {
         setWinner(data.nickname);
-        setStatus('winner');
+        setTimeout(() => {
+          setStatus('winner');
+        });
       }
 
       if (data.type === 'info' && data.message === 'game_end') {
