@@ -94,6 +94,8 @@ class BoardState:
         pos, mole = self.finish_positions.pop()
         self.board.finish = pos
         self.board.finish_mole = mole
+        if self.finish_state():
+            return self.next_round()
         return True
 
     def modify(self, mole_id: Mole, direction: Direction) -> None:
@@ -112,8 +114,8 @@ class BoardState:
         """
         if len(self.move_stack) > 0:
             mole, pos = self.move_stack.pop()
-            self.board.mole_position[mole].x = pos.x;
-            self.board.mole_position[mole].y = pos.y;
+            self.board.mole_position[mole].x = pos.x
+            self.board.mole_position[mole].y = pos.y
 
     def clear(self) -> None:
         """
