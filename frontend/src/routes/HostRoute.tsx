@@ -171,7 +171,7 @@ export default function HostRoute() {
       ws.current.send(
         JSON.stringify({
           type: 'kick',
-          player: nick,
+          nickname: nick,
         })
       );
     }

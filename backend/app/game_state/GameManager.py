@@ -192,6 +192,19 @@ class GameManager:
         room.end_settling()
         await room.next_stage(self.emit_event)
 
+    async def kick(self, host_id: UUID, nickname: str) -> None:
+        """
+        Kick a player out of the room.
+        """
+        room = self.get_room(host_id)
+        if room is None or not room.is_host(host_id):
+            await self._error(host_id, "You cannot kick this player out.")
+            return
+        id = room.kick(nickname)
+        await self.emit_event(
+            {"type": "kick", "notify": [host_id], "nickname": nickname, "player_id": id}
+        )
+
     def get_state(self, id: UUID) -> dict[str, Any]:
         """
         Get the current state of the game a given user is in.

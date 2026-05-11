@@ -48,6 +48,12 @@ class Room:
         """
         return self.host == host
 
+    def is_host(self, host: UUID) -> bool:
+        """
+        Check whether a given user is the host.
+        """
+        return self.host == host
+
     def can_skip_round(self, host: UUID) -> bool:
         """
         Check whether a given user can skip a round in this room.
@@ -65,6 +71,16 @@ class Room:
         Set a players answer.
         """
         self.players[player].answer = answer
+
+    def kick(self, nickname: str) -> UUID | None:
+        """
+        Kick a player out of the room.
+        """
+        for key, player in list(self.players.items()):
+            if player.nickname == nickname:
+                del self.players[key]
+                return key
+        return None
 
     async def start_game(self, emitter: Emitter) -> None:
         """

@@ -98,3 +98,10 @@ class WinnerEvent(BaseModel):
     notify: list[UUID]
     player_id: UUID
     nickname: str
+
+
+class KickEvent(BaseModel):
+    type: Literal["kick"]
+    notify: list[UUID]
+    nickname: str
+    player_id: UUID
