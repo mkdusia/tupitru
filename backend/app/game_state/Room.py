@@ -100,7 +100,7 @@ class Room:
             if not self.board_state.next_round():
                 self.state = "game_ended"
                 players = [(player.points, player.nickname) for player in self.players.values()]
-                players.sort(key=lambda pr: pr[0])
+                players.sort(key=lambda pr: pr[0], reverse=True)
                 await emitter({"type": "game_end", "notify": to_notify, "ranking": players})
             else:
                 await self.start_game(emitter)
