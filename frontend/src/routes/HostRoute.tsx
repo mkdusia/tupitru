@@ -124,6 +124,12 @@ export default function HostRoute() {
         alert('Error: ' + data.message);
         navigate('/');
       }
+
+      if (data.type === 'kick') {
+        setPlayers((prevPlayers) => {
+          return prevPlayers.filter((player) => player !== data.nickname);
+        });
+      }
     };
 
     return () => {
@@ -174,6 +180,7 @@ export default function HostRoute() {
           nickname: nick,
         })
       );
+      setPlayers((prevPlayers) => prevPlayers.filter((p) => p !== nick));
     }
   };
 

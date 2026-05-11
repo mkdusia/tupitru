@@ -105,6 +105,11 @@ export default function PlayerRoute() {
           navigate('/');
         }
       }
+
+      if (data.type === 'info' && data.message === 'kick') {
+        navigate('/', { state: { previousNick: nick } });
+        alert('You have been kicked out by host.');
+      }
     };
 
     socket.onclose = (event) => {
