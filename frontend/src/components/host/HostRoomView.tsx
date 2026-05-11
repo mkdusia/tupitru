@@ -1,6 +1,9 @@
 import '../../App.css';
 import '../../Room.css';
 import ArrowIcon from '../../assets/ArrowIcon';
+import Popup from '../PopUp';
+import Markdown from 'react-markdown';
+import Rules from '../../../../rules.md?raw';
 
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -76,10 +79,12 @@ function HostRoomView({
             Close Room
           </button>
         </div>
-        <div className="side-controls">
+        <div className="side-controls wrapper">
           <button className="button-circle"></button>
           <button className="button-circle"></button>
-          <button className="button-rules button-yellow">Rules</button>
+          <Popup buttonText="Rules" buttonClassName="button-rules">
+            <Markdown>{Rules}</Markdown>
+          </Popup>
         </div>
       </div>
     </div>
