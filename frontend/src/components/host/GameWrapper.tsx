@@ -18,6 +18,11 @@ const GameWrapper = ({ boardData }: GameWrapperProps) => {
       gameRef.current = new Phaser.Game({
         ...config,
         parent: containerRef.current,
+        scale: {
+          ...config.scale,
+          mode: Phaser.Scale.FIT,
+          autoCenter: Phaser.Scale.CENTER_BOTH,
+        },
       });
 
       gameRef.current.events.once('ready', () => {
@@ -39,7 +44,7 @@ const GameWrapper = ({ boardData }: GameWrapperProps) => {
     }
   }, [boardData, isReady]);
 
-  return <div ref={containerRef} className="game-container" />;
+  return <div ref={containerRef} className="phaser-wrapper" />;
 };
 
 export default GameWrapper;

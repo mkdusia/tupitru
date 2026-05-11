@@ -9,13 +9,16 @@ interface ShowingSolutionViewProps {
 
 const ShowingSolutionView = ({ nickname, boardData }: ShowingSolutionViewProps) => {
   return (
-    <div className="app-container">
+    <div className="show-solution-container">
       {/* <h1 className='title'>Game View</h1> */}
-
-      <div className="wrapper">
-        <h3>Player {nickname} showing their solution:</h3>
-        <GameWrapper boardData={boardData}></GameWrapper>
+      <div className="left-section"></div>
+      <div className="middle-section">
+        <div className="wrapper" style={{ marginTop: -50 }}>
+          <h3>Player {nickname} showing their solution:</h3>
+          <GameWrapper boardData={boardData}></GameWrapper>
+        </div>
       </div>
+      <div className="right-section"></div>
     </div>
   );
 };

@@ -13,11 +13,10 @@ function RoundWinnerView({ nickname, handleStartGame }: RoundWinnerViewProps) {
 
       <div className="wrapper">
         <h1> Player {nickname} has won the round! </h1>
+        <button className="button button-white button-ret" onClick={handleStartGame}>
+          Next round
+        </button>
       </div>
-
-      <button className="button button-white button-ret" onClick={handleStartGame}>
-        Next round
-      </button>
     </div>
   );
 }

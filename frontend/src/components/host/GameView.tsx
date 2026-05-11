@@ -20,6 +20,12 @@ const GameView = ({
   return (
     <div className="game-container">
       {/* <h1 className='title'>Game View</h1> */}
+      <div
+        className="left-section"
+        style={{ paddingTop: 0, paddingBottom: 0, paddingLeft: 40, paddingRight: 10 }}
+      >
+        <GameWrapper boardData={boardData}></GameWrapper>
+      </div>
       <div className="right-section">
         <div className="wrapper">
           <h3>Answers:</h3>
@@ -45,9 +51,6 @@ const GameView = ({
         <button className="button" onClick={handleCloseRoom}>
           Close Room
         </button>
-      </div>
-      <div className="left-section">
-        <GameWrapper boardData={boardData}></GameWrapper>
       </div>
     </div>
   );
