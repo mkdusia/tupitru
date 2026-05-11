@@ -1,7 +1,7 @@
 import json
 from pydantic import BaseModel
 from app.game_state.schemas import Direction, Mole
-from typing import Literal, cast
+from typing import Literal
 from pathlib import Path
 from random import shuffle
 
@@ -16,6 +16,7 @@ class Position(BaseModel):
 
 
 class BoardData(BaseModel):
+    model_config = {"validate_assignment": True}
     width: int
     height: int
     grid: list[list[Cell]]
@@ -47,7 +48,7 @@ class BoardData(BaseModel):
 
 class BoardState:
     board: BoardData
-    move_stack: list[tuple[Mole, Direction]] = []
+    move_stack: list[tuple[Mole, Position]] = []
     finish_positions: list[tuple[Position, Mole | Literal[-1]]]
 
     def __init__(self, file: Path = Path(__file__).parent.resolve() / "static/board1.json"):
@@ -93,13 +94,15 @@ class BoardState:
         pos, mole = self.finish_positions.pop()
         self.board.finish = pos
         self.board.finish_mole = mole
+        if self.finish_state():
+            return self.next_round()
         return True
 
     def modify(self, mole_id: Mole, direction: Direction) -> None:
         """
         Perform a single move
         """
-        self.move_stack.append((mole_id, direction))
+        self.move_stack.append((mole_id, self.board.mole_position[mole_id].model_copy()))
         curr_pos = self.board.mole_position[mole_id]
         next_pos = self._get_move(curr_pos, direction)
         self.board.mole_position[mole_id].x = next_pos.x
@@ -110,11 +113,9 @@ class BoardState:
         Revert the previous un-flushed move
         """
         if len(self.move_stack) > 0:
-            mole, direction = self.move_stack.pop()
-            curr_pos = self.board.mole_position[mole]
-            next_pos = self._get_move(curr_pos, cast(Literal[0, 1, 2, 3], (direction + 2) % 4))
-            self.board.mole_position[mole].x = next_pos.x
-            self.board.mole_position[mole].y = next_pos.y
+            mole, pos = self.move_stack.pop()
+            self.board.mole_position[mole].x = pos.x
+            self.board.mole_position[mole].y = pos.y
 
     def clear(self) -> None:
         """

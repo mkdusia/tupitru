@@ -162,7 +162,6 @@ class GameManager:
                 "board": room.board_state.data,
             }
         )
-        await room.next_stage(self.emit_event)
 
     async def revert_move(self, player_id: UUID) -> None:
         """
@@ -189,8 +188,7 @@ class GameManager:
         if room is None or not room.can_skip_round(host_id):
             await self._error(host_id, "You do not have permission to perform this action.")
             return
-        room.end_settling()
-        await room.next_stage(self.emit_event)
+        await room.end_settling(self.emit_event)
 
     def get_state(self, id: UUID) -> dict[str, Any]:
         """
