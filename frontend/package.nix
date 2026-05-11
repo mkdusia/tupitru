@@ -29,6 +29,9 @@ let
       VITE_BASE_URL = backendUrl;
 
       src = ./.;
+      preBuild = ''
+        cp ${../rules.md} ../rules.md
+      '';
       npmDeps = importNpmLock {
         npmRoot = ./.;
       };

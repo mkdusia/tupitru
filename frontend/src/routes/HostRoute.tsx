@@ -76,9 +76,7 @@ export default function HostRoute() {
       if (data.type === 'info' && data.message === 'player_answered') {
         setPlayersAnswered((prevPlayers) => {
           const tmpPlayersAnswered = [...prevPlayers];
-          // console.log(tmpPlayersAnswered);
           const playerIdx = tmpPlayersAnswered.findIndex((p) => p.nick === data.nickname);
-          // console.log('idx:', {playerIdx}, 'nick:', data.nickname, data.answer);
 
           if (playerIdx !== -1) {
             if (data.answer === -1) {
@@ -89,7 +87,6 @@ export default function HostRoute() {
           } else if (data.answer !== -1) {
             tmpPlayersAnswered.push({ nick: data.nickname, answer: data.answer });
           }
-          // console.log(tmpPlayersAnswered);
 
           tmpPlayersAnswered.sort((a, b) => a.answer - b.answer);
 

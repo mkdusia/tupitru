@@ -59,6 +59,17 @@ class GameManager:
             await self._error(player_id, "The room does not exist.")
             return
 
+        if room.state != "awaiting_start":
+            await self._error(player_id, "The game has already started or ended.")
+            return
+
+        for player in room.players.values():
+            if player.nickname == nickname:
+                await self._error(
+                    player_id, f"The nickname '{nickname}' is already taken in this room."
+                )
+                return
+
         to_notify = list(room.players.keys())
         to_notify.append(room.host)
         room.add_player(player_id, nickname)
@@ -162,7 +173,6 @@ class GameManager:
                 "board": room.board_state.data,
             }
         )
-        await room.next_stage(self.emit_event)
 
     async def revert_move(self, player_id: UUID) -> None:
         """
@@ -189,8 +199,7 @@ class GameManager:
         if room is None or not room.can_skip_round(host_id):
             await self._error(host_id, "You do not have permission to perform this action.")
             return
-        room.end_settling()
-        await room.next_stage(self.emit_event)
+        await room.end_settling(self.emit_event)
 
     async def kick(self, host_id: UUID, nickname: str) -> None:
         """
