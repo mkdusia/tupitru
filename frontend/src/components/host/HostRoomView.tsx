@@ -29,10 +29,14 @@ function HostRoomView({
     <div className="main-container">
       <div className="left-section">
         <div className="wrapper">
-          <h2>Already joined:
-            <button className={`button button-circle ${isDeleteMode ? 'active' : ''}`} onClick={() => setIsDeleteMode(!isDeleteMode)}>
-                {isDeleteMode ? 'X' : 'Kick'}
-              </button>
+          <h2>
+            Already joined:
+            <button
+              className={`button button-circle ${isDeleteMode ? 'active' : ''}`}
+              onClick={() => setIsDeleteMode(!isDeleteMode)}
+            >
+              {isDeleteMode ? 'X' : 'Kick'}
+            </button>
           </h2>
 
           {players.length === 0 ? (
@@ -40,15 +44,18 @@ function HostRoomView({
           ) : (
             <ul className="players-list">
               {players.map((player, index) => (
-                <li key={index} className="player-item ${isDeleteMode ? 'delete-ready' : ''}"
-                onClick={() => isDeleteMode && handleKickPlayer(player)}
-                style={{
-                  cursor: isDeleteMode ? 'pointer' : 'default',
-                  border: isDeleteMode ? '4px solid #72071efd' : '',
-                  boxShadow: isDeleteMode ? 'inset 0 0 0 1000px #72071e67' : 'none',
-                  transition: 'all 0.2s',
-                  position: 'relative'
-                }}>
+                <li
+                  key={index}
+                  className="player-item ${isDeleteMode ? 'delete-ready' : ''}"
+                  onClick={() => isDeleteMode && handleKickPlayer(player)}
+                  style={{
+                    cursor: isDeleteMode ? 'pointer' : 'default',
+                    border: isDeleteMode ? '4px solid #72071efd' : '',
+                    boxShadow: isDeleteMode ? 'inset 0 0 0 1000px #72071e67' : 'none',
+                    transition: 'all 0.2s',
+                    position: 'relative',
+                  }}
+                >
                   {player}
                 </li>
               ))}

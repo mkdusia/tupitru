@@ -6,6 +6,7 @@ import HostRoomView from '../components/host/HostRoomView';
 import GameView from '../components/host/GameView';
 import ShowingSolutionView from '../components/host/ShowingSolutionView';
 import RoundWinnerView from '../components/host/RoundWinnerView';
+import GameEndView from '../components/host/GameEndView';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function HostRoute() {
@@ -29,6 +30,8 @@ export default function HostRoute() {
   const [respondent, setRespondent] = useState('');
 
   const [winner, setWinner] = useState('');
+
+  const [ranking, setRanking] = useState<PlayerAnswer[]>([]);
 
   useEffect(() => {
     if (ws.current) return;
@@ -62,6 +65,7 @@ export default function HostRoute() {
 
       if (data.type === 'info' && data.message === 'game_start') {
         setPlayersAnswered([]);
+        setRanking([]);
         setStatus('start_game');
       }
 
@@ -101,6 +105,17 @@ export default function HostRoute() {
       if (data.type === 'info' && data.message === 'winner') {
         setWinner(data.nickname);
         setStatus('winner');
+      }
+
+      if (data.type === 'info' && data.message === 'game_end') {
+        setRanking(() => {
+          return data.ranking.map(([points, nickname]: [number, string]) => ({
+            nick: nickname,
+            answer: points,
+          }));
+        });
+        console.log(ranking);
+        setStatus('game_end');
       }
 
       if (data.type === 'error') {
@@ -150,7 +165,7 @@ export default function HostRoute() {
   };
 
   const handleKickPlayer = (nick: string) => {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(
         JSON.stringify({
           type: 'kick',
@@ -158,7 +173,7 @@ export default function HostRoute() {
         })
       );
     }
-  }
+  };
 
   if (status === 'start_game') {
     return (
@@ -178,6 +193,16 @@ export default function HostRoute() {
 
   if (status === 'winner') {
     return <RoundWinnerView nickname={winner} handleStartGame={handleStartGame} />;
+  }
+
+  if (status === 'game_end') {
+    return (
+      <GameEndView
+        ranking={ranking}
+        handleStartGame={handleStartGame}
+        handleCloseRoom={handleCloseRoom}
+      />
+    );
   }
 
   const QRUrl = `${frontURL}/?room=${roomCode}`;
