@@ -17,7 +17,10 @@ class GameManager:
     def set_emitter(self, emitter: Emitter) -> None:
         self.emit_event = emitter
 
-    async def error(self, id: UUID, message: str) -> None:
+    async def _error(self, id: UUID, message: str) -> None:
+        """
+        Broadcast an error.
+        """
         await self.emit_event(
             {
                 "type": "propagate_error",
@@ -41,16 +44,16 @@ class GameManager:
     async def join(self, player_id: UUID, room_id: str, nickname: str) -> None:
         room = self.rooms.get(room_id)
         if room is None:
-            await self.error(player_id, "The room does not exist.")
+            await self._error(player_id, "The room does not exist.")
             return
 
         if room.state != "awaiting_start":
-            await self.error(player_id, "The game has already started or ended.")
+            await self._error(player_id, "The game has already started or ended.")
             return
 
         for player in room.players.values():
             if player.nickname == nickname:
-                await self.error(
+                await self._error(
                     player_id, f"The nickname '{nickname}' is already taken in this room."
                 )
                 return
@@ -72,7 +75,7 @@ class GameManager:
     async def change_game_state(self, host_id: UUID) -> None:
         room = self.get_room(host_id)
         if room is None or not room.can_change_state(host_id):
-            await self.error(host_id, "You do not have permission to perform this action.")
+            await self._error(host_id, "You do not have permission to perform this action.")
             return
         await room.next_stage(self.emit_event)
 
@@ -100,7 +103,7 @@ class GameManager:
     async def answer(self, player_id: UUID, answer: int) -> None:
         room = self.get_room(player_id)
         if room is None or not room.can_answer(player_id):
-            await self.error(player_id, "You cannot give your answer now.")
+            await self._error(player_id, "You cannot give your answer now.")
             return
         room.set_answer(player_id, answer)
         nickname = room.get_player(player_id).nickname
@@ -117,7 +120,7 @@ class GameManager:
     async def respond(self, player_id: UUID, mole: Mole, direction: Direction) -> None:
         room = self.get_room(player_id)
         if room is None or not room.respond(player_id, mole, direction):
-            await self.error(player_id, "You cannot give your response now.")
+            await self._error(player_id, "You cannot give your response now.")
             return
         await self.emit_event(
             {
@@ -133,7 +136,7 @@ class GameManager:
     async def give_up(self, player_id: UUID) -> None:
         room = self.get_room(player_id)
         if room is None or not room.give_up(player_id):
-            await self.error(player_id, "You cannot end your response now.")
+            await self._error(player_id, "You cannot end your response now.")
             return
         await self.emit_event(
             {
@@ -148,7 +151,7 @@ class GameManager:
     async def revert_move(self, player_id: UUID) -> None:
         room = self.get_room(player_id)
         if room is None or not room.revert_move(player_id):
-            await self.error(player_id, "You cannot revert your move.")
+            await self._error(player_id, "You cannot revert your move.")
             return
         await self.emit_event(
             {
@@ -162,7 +165,7 @@ class GameManager:
     async def skip(self, host_id: UUID) -> None:
         room = self.get_room(host_id)
         if room is None or not room.can_skip_round(host_id):
-            await self.error(host_id, "You do not have permission to perform this action.")
+            await self._error(host_id, "You do not have permission to perform this action.")
             return
         room.end_settling()
         await room.next_stage(self.emit_event)
