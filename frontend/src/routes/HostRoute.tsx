@@ -20,6 +20,7 @@ export default function HostRoute() {
   const [status, setStatus] = useState('waiting_for_players');
   const [currentRoomCode, setCurrentRoomCode] = useState(null);
   const [players, setPlayers] = useState<string[]>([]);
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
 
   const [playersAnswered, setPlayersAnswered] = useState<PlayerAnswer[]>([]);
 
@@ -148,6 +149,17 @@ export default function HostRoute() {
     }
   };
 
+  const handleKickPlayer = (nick: string) => {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(
+        JSON.stringify({
+          type: 'kick',
+          player: nick,
+        })
+      );
+    }
+  }
+
   if (status === 'start_game') {
     return (
       <GameView
@@ -176,6 +188,9 @@ export default function HostRoute() {
       players={players}
       handleStartGame={handleStartGame}
       handleCloseRoom={handleCloseRoom}
+      isDeleteMode={isDeleteMode}
+      setIsDeleteMode={setIsDeleteMode}
+      handleKickPlayer={handleKickPlayer}
       currentURL={QRUrl}
     />
   );

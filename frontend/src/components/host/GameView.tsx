@@ -18,23 +18,23 @@ const GameView = ({
   handleEndRound,
 }: GameViewProps) => {
   return (
-    <div className="app-container">
+    <div className="game-container">
       {/* <h1 className='title'>Game View</h1> */}
-
-      <div className="wrapper">
-        <h3>Already answered:</h3>
-        {players.length === 0 ? (
-          <p>Waiting for answers...</p>
-        ) : (
-          <ul>
-            {players.map((player, index) => (
-              <li key={index} className="player-item">
-                {player.nick}: {player.answer}
-              </li>
-            ))}
-          </ul>
-        )}
-        <GameWrapper boardData={boardData}></GameWrapper>
+      <div className="right-section">
+        <div className="wrapper">
+          <h3>Answers:</h3>
+          {players.length === 0 ? (
+            <p>Waiting for answers...</p>
+          ) : (
+            <ul>
+              {players.map((player, index) => (
+                <li key={index} className="player-item">
+                  {player.nick}: {player.answer}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <h2 className="counter">
           {players.length} / {totalPlayers}
           {/*some type of placeholder */}
@@ -45,6 +45,9 @@ const GameView = ({
         <button className="button" onClick={handleCloseRoom}>
           Close Room
         </button>
+      </div>
+      <div className="left-section">
+        <GameWrapper boardData={boardData}></GameWrapper>
       </div>
     </div>
   );
