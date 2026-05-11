@@ -173,6 +173,7 @@ class GameManager:
                 "board": room.board_state.data,
             }
         )
+        await room.next_stage(self.emit_event)
 
     async def revert_move(self, player_id: UUID) -> None:
         """

@@ -48,10 +48,11 @@ class BoardData(BaseModel):
 
 class BoardState:
     board: BoardData
-    move_stack: list[tuple[Mole, Position]] = []
+    move_stack: list[tuple[Mole, Position]]
     finish_positions: list[tuple[Position, Mole | Literal[-1]]]
 
     def __init__(self, file: Path = Path(__file__).parent.resolve() / "static/board1.json"):
+        self.move_stack = []
         with open(file) as f:
             data = json.load(f)
             self.finish_positions = data["finish_positions"]
