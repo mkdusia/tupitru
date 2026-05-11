@@ -36,7 +36,7 @@ export default class BoardScene extends Phaser.Scene {
   renderBoard(data: BoardData) {
     const { CELL_SIZE, OFFSET_X, OFFSET_Y } = this.getBoardMetrics(data.width, data.height);
 
-    const MOLE_COLORS = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff];
+    const MOLE_COLORS = [0xff9933, 0x99cc66, 0x66ccff, 0xffcc33, 0xff66cc];
     const MULTICOLOR_TARGET = 0xffffff;
 
     const targetColor = data.finish_mole === -1 ? MULTICOLOR_TARGET : MOLE_COLORS[data.finish_mole];

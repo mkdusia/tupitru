@@ -1,5 +1,8 @@
 import '../../App.css';
-import TupitruTitle from '../Title';
+import { useState } from 'react';
+import '../../RespondView.css';
+import CircleIcon from '../../assets/CircleIcon';
+import PadArrowIcon from '../../assets/PadArrowIcon';
 
 interface RespondViewProps {
   answer: number;
@@ -10,6 +13,14 @@ interface RespondViewProps {
   handleRevert: () => void;
 }
 
+const MOLES = [
+  { id: 0, color: '#ff9933' },
+  { id: 1, color: '#99cc66' },
+  { id: 2, color: '#66ccff' },
+  { id: 3, color: '#ffcc33' },
+  { id: 4, color: '#ff66cc' },
+];
+
 function RespondView({
   answer,
   setMole,
@@ -18,60 +29,133 @@ function RespondView({
   handleGiveUp,
   handleRevert,
 }: RespondViewProps) {
+  const [movesLeft, setMovesLeft] = useState<number>(answer);
+
+  const [activeMole, setActiveMole] = useState<number | null>(null);
+  const [activeDir, setActiveDir] = useState<string | null>(null);
+
+  const handleMoleClick = (id: number) => {
+    setActiveMole(id);
+    setMole(id);
+  };
+
+  const handleDirClick = (dir: string) => {
+    setActiveDir(dir);
+    setDirection(dir);
+  };
+
+  const onSendClick = () => {
+    if (movesLeft > 0) {
+      handleSendStep();
+      setMovesLeft((prev) => prev - 1);
+
+      setActiveMole(null);
+      setActiveDir(null);
+    }
+  };
+
+  const onRevertClick = () => {
+    if (movesLeft < answer) {
+      handleRevert();
+      setMovesLeft((prev) => prev + 1);
+    }
+  };
+
+  const defaultArrowColor = '#ffffff';
+  const currentArrowColor = activeMole !== null ? MOLES[activeMole].color : defaultArrowColor;
   return (
-    <div className="app-container">
-      <TupitruTitle />
+    <div className="mobile-container">
+      <div className="wrapper header-text">
+        <h1 className="title"> Show solution </h1>
+        <h2> {movesLeft} moves left </h2>
 
-      <div className="wrapper">
-        <h2> You have given the best answer of: {answer} </h2>
-        <h2> Show the solution: </h2>
-
-        <div className="button-container">
-          <label> Choose mole: </label>
-          <button className="button-circle" onClick={() => setMole(0)}>
-            0
-          </button>
-          <button className="button-circle" onClick={() => setMole(1)}>
-            1
-          </button>
-          <button className="button-circle" onClick={() => setMole(2)}>
-            2
-          </button>
-          <button className="button-circle" onClick={() => setMole(3)}>
-            3
-          </button>
-          <button className="button-circle" onClick={() => setMole(4)}>
-            4
-          </button>
+        <div className="moles-container">
+          <div className="moles-row top-row">
+            {MOLES.slice(0, 3).map((m) => (
+              <CircleIcon
+                key={m.id}
+                color={m.color}
+                isActive={activeMole === m.id}
+                onClick={() => handleMoleClick(m.id)}
+              />
+            ))}
+          </div>
+          <div className="moles-row bottom-row">
+            {MOLES.slice(3, 5).map((m) => (
+              <CircleIcon
+                key={m.id}
+                color={m.color}
+                isActive={activeMole === m.id}
+                onClick={() => handleMoleClick(m.id)}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="button-container">
-          <label> Choose direction: </label>
-          <button className="button-circle" onClick={() => setDirection('L')}>
-            L
-          </button>
-          <button className="button-circle" onClick={() => setDirection('U')}>
-            U
-          </button>
-          <button className="button-circle" onClick={() => setDirection('R')}>
-            R
-          </button>
-          <button className="button-circle" onClick={() => setDirection('D')}>
-            D
-          </button>
+        <div className="dpad-container">
+          <div className="dpad-up">
+            <PadArrowIcon
+              dir="U"
+              isActive={activeDir === 'U'}
+              onClick={() => handleDirClick('U')}
+              fillColor={currentArrowColor}
+            />
+          </div>
+          <div className="dpad-left">
+            <PadArrowIcon
+              dir="L"
+              isActive={activeDir === 'L'}
+              onClick={() => handleDirClick('L')}
+              fillColor={currentArrowColor}
+            />
+          </div>
+          <div className="dpad-right">
+            <PadArrowIcon
+              dir="R"
+              isActive={activeDir === 'R'}
+              onClick={() => handleDirClick('R')}
+              fillColor={currentArrowColor}
+            />
+          </div>
+          <div className="dpad-down">
+            <PadArrowIcon
+              dir="D"
+              isActive={activeDir === 'D'}
+              onClick={() => handleDirClick('D')}
+              fillColor={currentArrowColor}
+            />
+          </div>
         </div>
 
-        <button className="button" onClick={handleSendStep}>
-          Send
-        </button>
+        <div className="actions-container">
+          <button
+            className="button-send"
+            style={{ backgroundColor: currentArrowColor }}
+            onClick={onSendClick}
+          >
+            Send
+          </button>
 
-        <div className="button-container">
-          <button className="button" onClick={handleGiveUp}>
-            Give up
-          </button>
-          <button className="button" onClick={handleRevert}>
-            Revert
-          </button>
+          <div className="bottom-actions">
+            <button className="button-revert" onClick={onRevertClick}>
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                fill="none"
+                stroke="black"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 14L4 9l5-5" />
+                <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11" />
+              </svg>
+            </button>
+            <button className="button-giveup" onClick={handleGiveUp}>
+              Give Up
+            </button>
+          </div>
         </div>
       </div>
     </div>

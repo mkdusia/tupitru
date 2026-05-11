@@ -1,0 +1,147 @@
+.mobile-container {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+
+  justify-content: center;
+  gap: 50px;
+
+  padding: 20px 10px;
+  font-family: 'SpaceMono';
+  box-sizing: border-box;
+}
+
+.header-text h1 {
+  font-size: 1.8rem;
+  margin: 0 0 5px 0;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.header-text h2 {
+  font-size: 1.5rem;
+  margin: 0;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.moles-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 30px;
+}
+
+.moles-row {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.dpad-container {
+  display: grid;
+  grid-template-columns: 60px 60px 60px;
+  grid-template-rows: 60px 60px 60px;
+  gap: 10px;
+  justify-items: center;
+  align-items: center;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.dpad-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+.dpad-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+.dpad-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+.dpad-down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.arrow-icon {
+  width: clamp(75px, 22vw, 110px);
+  height: clamp(75px, 22vw, 110px);
+  cursor: pointer;
+}
+
+.actions-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.button-send {
+  background-color: #ffff;
+  color: black;
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: 3px solid black;
+  border-radius: 30px;
+  padding: 12px 40px;
+  cursor: pointer;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.4);
+  transition:
+    transform 0.1s,
+    box-shadow 0.1s;
+}
+
+.button-send:active {
+  transform: translateY(4px);
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.4);
+}
+
+.bottom-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.button-revert,
+.button-giveup {
+  background-color: white;
+  color: black;
+  font-family: inherit;
+  font-weight: bold;
+  border: 3px solid black;
+  cursor: pointer;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.4);
+  transition:
+    transform 0.1s,
+    box-shadow 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-revert {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+}
+
+.button-giveup {
+  border-radius: 30px;
+  font-size: 1.2rem;
+  padding: 10px 25px;
+}
+
+.button-revert:active,
+.button-giveup:active {
+  transform: translateY(4px);
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.4);
+}
