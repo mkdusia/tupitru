@@ -13,6 +13,7 @@ class Room:
 
         self.players: dict[UUID, Player] = {}
         self.state: RoomStatus = "awaiting_start"
+        self.accepting_response: bool = False
         self.ranking: list[Player] = []
         self.current_respondent: Player
         self.change_state: dict[RoomStatus, Callable[[Emitter], Awaitable[None]]] = {
@@ -82,6 +83,7 @@ class Room:
         Move into the phase of showing solutions.
         """
         self.state = "settling_round"
+        self.accepting_response = True
         self.ranking = list(self.players.values())
         self.ranking = list(filter(lambda player: player.answer > 0, self.ranking))
         self.ranking.sort(key=lambda player: player.answer, reverse=True)
@@ -94,6 +96,7 @@ class Room:
         to_notify = list(self.players.keys())
         to_notify.append(self.host)
         if len(self.ranking) == 0:
+            self.accepting_response = False
             if not self.board_state.next_round():
                 self.state = "game_ended"
                 players = [(player.points, player.nickname) for player in self.players.values()]
@@ -137,7 +140,7 @@ class Room:
         """
         Accept a response from a player.
         """
-        if self.state != "settling_round" or player != self.current_respondent.id:
+        if not self.accepting_response or player != self.current_respondent.id:
             return False
         pl = self.players[player]
         if self.board_state.moves < pl.answer:
@@ -148,13 +151,14 @@ class Room:
         """
         Check whether a solution is complete.
         """
-        return self.state == "settling_round" and self.board_state.finish_state()
+        return self.accepting_response and self.board_state.finish_state()
 
     async def win_round(self, emitter: Emitter) -> None:
         """
         Handle the end of a round.
         """
-        if self.state == "settling_round":
+        if self.state == "settling_round" and self.accepting_response:
+            self.accepting_response = False
             self.current_respondent.points += 1
             await emitter(
                 {
@@ -166,21 +170,21 @@ class Room:
             )
             self.board_state.flush()
             self.ranking = []
-            await self.next_stage(emitter)
 
-    def end_settling(self) -> None:
+    async def end_settling(self, emitter: Emitter) -> None:
         """
         End a round before the players provide their solutions.
         """
         if self.state == "settling_round":
             self.board_state.clear()
             self.ranking = []
+            await self.next_stage(emitter)
 
     def give_up(self, player: UUID) -> bool:
         """
         Allow a player to give up providing a solution.
         """
-        if self.state != "settling_round" or player != self.current_respondent.id:
+        if not self.accepting_response or player != self.current_respondent.id:
             return False
         self.board_state.clear()
         return True
