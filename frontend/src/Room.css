@@ -9,6 +9,17 @@
   height: 100vh;
 }
 
+.game-container {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  display: grid;
+  grid-template-columns: 40% 60%;
+  width: 100vw;
+  height: 100vh;
+}
+
 .left-section {
   padding: 20px;
   /* border-right: 1px dashed rgba(255,255,255,0.2); */

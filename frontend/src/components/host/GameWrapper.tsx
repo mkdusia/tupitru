@@ -1,16 +1,27 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import { config } from '../../phaser/config';
+import type { BoardData } from '../../types';
 
-const GameWrapper = () => {
+interface GameWrapperProps {
+  boardData: BoardData | null;
+}
+
+const GameWrapper = ({ boardData }: GameWrapperProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
+
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     if (!gameRef.current && containerRef.current) {
       gameRef.current = new Phaser.Game({
         ...config,
         parent: containerRef.current,
+      });
+
+      gameRef.current.events.once('ready', () => {
+        setIsReady(true);
       });
     }
 
@@ -21,6 +32,12 @@ const GameWrapper = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (isReady && gameRef.current && boardData) {
+      gameRef.current.events.emit('UPDATE_BOARD', boardData);
+    }
+  }, [boardData, isReady]);
 
   return <div ref={containerRef} className="game-container" />;
 };

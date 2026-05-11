@@ -6,6 +6,7 @@ import AnswerView from '../components/player/AnswerView';
 import RespondView from '../components/player/RespondView';
 import AwaitingResponseView from '../components/player/AwaitingResponseView';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import WonRoundView from '../components/player/WonRoundView';
 
 export default function PlayerRoute() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function PlayerRoute() {
   const [respondent, setRespondent] = useState('');
 
   const [mole, setMole] = useState(-1);
-  const [direction, setDirection] = useState(-1);
+  const [direction, setDirection] = useState('');
 
   useEffect(() => {
     if (!nick || !roomCode) {
@@ -58,7 +59,7 @@ export default function PlayerRoute() {
     socket.onmessage = (event: { data: string }) => {
       const data = JSON.parse(event.data);
 
-      console.log(data.type + ' ' + data.message);
+      console.log(data);
 
       if (data.type === 'success' || data.type === 'error') {
         clearTimeout(connectingTimeout);
@@ -80,6 +81,8 @@ export default function PlayerRoute() {
       }
 
       if (data.type === 'info' && data.message === 'game_start') {
+        setAnswer('');
+        setCurrentAnswer(0);
         setStatus('playing');
       }
 
@@ -92,9 +95,20 @@ export default function PlayerRoute() {
         setStatus('showing_solution');
       }
 
+      if (data.type === 'info' && data.message === 'won') {
+        setStatus('won');
+      }
+
       if (data.type === 'error') {
         alert('Error: ' + data.message);
-        navigate('/');
+        if (data.message !== 'Invalid event format') {
+          navigate('/');
+        }
+      }
+
+      if (data.type === 'info' && data.message === 'kick') {
+        navigate('/', { state: { previousNick: nick } });
+        alert('You have been kicked out by host.');
       }
     };
 
@@ -125,6 +139,18 @@ export default function PlayerRoute() {
         JSON.stringify({
           type: 'answer',
           answer: parseInt(answer),
+        })
+      );
+    }
+  };
+
+  const handleResetAnswer = () => {
+    setAnswer('');
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(
+        JSON.stringify({
+          type: 'answer',
+          answer: -1,
         })
       );
     }
@@ -179,6 +205,7 @@ export default function PlayerRoute() {
         current_answer={current_answer}
         setAnswer={setAnswer}
         handleSendAnswer={handleSendAnswer}
+        handleResetAnswer={handleResetAnswer}
       />
     );
   }
@@ -202,5 +229,9 @@ export default function PlayerRoute() {
         handleRevert={handleRevert}
       />
     );
+  }
+
+  if (status === 'won') {
+    return <WonRoundView />;
   }
 }

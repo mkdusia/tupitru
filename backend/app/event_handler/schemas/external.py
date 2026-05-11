@@ -43,3 +43,8 @@ class RevertEvent(ExternalEvent):
 
 class SkipEvent(ExternalEvent):
     type: Literal["skip_round"]
+
+
+class KickEvent(ExternalEvent):
+    type: Literal["kick"]
+    nickname: str

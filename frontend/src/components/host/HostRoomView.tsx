@@ -12,6 +12,9 @@ interface HostRoomViewProps {
   players: string[];
   handleStartGame: () => void;
   handleCloseRoom: () => void;
+  isDeleteMode: boolean;
+  setIsDeleteMode: (value: boolean) => void;
+  handleKickPlayer: (nick: string) => void;
   currentURL: string;
 }
 
@@ -20,20 +23,42 @@ function HostRoomView({
   players,
   handleStartGame,
   handleCloseRoom,
+  isDeleteMode,
+  setIsDeleteMode,
+  handleKickPlayer,
   currentURL,
 }: HostRoomViewProps) {
   return (
     <div className="main-container">
       <div className="left-section">
         <div className="wrapper">
-          <h2>Already joined:</h2>
+          <h2>
+            Already joined:
+            <button
+              className={`button button-circle ${isDeleteMode ? 'active' : ''}`}
+              onClick={() => setIsDeleteMode(!isDeleteMode)}
+            >
+              {isDeleteMode ? 'X' : 'Kick'}
+            </button>
+          </h2>
 
           {players.length === 0 ? (
             <p>Waiting for players...</p>
           ) : (
             <ul className="players-list">
               {players.map((player, index) => (
-                <li key={index} className="player-item">
+                <li
+                  key={index}
+                  className="player-item ${isDeleteMode ? 'delete-ready' : ''}"
+                  onClick={() => isDeleteMode && handleKickPlayer(player)}
+                  style={{
+                    cursor: isDeleteMode ? 'pointer' : 'default',
+                    border: isDeleteMode ? '4px solid #72071efd' : '',
+                    boxShadow: isDeleteMode ? 'inset 0 0 0 1000px #72071e67' : 'none',
+                    transition: 'all 0.2s',
+                    position: 'relative',
+                  }}
+                >
                   {player}
                 </li>
               ))}

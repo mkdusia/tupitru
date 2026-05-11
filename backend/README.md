@@ -31,6 +31,7 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `respond`: Give a step of your response. Takes `mole` and `direction`. `mole` is the index of the moving mole, i.e. index in the `mole_position` array (see [Board description](#board-description)). `direction` is one of the characters `U`, `R`, `D`, `L`. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `give_up`: Give up trying to prove your answer. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `revert`: Revert the previous step in your response. Sends back an error if the action is not permitted. Sends back the current `board`.
+- `kick`: Kick the player with nickname `nickname` out of your room.
 
 #### Server-types (messages)
 - `player_disconnected`: A player has disconnected from your room. Sends their `nickname`. This gets sent to the other players and the host.
@@ -46,6 +47,7 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `player_reverted`: A step of the response was taken back. `board` is the current board. This gets sent to the host.
 - `winner`: The player `nickname` won the round. This gets sent to the host.
 - `won`: You won the round.
+- `kick`: You were kicked out of your room.
 
 ### Board description
 The board data is sent as a JSON dictionary that contains the following fields:
