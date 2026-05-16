@@ -18,16 +18,18 @@ export default function PlayerRoute() {
   const [searchParams] = useSearchParams();
   const nick = searchParams.get('nick') || '';
 
-  const { state, setters, handleMessage } = usePlayerGame(nick, roomCode!);
-
-  function handleOpen() {
-    sendMessage({ type: 'join', room_id: roomCode, nickname: nick, session_id: state.sessionId });
-  }
+  const { state, setters, handleMessage } = usePlayerGame(nick);
 
   const sendMessage = useWebSocket({
     url: baseUrl,
-    onOpen: handleOpen,
-    onMessage: handleMessage,
+    onMessage: (data) => {
+      if (data.type === 'success' && data.message === 'connect') {
+        sessionStorage.setItem('user_id', data.user_id);
+        sendMessage({ type: 'join', room_id: roomCode, nickname: nick });
+      } else {
+        handleMessage(data);
+      }
+    },
   });
 
   useEffect(() => {
@@ -94,6 +96,8 @@ export default function PlayerRoute() {
     return (
       <RespondView
         answer={state.currentAnswer}
+        movesLeft={state.movesLeft}
+        setMovesLeft={setters.setMovesLeft}
         setMole={setters.setMole}
         setDirection={setters.setDirection}
         handleSendStep={handleSendStep}

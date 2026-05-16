@@ -48,6 +48,8 @@ export const useHostGame = () => {
 
   const handleMessage = useCallback(
     (data: any) => {
+      console.log(data);
+
       if (data.board) setBoardData(data.board);
 
       if (data.type === 'error') {
@@ -60,6 +62,35 @@ export const useHostGame = () => {
       }
 
       const actionHandlers: Record<string, () => void> = {
+        'success:reconnect': () => {
+          const { game_state, room_id, board, respondent, ranking } = data;
+
+          if (room_id) setCurrentRoomCode(room_id);
+
+          if (game_state === 'no_game') {
+            sessionStorage.clear();
+            navigate('/');
+          } else if (game_state === 'awaiting_start') {
+            setStatus('waiting_for_players');
+          } else if (game_state === 'awaiting_answers') {
+            setStatus('start_game');
+            if (board) setBoardData(board);
+          } else if (game_state === 'settling_round') {
+            setRespondent(respondent || '');
+            if (board) setBoardData(board);
+            setStatus('showing');
+          } else if (game_state === 'game_ended') {
+            if (ranking) {
+              setRanking(
+                ranking.map(([points, nickname]: [number, string]) => ({
+                  nick: nickname,
+                  answer: points,
+                }))
+              );
+            }
+            setStatus('game_end');
+          }
+        },
         'success:host': () => {
           setCurrentRoomCode(data.room_id);
           navigate(`/host/${data.room_id}`, { replace: true });
@@ -125,7 +156,7 @@ export const useHostGame = () => {
 
       if (handler) handler();
     },
-    [navigate]
+    [navigate, ranking]
   );
 
   return {

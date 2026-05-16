@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export const usePlayerGame = (nick: string, roomCode: string) => {
+export const usePlayerGame = (nick: string) => {
   const navigate = useNavigate();
 
   const [status, setStatus] = useState(
@@ -14,6 +14,10 @@ export const usePlayerGame = (nick: string, roomCode: string) => {
   );
   const [respondent, setRespondent] = useState(
     () => sessionStorage.getItem('playerRespondent') || ''
+  );
+
+  const [movesLeft, setMovesLeft] = useState(() =>
+    parseInt(sessionStorage.getItem('playerMovesLeft') || '0', 10)
   );
 
   const [mole, setMole] = useState(-1);
@@ -41,6 +45,9 @@ export const usePlayerGame = (nick: string, roomCode: string) => {
   useEffect(() => {
     sessionStorage.setItem('playerRespondent', respondent);
   }, [respondent]);
+  useEffect(() => {
+    sessionStorage.setItem('playerMovesLeft', movesLeft.toString());
+  }, [movesLeft]);
 
   useEffect(() => {
     if (status !== 'connecting') return;
@@ -50,6 +57,8 @@ export const usePlayerGame = (nick: string, roomCode: string) => {
 
   const handleMessage = useCallback(
     (data: any) => {
+      console.log(data);
+
       if (data.type === 'error') {
         alert('Error: ' + data.message);
         if (data.message !== 'Invalid event format') {
@@ -60,12 +69,33 @@ export const usePlayerGame = (nick: string, roomCode: string) => {
       }
 
       const actionHandlers: Record<string, () => void> = {
+        'success:reconnect': () => {
+          const { game_state, answer, board, respondent, respond } = data;
+
+          if (game_state === 'no_game') {
+            sessionStorage.clear();
+            navigate('/');
+          } else if (game_state === 'awaiting_start') {
+            setStatus('waiting');
+          } else if (game_state === 'awaiting_answers') {
+            setStatus('playing');
+            if (answer !== undefined) {
+              setAnswer(answer.toString());
+              setCurrentAnswer(answer);
+            }
+          } else if (game_state === 'settling_round') {
+            setRespondent(respondent || '');
+            if (answer !== undefined) setCurrentAnswer(answer);
+            setStatus(respond ? 'awaiting_response' : 'showing_solution');
+          }
+        },
         'success:join': () => {
           setStatus((prev) => (prev === 'connecting' ? 'waiting' : prev));
         },
         'success:answer': () => {
           setAnswer('');
           setCurrentAnswer(data.answer);
+          console.log(currentAnswer);
         },
         'info:room_destroyed': () => {
           sessionStorage.clear();
@@ -82,6 +112,8 @@ export const usePlayerGame = (nick: string, roomCode: string) => {
           setStatus('awaiting_response');
         },
         'info:respond': () => {
+          console.log(currentAnswer);
+          setMovesLeft(currentAnswer);
           setStatus('showing_solution');
         },
         'info:won': () => {
@@ -99,12 +131,22 @@ export const usePlayerGame = (nick: string, roomCode: string) => {
 
       if (handler) handler();
     },
-    [navigate, nick, roomCode]
+    [navigate, nick, currentAnswer]
   );
 
   return {
-    state: { status, countdown, answer, currentAnswer, respondent, mole, direction, sessionId },
-    setters: { setAnswer, setMole, setDirection, setStatus },
+    state: {
+      status,
+      countdown,
+      answer,
+      currentAnswer,
+      respondent,
+      mole,
+      direction,
+      sessionId,
+      movesLeft,
+    },
+    setters: { setAnswer, setMole, setDirection, setStatus, setMovesLeft },
     handleMessage,
   };
 };

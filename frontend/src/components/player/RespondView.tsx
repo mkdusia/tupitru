@@ -6,8 +6,10 @@ import PadArrowIcon from '../../assets/PadArrowIcon';
 
 interface RespondViewProps {
   answer: number;
+  movesLeft: number;
   setMole: (num: number) => void;
   setDirection: (dir: string) => void;
+  setMovesLeft: (moves: number) => void;
   handleSendStep: () => void;
   handleGiveUp: () => void;
   handleRevert: () => void;
@@ -23,14 +25,14 @@ const MOLES = [
 
 function RespondView({
   answer,
+  movesLeft,
   setMole,
   setDirection,
+  setMovesLeft,
   handleSendStep,
   handleGiveUp,
   handleRevert,
 }: RespondViewProps) {
-  const [movesLeft, setMovesLeft] = useState<number>(answer);
-
   const [activeMole, setActiveMole] = useState<number | null>(null);
   const [activeDir, setActiveDir] = useState<string | null>(null);
 
@@ -47,7 +49,7 @@ function RespondView({
   const onSendClick = () => {
     if (movesLeft > 0) {
       handleSendStep();
-      setMovesLeft((prev) => prev - 1);
+      setMovesLeft(movesLeft - 1);
 
       setActiveMole(null);
       setActiveDir(null);
@@ -57,7 +59,7 @@ function RespondView({
   const onRevertClick = () => {
     if (movesLeft < answer) {
       handleRevert();
-      setMovesLeft((prev) => prev + 1);
+      setMovesLeft(movesLeft + 1);
     }
   };
 

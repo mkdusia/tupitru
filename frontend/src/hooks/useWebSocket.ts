@@ -30,7 +30,12 @@ export const useWebSocket = ({ url, onOpen, onMessage, onClose }: UseWebSocketPr
       return;
     }
 
-    const socket = new WebSocket(url);
+    let wsUrl = url;
+    const userId = sessionStorage.getItem('user_id');
+    if (userId) {
+      wsUrl += `?user_id=${userId}`;
+    }
+    const socket = new WebSocket(wsUrl);
     ws.current = socket;
 
     socket.onopen = () => {
@@ -40,14 +45,14 @@ export const useWebSocket = ({ url, onOpen, onMessage, onClose }: UseWebSocketPr
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        onMessage(data);
+        onMessageRef.current(data);
       } catch (error) {
-        console.error('Error during messege parsing: ', error);
+        console.error('Error during message parsing: ', error);
       }
     };
 
     socket.onclose = (event) => {
-      if (onClose) onClose(event);
+      if (onCloseRef.current) onCloseRef.current(event);
 
       if (isMounted.current && !event.wasClean) {
         reconnectTimeout.current = window.setTimeout(() => {
@@ -58,6 +63,7 @@ export const useWebSocket = ({ url, onOpen, onMessage, onClose }: UseWebSocketPr
 
     socket.onerror = (error) => {
       console.error('WebSocket error:', error);
+      sessionStorage.removeItem('user_id');
       socket.close();
     };
   }, [url]);
@@ -77,6 +83,7 @@ export const useWebSocket = ({ url, onOpen, onMessage, onClose }: UseWebSocketPr
   }, [connect]);
 
   const sendMessage = useCallback((payload: any) => {
+    console.log('Sending message: ', payload);
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify(payload));
     }

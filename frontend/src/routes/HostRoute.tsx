@@ -19,18 +19,18 @@ export default function HostRoute() {
 
   const { state, setters, handleMessage } = useHostGame();
 
-  function handleOpen() {
-    if (!roomCode) {
-      sendMessage({ type: 'host' });
-    } else {
-      sendMessage({ type: 'host_reconnect', room_id: roomCode });
-    }
-  }
-
   const sendMessage = useWebSocket({
     url: baseUrl,
-    onOpen: handleOpen,
-    onMessage: handleMessage,
+    onMessage: (data) => {
+      if (data.type === 'success' && data.message === 'connect') {
+        sessionStorage.setItem('user_id', data.user_id);
+        if (!roomCode) {
+          sendMessage({ type: 'host' });
+        }
+      } else {
+        handleMessage(data);
+      }
+    },
   });
 
   const handleStartGame = () => {
@@ -38,7 +38,6 @@ export default function HostRoute() {
   };
 
   const handleCloseRoom = () => {
-    sendMessage({ type: 'room_destroyed' });
     sessionStorage.clear();
     navigate('/');
   };
