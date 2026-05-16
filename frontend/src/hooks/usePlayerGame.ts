@@ -70,7 +70,7 @@ export const usePlayerGame = (nick: string) => {
 
       const actionHandlers: Record<string, () => void> = {
         'success:reconnect': () => {
-          const { game_state, answer, board, respondent, respond } = data;
+          const { game_state, answer, respondent, respond } = data;
 
           if (game_state === 'no_game') {
             sessionStorage.clear();
