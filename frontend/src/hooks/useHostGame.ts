@@ -25,7 +25,9 @@ export const useHostGame = () => {
     () => sessionStorage.getItem('hostRespondent') || ''
   );
   const [winner, setWinner] = useState(() => sessionStorage.getItem('hostWinner') || '');
-  const [ranking, setRanking] = useState<PlayerAnswer[]>([]);
+  const [ranking, setRanking] = useState<PlayerAnswer[]>(() =>
+    JSON.parse(sessionStorage.getItem('hostRanking') || '[]')
+  );
 
   useEffect(() => {
     sessionStorage.setItem('hostStatus', status);
@@ -45,6 +47,9 @@ export const useHostGame = () => {
   useEffect(() => {
     sessionStorage.setItem('hostWinner', winner);
   }, [winner]);
+  useEffect(() => {
+    sessionStorage.setItem('hostRanking', JSON.stringify(ranking));
+  }, [ranking]);
 
   const handleMessage = useCallback(
     (data: any) => {
