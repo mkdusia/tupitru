@@ -11,6 +11,7 @@ import RespondView from '../components/player/RespondView';
 import AwaitingResponseView from '../components/player/AwaitingResponseView';
 import RoundWinnerView from '../components/player/RoundWinnerView';
 import WonRoundView from '../components/player/WonRoundView';
+import GameEndView from '../components/player/GameEndView';
 
 export default function PlayerRoute() {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export default function PlayerRoute() {
     if (!nick || !roomCode) navigate('/');
   }, [nick, roomCode, navigate]);
 
-  const handleWaitingViewExit = () => {
+  const handleExit = () => {
     navigate('/', { state: { previousRoomCode: roomCode, previousNick: nick } });
   };
 
@@ -86,7 +87,7 @@ export default function PlayerRoute() {
   }
 
   if (state.status === 'waiting') {
-    return <WaitingView nick={nick} roomCode={roomCode} handleExit={handleWaitingViewExit} />;
+    return <WaitingView nick={nick} roomCode={roomCode} handleExit={handleExit} />;
   }
 
   if (state.status === 'awaiting_response') {
@@ -114,5 +115,9 @@ export default function PlayerRoute() {
 
   if (state.status === 'won') {
     return <WonRoundView />;
+  }
+
+  if (state.status === 'game_end') {
+    return <GameEndView score={state.score} position={state.position} handleExit={handleExit} />;
   }
 }

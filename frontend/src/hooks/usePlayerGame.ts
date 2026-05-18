@@ -25,6 +25,13 @@ export const usePlayerGame = (nick: string) => {
   const [mole, setMole] = useState(-1);
   const [direction, setDirection] = useState('');
 
+  const [score, setScore] = useState(() =>
+    parseInt(sessionStorage.getItem('playerScore') || '0', 10)
+  );
+  const [position, setPosition] = useState(() =>
+    parseInt(sessionStorage.getItem('playerPosition') || '0', 10)
+  );
+
   const [sessionId] = useState(() => {
     let sid = sessionStorage.getItem('playerSessionId');
     if (!sid) {
@@ -50,6 +57,12 @@ export const usePlayerGame = (nick: string) => {
   useEffect(() => {
     sessionStorage.setItem('playerMovesLeft', movesLeft.toString());
   }, [movesLeft]);
+  useEffect(() => {
+    sessionStorage.setItem('playerScore', score.toString());
+  }, [score]);
+  useEffect(() => {
+    sessionStorage.setItem('playerPosition', position.toString());
+  }, [position]);
 
   useEffect(() => {
     if (status !== 'connecting') return;
@@ -72,7 +85,7 @@ export const usePlayerGame = (nick: string) => {
 
       const actionHandlers: Record<string, () => void> = {
         'success:reconnect': () => {
-          const { game_state, answer, respondent, respond } = data;
+          const { game_state, answer, respondent, respond, score, position } = data;
 
           if (game_state === 'no_game') {
             sessionStorage.clear();
@@ -89,6 +102,10 @@ export const usePlayerGame = (nick: string) => {
             setRespondent(respondent || '');
             if (answer !== undefined) setCurrentAnswer(answer);
             setStatus(respond ? 'awaiting_response' : 'showing_solution');
+          } else if (game_state === 'game_ended') {
+            if (score) setScore(score);
+            if (position) setPosition(position + 1);
+            setStatus('game_end');
           }
         },
         'success:join': () => {
@@ -113,7 +130,6 @@ export const usePlayerGame = (nick: string) => {
           setStatus('awaiting_response');
         },
         'info:respond': () => {
-          console.log(currentAnswer);
           setMovesLeft(currentAnswer);
           setStatus('showing_solution');
         },
@@ -133,6 +149,11 @@ export const usePlayerGame = (nick: string) => {
           sessionStorage.clear();
           navigate('/', { state: { previousNick: nick } });
           alert('You have been kicked out by host.');
+        },
+        'info:game_end': () => {
+          setScore(data.score);
+          setPosition(data.position + 1);
+          setStatus('game_end');
         },
       };
 
@@ -156,6 +177,8 @@ export const usePlayerGame = (nick: string) => {
       direction,
       sessionId,
       movesLeft,
+      score,
+      position,
     },
     setters: { setAnswer, setMole, setDirection, setStatus, setMovesLeft },
     handleMessage,
