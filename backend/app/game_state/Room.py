@@ -239,6 +239,12 @@ class Room:
                 if res["respond"]:
                     res["board"] = self.board_state.data.model_dump()
         else:
+            if res["game_state"] == "awaiting_start":
+                res["nicknames"] = [player.nickname for player in self.players.values()]
+            if res["game_state"] == "awaiting_answers":
+                res["answers"] = [
+                    (player.answer, player.nickname) for player in self.players.values()
+                ]
             if res["game_state"] == "awaiting_answers" or res["game_state"] == "settling_round":
                 res["board"] = self.board_state.data.model_dump()
             if res["game_state"] == "settling_round":
