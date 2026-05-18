@@ -14,6 +14,7 @@ class Room:
         self.players: dict[UUID, Player] = {}
         self.state: RoomStatus = "awaiting_start"
         self.accepting_response: bool = False
+        self.announced_winner: bool = False
         self.ranking: list[Player] = []
         self.current_respondent: Player
         self.change_state: dict[RoomStatus, Callable[[Emitter], Awaitable[None]]] = {
@@ -88,6 +89,7 @@ class Room:
         Handle the start of the game.
         """
         self.state = "awaiting_answers"
+        self.announced_winner = False
         for player in self.players.values():
             player.answer = 0
         to_notify = list(self.players.keys())
@@ -113,6 +115,17 @@ class Room:
         to_notify.append(self.host)
         if len(self.ranking) == 0:
             self.accepting_response = False
+            if not self.announced_winner:
+                self.announced_winner = True
+                await emitter(
+                    {
+                        "type": "announce_winner",
+                        "notify": to_notify,
+                        "player_id": None,
+                        "nickname": None,
+                    }
+                )
+                return
             if not self.board_state.next_round():
                 self.state = "game_ended"
                 players = [
@@ -177,11 +190,15 @@ class Room:
         """
         if self.state == "settling_round" and self.accepting_response:
             self.accepting_response = False
+            self.announced_winner = True
             self.current_respondent.points += 1
+            to_notify = list(self.players.keys())
+            to_notify.append(self.host)
+            to_notify.remove(self.current_respondent.id)
             await emitter(
                 {
                     "type": "announce_winner",
-                    "notify": [self.host],
+                    "notify": to_notify,
                     "player_id": self.current_respondent.id,
                     "nickname": self.current_respondent.nickname,
                 }

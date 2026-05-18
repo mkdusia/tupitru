@@ -45,7 +45,7 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `player_responded`: A step of the response was given by the appropriate player. `board` is the current board. This gets sent to the host.
 - `player_gave_up`: The player giving the response gave up. `board` is the current board. This gets sent to the host.
 - `player_reverted`: A step of the response was taken back. `board` is the current board. This gets sent to the host.
-- `winner`: The player `nickname` won the round. This gets sent to the host.
+- `winner`: The player `nickname` won the round. If `nickname` is `null`, no player won. This gets sent to the other players and the host.
 - `won`: You won the round.
 - `kick`: You were kicked out of your room.
 

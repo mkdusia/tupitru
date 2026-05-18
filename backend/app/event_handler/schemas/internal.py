@@ -96,8 +96,8 @@ class RevertEvent(BaseModel):
 class WinnerEvent(BaseModel):
     type: Literal["announce_winner"]
     notify: list[UUID]
-    player_id: UUID
-    nickname: str
+    player_id: UUID | None
+    nickname: str | None
 
 
 class KickEvent(BaseModel):

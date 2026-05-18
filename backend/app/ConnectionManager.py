@@ -62,10 +62,12 @@ class ConnectionManager:
         self.connected.pop(id)
         self.locks.pop(id)
 
-    async def send(self, id: UUID, data: Data) -> None:
+    async def send(self, id: UUID | None, data: Data) -> None:
         """
         Send a JSON message to a specific connected user.
         """
+        if id is None:
+            return
         if id in self.sockets and self.connected[id]:
             await self.sockets[id].send_json(data)
 
