@@ -14,9 +14,18 @@ from app.event_handler.schemas.internal import (
 
 @internal_event("game_end", InternalGameEndEvent)
 async def internal_game_end(handler: EventHandlerProtocol, event: InternalGameEndEvent) -> None:
-    await handler.con_manager.broadcast(
-        event.notify, {"type": "info", "message": "game_end", "ranking": event.ranking}
+    await handler.con_manager.send(
+        event.host,
+        {
+            "type": "info",
+            "message": "game_end",
+            "ranking": [(pt, nick) for (pt, nick, _) in event.ranking],
+        },
     )
+    for i, (pt, _, idd) in enumerate(event.ranking):
+        await handler.con_manager.send(
+            idd, {"type": "info", "message": "game_end", "position": i, "score": pt}
+        )
 
 
 @internal_event("awaiting_response", AwaitingResponseEvent)

@@ -42,8 +42,8 @@ class PropagateErrorEvent(BaseModel):
 
 class InternalGameEndEvent(BaseModel):
     type: Literal["game_end"]
-    notify: list[UUID]
-    ranking: list[tuple[int, str]]
+    host: UUID
+    ranking: list[tuple[int, str, UUID]]
 
 
 class AwaitingResponseEvent(BaseModel):
