@@ -70,6 +70,8 @@ The game state during reconnection can contain the following fields:
 - `respond`: Whether the user is expected to provide a solution. Provided when `host` is false and `game_state` is `settling_round`.
 - `board` The state of the board. Provided when `respond` is true or `host` is true and `game_state` is `awaiting_answers` or `settling_round`.
 - `respondent`: The nickname of the player currently providing a solution. Provided when `game_state` is `settling_round`.
-- `ranking`: The sorted list of pairs `(points, nickname)` of all players. Provided when `game_state` is `game_ended`.
+- `ranking`: The sorted list of pairs `(points, nickname)` of all players. Provided when `host` is true and `game_state` is `game_ended`.
 - `nicknames`: The nicknames of all the players. Provided when `host` is true and `game_state` is `awaiting_start`.
 - `answers`: The list of pairs `(answer, nickname)` of all players. Provided when `host` is true and `game_state` is `awaiting_answers`.
+- `score`: The player's score. Provided when `host` is false and `game_state` is `game_ended`.
+- `position`: The player's position in the ranking (starting with `0`). Provided when `host` is false and `game_state` is `game_ended`.
