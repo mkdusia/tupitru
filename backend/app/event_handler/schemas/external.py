@@ -48,3 +48,7 @@ class SkipEvent(ExternalEvent):
 class KickEvent(ExternalEvent):
     type: Literal["kick"]
     nickname: str
+
+
+class CloseRoomEvent(ExternalEvent):
+    type: Literal["close"]

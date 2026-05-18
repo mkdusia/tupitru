@@ -1,6 +1,12 @@
 from app.event_handler.router import external_event
 from app.event_handler.schemas.protocol import EventHandlerProtocol
-from app.event_handler.schemas.external import ChangeStateEvent, HostEvent, KickEvent, SkipEvent
+from app.event_handler.schemas.external import (
+    ChangeStateEvent,
+    CloseRoomEvent,
+    HostEvent,
+    KickEvent,
+    SkipEvent,
+)
 
 
 @external_event("host", HostEvent)
@@ -24,3 +30,10 @@ async def handle_skip(handler: EventHandlerProtocol, event: SkipEvent) -> None:
 @external_event("kick", KickEvent)
 async def handle_kick(handler: EventHandlerProtocol, event: KickEvent) -> None:
     await handler.game_manager.kick(event.id, event.nickname)
+
+
+@external_event("close", CloseRoomEvent)
+async def handle_close(handler: EventHandlerProtocol, event: CloseRoomEvent) -> None:
+    v = await handler.game_manager.close_room(event.id)
+    if v:
+        await handler.con_manager.send(event.id, {"type": "success", "message": "close"})
