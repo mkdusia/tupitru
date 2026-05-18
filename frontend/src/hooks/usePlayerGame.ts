@@ -20,6 +20,8 @@ export const usePlayerGame = (nick: string) => {
     parseInt(sessionStorage.getItem('playerMovesLeft') || '0', 10)
   );
 
+  const [winner, setWinner] = useState('');
+
   const [mole, setMole] = useState(-1);
   const [direction, setDirection] = useState('');
 
@@ -118,6 +120,15 @@ export const usePlayerGame = (nick: string) => {
         'info:won': () => {
           setStatus('won');
         },
+        'info:winner': () => {
+          if (data.nickname) {
+            setWinner(data.nickname);
+            setTimeout(() => setStatus('winner'), 1000);
+          } else {
+            setWinner('Nobody');
+            setStatus('winner');
+          }
+        },
         'info:kick': () => {
           sessionStorage.clear();
           navigate('/', { state: { previousNick: nick } });
@@ -140,6 +151,7 @@ export const usePlayerGame = (nick: string) => {
       answer,
       currentAnswer,
       respondent,
+      winner,
       mole,
       direction,
       sessionId,

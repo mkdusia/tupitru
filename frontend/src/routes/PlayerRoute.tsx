@@ -9,6 +9,7 @@ import WaitingView from '../components/player/WaitingView';
 import AnswerView from '../components/player/AnswerView';
 import RespondView from '../components/player/RespondView';
 import AwaitingResponseView from '../components/player/AwaitingResponseView';
+import RoundWinnerView from '../components/player/RoundWinnerView';
 import WonRoundView from '../components/player/WonRoundView';
 
 export default function PlayerRoute() {
@@ -105,6 +106,10 @@ export default function PlayerRoute() {
         handleRevert={handleRevert}
       />
     );
+  }
+
+  if (state.status === 'winner') {
+    return <RoundWinnerView nickname={state.winner} />;
   }
 
   if (state.status === 'won') {

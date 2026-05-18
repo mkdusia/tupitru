@@ -152,8 +152,13 @@ export const useHostGame = () => {
           setStatus('showing');
         },
         'info:winner': () => {
-          setWinner(data.nickname);
-          setTimeout(() => setStatus('winner'), 1000);
+          if (data.nickname) {
+            setWinner(data.nickname);
+            setTimeout(() => setStatus('winner'), 1000);
+          } else {
+            setWinner('Nobody');
+            setStatus('winner');
+          }
         },
         'info:game_end': () => {
           setRanking(() => {

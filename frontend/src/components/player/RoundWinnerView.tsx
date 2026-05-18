@@ -3,19 +3,15 @@ import TupitruTitle from '../Title';
 
 interface RoundWinnerViewProps {
   nickname: string;
-  handleStartGame: () => void;
 }
 
-function RoundWinnerView({ nickname, handleStartGame }: RoundWinnerViewProps) {
+function RoundWinnerView({ nickname }: RoundWinnerViewProps) {
   return (
     <div className="app-container">
       <TupitruTitle />
 
       <div className="wrapper">
         <h1> {nickname} won this round! </h1>
-        <button className="button button-white button-ret" onClick={handleStartGame}>
-          Next round
-        </button>
       </div>
     </div>
   );
