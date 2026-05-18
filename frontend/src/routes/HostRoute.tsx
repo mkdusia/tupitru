@@ -39,6 +39,7 @@ export default function HostRoute() {
 
   const handleCloseRoom = () => {
     sessionStorage.clear();
+    sendMessage({ type: 'close' });
     navigate('/');
   };
 

@@ -95,7 +95,6 @@ export const usePlayerGame = (nick: string) => {
         'success:answer': () => {
           setAnswer('');
           setCurrentAnswer(data.answer);
-          console.log(currentAnswer);
         },
         'info:room_destroyed': () => {
           sessionStorage.clear();

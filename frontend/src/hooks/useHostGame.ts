@@ -16,7 +16,9 @@ export const useHostGame = () => {
   );
 
   const [isDeleteMode, setIsDeleteMode] = useState(false);
-  const [playersAnswered, setPlayersAnswered] = useState<PlayerAnswer[]>([]);
+  const [playersAnswered, setPlayersAnswered] = useState<PlayerAnswer[]>(() =>
+    JSON.parse(sessionStorage.getItem('hostPlayersAnswered') || '[]')
+  );
 
   const [boardData, setBoardData] = useState(() =>
     JSON.parse(sessionStorage.getItem('hostBoardData') || 'null')
@@ -38,6 +40,9 @@ export const useHostGame = () => {
   useEffect(() => {
     sessionStorage.setItem('hostPlayers', JSON.stringify(players));
   }, [players]);
+  useEffect(() => {
+    sessionStorage.setItem('hostPlayersAnswered', JSON.stringify(playersAnswered));
+  }, [playersAnswered]);
   useEffect(() => {
     sessionStorage.setItem('hostBoardData', JSON.stringify(boardData));
   }, [boardData]);
@@ -68,7 +73,7 @@ export const useHostGame = () => {
 
       const actionHandlers: Record<string, () => void> = {
         'success:reconnect': () => {
-          const { game_state, room_id, board, respondent, ranking } = data;
+          const { game_state, room_id, nicknames, board, answers, respondent, ranking } = data;
 
           if (room_id) setCurrentRoomCode(room_id);
 
@@ -76,8 +81,17 @@ export const useHostGame = () => {
             sessionStorage.clear();
             navigate('/');
           } else if (game_state === 'awaiting_start') {
+            setPlayers(nicknames || []);
             setStatus('waiting_for_players');
           } else if (game_state === 'awaiting_answers') {
+            if (answers) {
+              setRanking(
+                answers.map(([answer, nickname]: [number, string]) => ({
+                  nick: nickname,
+                  answer: answer,
+                }))
+              );
+            }
             setStatus('start_game');
             if (board) setBoardData(board);
           } else if (game_state === 'settling_round') {
