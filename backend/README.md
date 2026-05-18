@@ -32,20 +32,21 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `give_up`: Give up trying to prove your answer. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `revert`: Revert the previous step in your response. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `kick`: Kick the player with nickname `nickname` out of your room.
+- `close`: Close the room you are the host of. Sends `room_destroyed` to the players in the room.
 
 #### Server-types (messages)
 - `player_disconnected`: A player has disconnected from your room. Sends their `nickname`. This gets sent to the other players and the host.
-- `room_destroyed`: The host of your room has disconnected. This gets sent to the players.
+- `room_destroyed`: The host of your room disconnected or closed the room. This gets sent to the players.
 - `game_start`: The round in your room was started. `board` is the current game board. This gets sent to the players and the host.
 - `player_joined`: A player with the nickname `nickname` entered your room. This gets sent to the other players and the host.
-- `game_end`: The game in your room ended. `ranking` is a sorted list of pairs `(points, nickname)`. This gets sent to the players and the host.
+- `game_end`: The game in your room ended. If you are the host, `ranking` is a sorted list of pairs `(points, nickname)`. If you are a player, `score` is your score and `position` if your position in the ranking (starting with `0`).
 - `awaiting_response`: The game awaits a solution from the player with nickname `respondent` who claimed the best solution. This gets sent to the other players and the host.
 - `respond`: You are the player who claimed the best solution. You are expected to provide the solution. `board` is the current board.
 - `player_answered`: The player `nickname` gave answer `answer`. This gets sent to the host.
 - `player_responded`: A step of the response was given by the appropriate player. `board` is the current board. This gets sent to the host.
 - `player_gave_up`: The player giving the response gave up. `board` is the current board. This gets sent to the host.
 - `player_reverted`: A step of the response was taken back. `board` is the current board. This gets sent to the host.
-- `winner`: The player `nickname` won the round. This gets sent to the host.
+- `winner`: The player `nickname` won the round. If `nickname` is `null`, no player won. This gets sent to the other players and the host.
 - `won`: You won the round.
 - `kick`: You were kicked out of your room.
 
@@ -69,4 +70,6 @@ The game state during reconnection can contain the following fields:
 - `respond`: Whether the user is expected to provide a solution. Provided when `host` is false and `game_state` is `settling_round`.
 - `board` The state of the board. Provided when `respond` is true or `host` is true and `game_state` is `awaiting_answers` or `settling_round`.
 - `respondent`: The nickname of the player currently providing a solution. Provided when `game_state` is `settling_round`.
-- `ranking`: The sorted list of pairs `(points, nickname)` of all players. Provided when `game_state` is `game_ended`
+- `ranking`: The sorted list of pairs `(points, nickname)` of all players. Provided when `game_state` is `game_ended`.
+- `nicknames`: The nicknames of all the players. Provided when `host` is true and `game_state` is `awaiting_start`.
+- `answers`: The list of pairs `(answer, nickname)` of all players. Provided when `host` is true and `game_state` is `awaiting_answers`.
