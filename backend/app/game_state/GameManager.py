@@ -94,6 +94,23 @@ class GameManager:
             return
         await room.next_stage(self.emit_event)
 
+    async def close_room(self, host: UUID) -> bool:
+        room_id = self.player_room.get(host)
+        if room_id is None:
+            await self._error(host, "You cannot close this room now.")
+            return False
+        room = self.rooms[room_id]
+        if not room.is_host(host):
+            await self._error(host, "You cannot close this room now.")
+            return False
+        self.player_room.pop(host)
+        abandoned_players = list(room.players.keys())
+        for player in abandoned_players:
+            self.player_room.pop(player)
+        self.rooms.pop(room_id)
+        await self.emit_event({"type": "room_destroyed", "notify": abandoned_players})
+        return True
+
     async def player_disconnect(self, player_id: UUID) -> None:
         """
         Remove a player from the game.
@@ -102,14 +119,10 @@ class GameManager:
         if room_id is None:
             return
         room = self.rooms[room_id]
-        self.player_room.pop(player_id)
         if room.host == player_id:
-            abandoned_players = list(room.players.keys())
-            for player in abandoned_players:
-                self.player_room.pop(player)
-            self.rooms.pop(room_id)
-            await self.emit_event({"type": "room_destroyed", "notify": abandoned_players})
+            await self.close_room(player_id)
         else:
+            self.player_room.pop(player_id)
             name = room.players[player_id].nickname
             room.remove_player(player_id)
             to_notify = list(room.players.keys())

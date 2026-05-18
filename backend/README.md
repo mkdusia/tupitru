@@ -32,10 +32,11 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `give_up`: Give up trying to prove your answer. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `revert`: Revert the previous step in your response. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `kick`: Kick the player with nickname `nickname` out of your room.
+- `close`: Close the room you are the host of. Sends `room_destroyed` to the players in the room.
 
 #### Server-types (messages)
 - `player_disconnected`: A player has disconnected from your room. Sends their `nickname`. This gets sent to the other players and the host.
-- `room_destroyed`: The host of your room has disconnected. This gets sent to the players.
+- `room_destroyed`: The host of your room disconnected or closed the room. This gets sent to the players.
 - `game_start`: The round in your room was started. `board` is the current game board. This gets sent to the players and the host.
 - `player_joined`: A player with the nickname `nickname` entered your room. This gets sent to the other players and the host.
 - `game_end`: The game in your room ended. If you are the host, `ranking` is a sorted list of pairs `(points, nickname)`. If you are a player, `score` is your score and `position` if your position in the ranking (starting with `0`).
