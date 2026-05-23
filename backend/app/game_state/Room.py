@@ -5,6 +5,7 @@ from .BoardState import BoardState
 from .schemas import Direction, Mole, RoomStatus
 from .Player import Player
 from app.schemas import Emitter
+import time
 
 
 class Room:
@@ -72,7 +73,12 @@ class Room:
         """
         Set a players answer.
         """
-        self.players[player].answer = answer
+        pl = self.players[player]
+        pl.answer = answer
+        if answer > 0:
+            pl.answer_time = time.time()
+        else:
+            pl.answer_time = None
 
     def kick(self, nickname: str) -> UUID | None:
         """
@@ -104,7 +110,13 @@ class Room:
         self.accepting_response = True
         self.ranking = list(self.players.values())
         self.ranking = list(filter(lambda player: player.answer > 0, self.ranking))
-        self.ranking.sort(key=lambda player: player.answer, reverse=True)
+        self.ranking.sort(
+            key=lambda player: (
+                player.answer,
+                -(player.answer_time if player.answer_time is not None else float("inf")),
+            ),
+            reverse=True,
+        )
         await self.next_player(emitter)
 
     async def next_player(self, emitter: Emitter) -> None:
@@ -268,9 +280,15 @@ class Room:
             if res["game_state"] == "awaiting_start":
                 res["nicknames"] = [player.nickname for player in self.players.values()]
             if res["game_state"] == "awaiting_answers":
-                res["answers"] = [
-                    (player.answer, player.nickname) for player in self.players.values()
-                ]
+                answers_sorted = sorted(
+                    self.players.values(),
+                    key=lambda p: (
+                        p.answer,
+                        -(p.answer_time if p.answer_time is not None else float("inf")),
+                    ),
+                    reverse=True,
+                )
+                res["answers"] = [(p.answer, p.nickname) for p in answers_sorted]
             if res["game_state"] == "awaiting_answers" or res["game_state"] == "settling_round":
                 res["board"] = self.board_state.data.model_dump()
             if res["game_state"] == "settling_round":
