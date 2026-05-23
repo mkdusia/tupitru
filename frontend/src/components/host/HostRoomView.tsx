@@ -4,6 +4,8 @@ import ArrowIcon from '../../assets/ArrowIcon';
 import Popup from '../PopUp';
 import Markdown from 'react-markdown';
 import Rules from '../../../../rules.md?raw';
+import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
+import music from '../../../public/audio/LetsPlay.mp3';
 
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -28,6 +30,7 @@ function HostRoomView({
   handleKickPlayer,
   currentURL,
 }: HostRoomViewProps) {
+  const { isPlaying, toggleMute } = useBackgroundMusic(music);
   return (
     <div className="main-container">
       <div className="left-section">
@@ -105,7 +108,9 @@ function HostRoomView({
           </button>
         </div>
         <div className="side-controls wrapper">
-          <button className="button-circle"></button>
+          <button className="button-circle" onClick={toggleMute}>
+            {isPlaying ? 'Mute' : 'Music'}
+          </button>
           <button className="button-circle"></button>
           <Popup buttonText="Rules" buttonClassName="button-rules">
             <Markdown>{Rules}</Markdown>

@@ -1,6 +1,8 @@
 import '../../App.css';
 import GameWrapper from './GameWrapper';
 import type { PlayerAnswer, BoardData } from '../../types';
+import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
+import music from '../../../public/audio/GameTime.mp3';
 
 interface GameViewProps {
   totalPlayers: number;
@@ -17,6 +19,7 @@ const GameView = ({
   handleCloseRoom,
   handleEndRound,
 }: GameViewProps) => {
+  const { isPlaying, toggleMute } = useBackgroundMusic(music);
   return (
     <div className="game-container">
       {/* <h1 className='title'>Game View</h1> */}
@@ -27,14 +30,20 @@ const GameView = ({
         <GameWrapper boardData={boardData}></GameWrapper>
       </div>
       <div className="right-section">
-        <div className="wrapper">
+        <div className="side-controls wrapper">
+          <button className="button-circle" onClick={toggleMute}>
+            {isPlaying ? 'Mute' : 'Music'}
+          </button>
+          <button className="button-circle"></button>
+        </div>
+        <div className="wrapper answer-list">
           <h3>Answers:</h3>
           {players.length === 0 ? (
             <p>Waiting for answers...</p>
           ) : (
             <ul>
               {players.map((player, index) => (
-                <li key={index} className="player-item">
+                <li key={index} className="answer-item">
                   {player.nick}: {player.answer}
                 </li>
               ))}

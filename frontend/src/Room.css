@@ -195,3 +195,31 @@
   bottom: -100px;
   transform: scaleY(-1) rotate(25deg);
 }
+
+.answer-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(5px, 2vmin, 20px);
+
+  padding: 0;
+  margin: 10px;
+  list-style: none;
+  width: 90%;
+
+  flex: 1;
+}
+
+.answer-item {
+  background-color: var(--background-dark);
+
+  font-family: 'SpaceMono';
+  font-size: clamp(16px, 1.2vw, 24px);
+  text-align: center;
+  color: var(--tupitru-white);
+
+  padding: clamp(5px, 1vh, 12px) clamp(50px, 2vw, 100px);
+  border-radius: 20px;
+
+  width: 50vh;
+}
