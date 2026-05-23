@@ -2,7 +2,6 @@ import '../../App.css';
 import GameWrapper from './GameWrapper';
 import type { BoardData } from '../../types';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
-import music from '../../../public/audio/ShowingMove.mp3';
 
 interface ShowingSolutionViewProps {
   nickname: string;
@@ -10,7 +9,7 @@ interface ShowingSolutionViewProps {
 }
 
 const ShowingSolutionView = ({ nickname, boardData }: ShowingSolutionViewProps) => {
-  const { isPlaying, toggleMute } = useBackgroundMusic(music);
+  const { isPlaying, toggleMute } = useBackgroundMusic('/audio/ShowingMove.mp3');
   return (
     <div className="show-solution-container">
       {/* <h1 className='title'>Game View</h1> */}

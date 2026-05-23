@@ -5,7 +5,6 @@ import Popup from '../PopUp';
 import Markdown from 'react-markdown';
 import Rules from '../../../../rules.md?raw';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
-import music from '../../../public/audio/LetsPlay.mp3';
 
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -30,7 +29,7 @@ function HostRoomView({
   handleKickPlayer,
   currentURL,
 }: HostRoomViewProps) {
-  const { isPlaying, toggleMute } = useBackgroundMusic(music);
+  const { isPlaying, toggleMute } = useBackgroundMusic('/audio/LetsPlay.mp3');
   return (
     <div className="main-container">
       <div className="left-section">

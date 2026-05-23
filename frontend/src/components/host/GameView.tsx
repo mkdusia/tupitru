@@ -2,7 +2,6 @@ import '../../App.css';
 import GameWrapper from './GameWrapper';
 import type { PlayerAnswer, BoardData } from '../../types';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
-import music from '../../../public/audio/GameTime.mp3';
 
 interface GameViewProps {
   totalPlayers: number;
@@ -19,7 +18,7 @@ const GameView = ({
   handleCloseRoom,
   handleEndRound,
 }: GameViewProps) => {
-  const { isPlaying, toggleMute } = useBackgroundMusic(music);
+  const { isPlaying, toggleMute } = useBackgroundMusic('/audio/GameTime.mp3');
   return (
     <div className="game-container">
       {/* <h1 className='title'>Game View</h1> */}
