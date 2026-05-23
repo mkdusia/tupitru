@@ -42,9 +42,7 @@ function HostRoomView({
               {isDeleteMode ? 'X' : 'Kick'}
             </button>
           </div>
-          <h2>
-            Already joined
-          </h2>
+          <h2>Already joined</h2>
 
           {players.length === 0 ? (
             <p>Waiting for players...</p>
