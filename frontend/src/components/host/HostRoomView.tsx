@@ -34,14 +34,16 @@ function HostRoomView({
     <div className="main-container">
       <div className="left-section">
         <div className="wrapper">
-          <h2>
-            Already joined:
+          <div className="kick-button-container">
             <button
               className={`button button-circle ${isDeleteMode ? 'active' : ''}`}
               onClick={() => setIsDeleteMode(!isDeleteMode)}
             >
               {isDeleteMode ? 'X' : 'Kick'}
             </button>
+          </div>
+          <h2>
+            Already joined
           </h2>
 
           {players.length === 0 ? (
