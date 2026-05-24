@@ -1,5 +1,5 @@
 import '../../App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../../RespondView.css';
 import CircleIcon from '../../assets/CircleIcon';
 import PadArrowIcon from '../../assets/PadArrowIcon';
@@ -37,24 +37,32 @@ function RespondView({
   const [activeDir, setActiveDir] = useState<string | null>(null);
 
   const handleMoleClick = (id: number) => {
-    setActiveMole(id);
-    setMole(id);
+    if (activeMole === id) {
+      setActiveMole(null);
+    } else {
+      setActiveMole(id);
+      setMole(id);
+    }
   };
 
   const handleDirClick = (dir: string) => {
-    setActiveDir(dir);
-    setDirection(dir);
+    if (activeDir === dir) {
+      setActiveDir(null);
+    } else {
+      setActiveDir(dir);
+      setDirection(dir);
+    }
   };
 
-  const onSendClick = () => {
-    if (movesLeft > 0) {
+  useEffect(() => {
+    if (activeMole !== null && activeDir !== null && movesLeft > 0) {
       handleSendStep();
-      setMovesLeft(movesLeft - 1);
 
+      setMovesLeft(movesLeft - 1);
       setActiveMole(null);
       setActiveDir(null);
     }
-  };
+  }, [activeMole, activeDir, movesLeft]);
 
   const onRevertClick = () => {
     if (movesLeft < answer) {
@@ -130,14 +138,6 @@ function RespondView({
         </div>
 
         <div className="actions-container">
-          <button
-            className="button-send"
-            style={{ backgroundColor: currentArrowColor }}
-            onClick={onSendClick}
-          >
-            Send
-          </button>
-
           <div className="bottom-actions">
             <button className="button-revert" onClick={onRevertClick}>
               <svg
