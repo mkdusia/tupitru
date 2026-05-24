@@ -134,12 +134,12 @@ export const useHostGame = () => {
               (player) => player.nick === data.nickname
             );
             if (playerIdx !== -1) {
-              if (data.answer === -1) {
+              if (data.answer <= 0) {
                 tmpPlayersAnswered.splice(playerIdx, 1);
               } else {
                 tmpPlayersAnswered[playerIdx] = { nick: data.nickname, answer: data.answer };
               }
-            } else if (data.answer !== -1) {
+            } else if (data.answer > 0) {
               tmpPlayersAnswered.push({ nick: data.nickname, answer: data.answer });
             }
             tmpPlayersAnswered.sort((a, b) => a.answer - b.answer);
