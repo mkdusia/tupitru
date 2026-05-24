@@ -23,7 +23,11 @@ const ShowingSolutionView = ({ nickname, boardData }: ShowingSolutionViewProps) 
       <div className="right-section">
         <div className="side-controls wrapper">
           <button className="button-circle" onClick={toggleMute}>
-            {isPlaying ? 'Mute' : 'Music'}
+            <img 
+              src={isPlaying ? "/icons/mute.svg" : "/icons/unmute.svg"} 
+              alt={isPlaying ? "Mute" : "Music"} 
+              className="button-icon"
+            />
           </button>
           <button className="button-circle"></button>
         </div>
