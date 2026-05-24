@@ -59,7 +59,6 @@ function RespondView({
       handleSendStep();
 
       setMovesLeft(movesLeft - 1);
-      setActiveMole(null);
       setActiveDir(null);
     }
   }, [activeMole, activeDir, movesLeft]);
