@@ -20,7 +20,7 @@ class Room:
         self.state: RoomStatus = "awaiting_start"
         self.announced_winner: bool = False
         self.ranking: list[Player] = []
-        self.current_respondent: Player | None
+        self.current_respondent: Player | None = None
         self.change_state: dict[RoomStatus, Callable[[], Awaitable[None]]] = {
             "awaiting_start": self.start_game,
             "awaiting_answers": self.settle_round,
@@ -72,7 +72,8 @@ class Room:
         """
         if player in self.players:
             player_obj = self.players.pop(player)
-            self.ranking.remove(player_obj)
+            if player_obj in self.ranking:
+                self.ranking.remove(player_obj)
             if self.current_respondent is not None and player == self.current_respondent.id:
                 await self.next_player()
 
