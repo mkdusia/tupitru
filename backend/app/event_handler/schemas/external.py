@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Literal
 from uuid import UUID
 from app.game_state.schemas import Mole
@@ -20,6 +20,7 @@ class JoinEvent(ExternalEvent):
 
 class ChangeStateEvent(ExternalEvent):
     type: Literal["change_state"]
+    round_time: int | None = Field(default=None, gt=0)
 
 
 class AnswerEvent(ExternalEvent):

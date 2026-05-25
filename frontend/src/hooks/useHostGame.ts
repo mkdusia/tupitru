@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { PlayerAnswer } from '../types';
 
@@ -30,6 +30,12 @@ export const useHostGame = () => {
   const [ranking, setRanking] = useState<PlayerAnswer[]>(() =>
     JSON.parse(sessionStorage.getItem('hostRanking') || '[]')
   );
+  const [roundTime, setRoundTime] = useState(
+    () => sessionStorage.getItem('hostRoundTime') || ''
+  );
+  const [countdownEnd, setCountdownEnd] = useState<number | null>(null);
+
+  const roundTimeNumRef = useRef(0);
 
   useEffect(() => {
     sessionStorage.setItem('hostStatus', status);
@@ -55,6 +61,11 @@ export const useHostGame = () => {
   useEffect(() => {
     sessionStorage.setItem('hostRanking', JSON.stringify(ranking));
   }, [ranking]);
+  useEffect(() => {
+    sessionStorage.setItem('hostRoundTime', roundTime);
+    const n = parseInt(roundTime, 10);
+    roundTimeNumRef.current = Number.isFinite(n) && n > 0 ? n : 0;
+  }, [roundTime]);
 
   const handleMessage = useCallback(
     (data: any) => {
@@ -157,6 +168,9 @@ export const useHostGame = () => {
         },
         'info:awaiting_response': () => {
           setRespondent(data.respondent);
+          if (roundTimeNumRef.current > 0) {
+            setCountdownEnd(Date.now() + roundTimeNumRef.current * 1000);
+          }
           setStatus('showing');
         },
         'info:winner': () => {
@@ -176,6 +190,7 @@ export const useHostGame = () => {
             }));
           });
           console.log(ranking);
+          setCountdownEnd(null);
           setStatus('game_end');
         },
         kick: () => {
@@ -202,8 +217,10 @@ export const useHostGame = () => {
       isDeleteMode,
       playersAnswered,
       ranking,
+      roundTime,
+      countdownEnd,
     },
-    setters: { setIsDeleteMode, setStatus, setPlayers },
+    setters: { setIsDeleteMode, setStatus, setPlayers, setRoundTime, setCountdownEnd },
     handleMessage,
   };
 };

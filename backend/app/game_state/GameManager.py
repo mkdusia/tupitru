@@ -70,7 +70,8 @@ class GameManager:
         for player in room.players.values():
             if player.nickname == nickname:
                 await self._error(
-                    player_id, f"The nickname '{nickname}' is already taken in this room."
+                    player_id,
+                    f"The nickname '{nickname}' is already taken in this room.",
                 )
                 return
 
@@ -88,7 +89,7 @@ class GameManager:
             }
         )
 
-    async def change_game_state(self, host_id: UUID) -> None:
+    async def change_game_state(self, host_id: UUID, round_time: int | None = None) -> None:
         """
         Change the state of the game in the room with the given host.
         """
@@ -96,6 +97,8 @@ class GameManager:
         if room is None or not room.can_change_state(host_id):
             await self._error(host_id, "You do not have permission to perform this action.")
             return
+        if room.state == "awaiting_start":
+            room.round_time = round_time
         await room.next_stage()
 
     async def close_room(self, host: UUID) -> bool:
@@ -104,6 +107,7 @@ class GameManager:
             await self._error(host, "You cannot close this room now.")
             return False
         room = self.rooms[room_id]
+        room.cancel_timer()
         if not room.is_host(host):
             await self._error(host, "You cannot close this room now.")
             return False

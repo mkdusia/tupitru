@@ -70,6 +70,7 @@ async def test_disconnect_current_respondent_advances_round() -> None:
     room.set_answer(player_b, 2)
     await room.settle_round()
 
+    assert room.current_respondent is not None
     current = room.current_respondent.id
     await manager.player_disconnect(current)
 

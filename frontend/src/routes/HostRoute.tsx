@@ -34,7 +34,10 @@ export default function HostRoute() {
   });
 
   const handleStartGame = () => {
-    sendMessage({ type: 'change_state' });
+    const rt = parseInt(state.roundTime, 10);
+    const hasTimer = Number.isFinite(rt) && rt > 0;
+    sendMessage({ type: 'change_state', ...(hasTimer && { round_time: rt }) });
+    if (hasTimer) setters.setCountdownEnd(Date.now() + rt * 1000);
   };
 
   const handleCloseRoom = () => {
@@ -58,6 +61,7 @@ export default function HostRoute() {
         totalPlayers={state.players.length}
         players={state.playersAnswered}
         boardData={state.boardData}
+        countdownEnd={state.countdownEnd}
         handleCloseRoom={handleCloseRoom}
         handleEndRound={handleEndRound}
       />
@@ -94,6 +98,8 @@ export default function HostRoute() {
       setIsDeleteMode={setters.setIsDeleteMode}
       handleKickPlayer={handleKickPlayer}
       currentURL={QRUrl}
+      roundTime={state.roundTime}
+      setRoundTime={setters.setRoundTime}
     />
   );
 }

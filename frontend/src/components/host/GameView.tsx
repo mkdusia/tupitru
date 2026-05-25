@@ -1,4 +1,5 @@
 import '../../App.css';
+import { useState, useEffect } from 'react';
 import GameWrapper from './GameWrapper';
 import type { PlayerAnswer, BoardData } from '../../types';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
@@ -7,6 +8,7 @@ interface GameViewProps {
   totalPlayers: number;
   players: PlayerAnswer[];
   boardData: BoardData | null;
+  countdownEnd: number | null;
   handleCloseRoom: () => void;
   handleEndRound: () => void;
 }
@@ -14,11 +16,22 @@ interface GameViewProps {
 const GameView = ({
   totalPlayers,
   players,
-  boardData,
+  countdownEnd,
   handleCloseRoom,
   handleEndRound,
 }: GameViewProps) => {
   const { isPlaying, toggleMute } = useBackgroundMusic('/audio/GameTime.mp3');
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (countdownEnd === null) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [countdownEnd]);
+
+  const remaining =
+    countdownEnd !== null ? Math.max(0, Math.ceil((countdownEnd - now) / 1000)) : null;
+
   return (
     <div className="game-container">
       {/* <h1 className='title'>Game View</h1> */}
@@ -40,6 +53,7 @@ const GameView = ({
           <button className="button-circle"></button>
         </div>
         <div className="wrapper answer-list">
+          {remaining !== null && <h2 className="counter">{remaining}s</h2>}
           <h3>Answers:</h3>
           {players.length === 0 ? (
             <p>Waiting for answers...</p>
@@ -53,6 +67,7 @@ const GameView = ({
             </ul>
           )}
         </div>
+
         <h2 className="counter">
           {players.length} / {totalPlayers}
           {/*some type of placeholder */}
