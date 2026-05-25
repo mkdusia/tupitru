@@ -41,10 +41,12 @@ class GameManager:
             return None
         return self.rooms.get(room_id)
 
-    def host(self, host_id: UUID) -> str:
+    async def host(self, host_id: UUID) -> str:
         """
         Create a new room.
         """
+        if host_id in self.player_room:
+            await self.player_disconnect(host_id)
         room_id = f"{randbelow(10**10):010}"
         self.rooms[room_id] = Room(host_id)
         self.player_room[host_id] = room_id
@@ -54,6 +56,8 @@ class GameManager:
         """
         Join a player to a room.
         """
+        if player_id in self.player_room:
+            await self.player_disconnect(player_id)
         room = self.rooms.get(room_id)
         if room is None:
             await self._error(player_id, "The room does not exist.")
@@ -121,15 +125,29 @@ class GameManager:
         room = self.rooms[room_id]
         if room.host == player_id:
             await self.close_room(player_id)
-        else:
-            self.player_room.pop(player_id)
-            name = room.players[player_id].nickname
-            room.remove_player(player_id)
-            to_notify = list(room.players.keys())
-            to_notify.append(room.host)
-            await self.emit_event(
-                {"type": "player_disconnected", "nickname": name, "notify": to_notify}
-            )
+            return
+
+        player = room.players.get(player_id)
+        if player is None:
+            self.player_room.pop(player_id, None)
+            return
+
+        current_respondent_id = None
+        if getattr(room, "current_respondent", None) is not None:
+            current_respondent_id = room.current_respondent.id
+
+        self.player_room.pop(player_id, None)
+        name = player.nickname
+        room.remove_player(player_id)
+        to_notify = list(room.players.keys())
+        to_notify.append(room.host)
+        await self.emit_event(
+            {"type": "player_disconnected", "nickname": name, "notify": to_notify}
+        )
+
+        if room.state == "settling_round" and current_respondent_id == player_id:
+            room.board_state.clear()
+            await room.next_player(self.emit_event)
 
     async def answer(self, player_id: UUID, answer: int) -> None:
         """

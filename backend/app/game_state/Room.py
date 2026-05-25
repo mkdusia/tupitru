@@ -38,6 +38,9 @@ class Room:
         """
         if player in self.players:
             self.players.pop(player)
+        self.ranking = [p for p in self.ranking if p.id != player]
+        if getattr(self, "current_respondent", None) is not None and self.current_respondent.id == player:
+            self.current_respondent = None
 
     def get_player(self, player: UUID) -> Player:
         """
@@ -113,9 +116,8 @@ class Room:
         self.ranking.sort(
             key=lambda player: (
                 player.answer,
-                -(player.answer_time if player.answer_time is not None else float("inf")),
-            ),
-            reverse=True,
+                player.answer_time if player.answer_time is not None else float("inf"),
+            )
         )
         await self.next_player(emitter)
 
@@ -283,10 +285,9 @@ class Room:
                 answers_sorted = sorted(
                     self.players.values(),
                     key=lambda p: (
-                        p.answer,
-                        -(p.answer_time if p.answer_time is not None else float("inf")),
+                        -p.answer,
+                        p.answer_time if p.answer_time is not None else float("inf"),
                     ),
-                    reverse=True,
                 )
                 res["answers"] = [(p.answer, p.nickname) for p in answers_sorted]
             if res["game_state"] == "awaiting_answers" or res["game_state"] == "settling_round":
