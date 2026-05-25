@@ -97,6 +97,15 @@ function HostRoomView({
           />
 
           <h3></h3>
+          {/* 
+          <input
+            className="inputtext"
+            type="number"
+            min={1}
+            value={roundTime}
+            onChange={(e) => setRoundTime(e.target.value)}
+            placeholder="Round time (s, optional)"
+          /> */}
 
           <button className="button button-white button-ret" onClick={handleStartGame}>
             Start Game

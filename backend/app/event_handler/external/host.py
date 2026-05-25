@@ -19,7 +19,7 @@ async def handle_host(handler: EventHandlerProtocol, event: HostEvent) -> None:
 
 @external_event("change_state", ChangeStateEvent)
 async def handle_game_start(handler: EventHandlerProtocol, event: ChangeStateEvent) -> None:
-    await handler.game_manager.change_game_state(event.id)
+    await handler.game_manager.change_game_state(event.id, event.round_time)
 
 
 @external_event("skip_round", SkipEvent)

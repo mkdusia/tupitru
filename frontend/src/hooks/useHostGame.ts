@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { PlayerAnswer } from '../types';
 
+const ROUND_TIME = 60;
+
 export const useHostGame = () => {
   const navigate = useNavigate();
 
@@ -30,6 +32,16 @@ export const useHostGame = () => {
   const [ranking, setRanking] = useState<PlayerAnswer[]>(() =>
     JSON.parse(sessionStorage.getItem('hostRanking') || '[]')
   );
+  // const [roundTime, setRoundTime] = useState(
+  //   () => sessionStorage.getItem('hostRoundTime') || ''
+  // );
+  const [countdownEnd, setCountdownEnd] = useState<number | null>(() => {
+    const saved = sessionStorage.getItem('hostCountdownEnd');
+    return saved ? parseInt(saved, 10) : null;
+  });
+
+  const roundTime = String(ROUND_TIME);
+  // const roundTimeNumRef = useRef(0);
 
   useEffect(() => {
     sessionStorage.setItem('hostStatus', status);
@@ -55,6 +67,13 @@ export const useHostGame = () => {
   useEffect(() => {
     sessionStorage.setItem('hostRanking', JSON.stringify(ranking));
   }, [ranking]);
+  useEffect(() => {
+    if (countdownEnd !== null) {
+      sessionStorage.setItem('hostCountdownEnd', String(countdownEnd));
+    } else {
+      sessionStorage.removeItem('hostCountdownEnd');
+    }
+  }, [countdownEnd]);
 
   const handleMessage = useCallback(
     (data: any) => {
@@ -157,6 +176,7 @@ export const useHostGame = () => {
         },
         'info:awaiting_response': () => {
           setRespondent(data.respondent);
+          setCountdownEnd(Date.now() + ROUND_TIME * 1000);
           setStatus('showing');
         },
         'info:winner': () => {
@@ -176,6 +196,7 @@ export const useHostGame = () => {
             }));
           });
           console.log(ranking);
+          setCountdownEnd(null);
           setStatus('game_end');
         },
         kick: () => {
@@ -202,8 +223,10 @@ export const useHostGame = () => {
       isDeleteMode,
       playersAnswered,
       ranking,
+      roundTime,
+      countdownEnd,
     },
-    setters: { setIsDeleteMode, setStatus, setPlayers },
+    setters: { setIsDeleteMode, setStatus, setPlayers, setCountdownEnd },
     handleMessage,
   };
 };

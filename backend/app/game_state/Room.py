@@ -1,3 +1,4 @@
+import asyncio
 from typing import Awaitable, Callable, Any
 from uuid import UUID
 
@@ -7,18 +8,19 @@ from .Player import Player
 from app.schemas import Emitter
 import time
 
+_TimerAction = Callable[[], Awaitable[None]]
+
 
 class Room:
     def __init__(self, host: UUID, emitter: Emitter) -> None:
-        self.host = host
-        self.emitter = emitter
+        self.host: UUID = host
+        self.emitter: Emitter = emitter
 
         self.players: dict[UUID, Player] = {}
         self.state: RoomStatus = "awaiting_start"
-        self.accepting_response: bool = False
         self.announced_winner: bool = False
         self.ranking: list[Player] = []
-        self.current_respondent: Player
+        self.current_respondent: Player | None = None
         self.change_state: dict[RoomStatus, Callable[[], Awaitable[None]]] = {
             "awaiting_start": self.start_game,
             "awaiting_answers": self.settle_round,
@@ -26,6 +28,37 @@ class Room:
             "game_ended": self.restart_game,
         }
         self.board_state = BoardState()
+        self.round_time: int | None = None
+        self.timer_task: asyncio.Task[None] | None = None
+
+    def cancel_timer(self) -> None:
+        if self.timer_task is not None:
+            self.timer_task.cancel()
+            self.timer_task = None
+
+    def _start_timer(self, action: _TimerAction) -> None:
+        self.cancel_timer()
+        round_time = self.round_time
+        if round_time is None:
+            return
+        self.timer_task = asyncio.create_task(self._run_timer(action, round_time))
+
+    async def _run_timer(self, action: _TimerAction, delay: int) -> None:
+        try:
+            await asyncio.sleep(delay)
+        except asyncio.CancelledError:
+            return
+        self.timer_task = None
+        await action()
+
+    async def _timeout_answers(self) -> None:
+        if self.state == "awaiting_answers":
+            await self.settle_round()
+
+    async def _timeout_response(self) -> None:
+        if self.state == "settling_round":
+            self.board_state.clear()
+            await self.next_player()
 
     def add_player(self, player: UUID, nickname: str) -> None:
         """
@@ -35,14 +68,14 @@ class Room:
 
     async def remove_player(self, player: UUID) -> None:
         """
-        Remove a player from the room.
+        Remove a player from the room. Needs to be async in case we need to move to the next player.
         """
         if player in self.players:
-            self.players.pop(player)
-        self.ranking = [p for p in self.ranking if p.id != player]
-        current_respondent = getattr(self, "current_respondent", None)
-        if current_respondent is not None and current_respondent.id == player:
-            await self.next_player()
+            player_obj = self.players.pop(player)
+            if player_obj in self.ranking:
+                self.ranking.remove(player_obj)
+            if self.current_respondent is not None and player == self.current_respondent.id:
+                await self.next_player()
 
     def get_player(self, player: UUID) -> Player:
         """
@@ -108,13 +141,13 @@ class Room:
         await self.emitter(
             {"type": "game_start", "notify": to_notify, "board": self.board_state.data}
         )
+        self._start_timer(self._timeout_answers)
 
     async def settle_round(self) -> None:
         """
         Move into the phase of showing solutions.
         """
         self.state = "settling_round"
-        self.accepting_response = True
         self.ranking = list(self.players.values())
         self.ranking = list(filter(lambda player: player.answer > 0, self.ranking))
         self.ranking.sort(
@@ -130,10 +163,10 @@ class Room:
         """
         Allow the next player to show their solution.
         """
+        self.cancel_timer()
         to_notify = list(self.players.keys())
         to_notify.append(self.host)
         if len(self.ranking) == 0:
-            self.accepting_response = False
             if not self.announced_winner:
                 self.announced_winner = True
                 await self.emitter(
@@ -157,6 +190,7 @@ class Room:
             return
 
         self.current_respondent = self.ranking.pop()
+
         to_notify.remove(self.current_respondent.id)
         await self.emitter(
             {
@@ -172,6 +206,7 @@ class Room:
                 "board": self.board_state.data,
             }
         )
+        self._start_timer(self._timeout_response)
 
     async def restart_game(self) -> None:
         """
@@ -190,7 +225,7 @@ class Room:
         """
         Accept a response from a player.
         """
-        if not self.accepting_response or player != self.current_respondent.id:
+        if self.current_respondent is None or player != self.current_respondent.id:
             return False
         pl = self.players[player]
         if self.board_state.moves < pl.answer:
@@ -201,14 +236,13 @@ class Room:
         """
         Check whether a solution is complete.
         """
-        return self.accepting_response and self.board_state.finish_state()
+        return self.current_respondent is not None and self.board_state.finish_state()
 
     async def win_round(self) -> None:
         """
         Handle the end of a round.
         """
-        if self.state == "settling_round" and self.accepting_response:
-            self.accepting_response = False
+        if self.state == "settling_round" and self.current_respondent is not None:
             self.announced_winner = True
             self.current_respondent.points += 1
             to_notify = list(self.players.keys())
@@ -222,6 +256,7 @@ class Room:
                     "nickname": self.current_respondent.nickname,
                 }
             )
+            self.current_respondent = None
             self.board_state.flush()
             self.ranking = []
 
@@ -238,7 +273,7 @@ class Room:
         """
         Allow a player to give up providing a solution.
         """
-        if not self.accepting_response or player != self.current_respondent.id:
+        if self.current_respondent is None or player != self.current_respondent.id:
             return False
         self.board_state.clear()
         return True
@@ -247,7 +282,11 @@ class Room:
         """
         Revert the last move of a player.
         """
-        if self.state != "settling_round" or player != self.current_respondent.id:
+        if (
+            self.state != "settling_round"
+            or self.current_respondent is None
+            or player != self.current_respondent.id
+        ):
             return False
         self.board_state.revert()
         return True
@@ -259,7 +298,7 @@ class Room:
         res: dict[str, Any] = {}
         res["game_state"] = self.state
         res["host"] = id == self.host
-        if res["game_state"] == "settling_round":
+        if res["game_state"] == "settling_round" and self.current_respondent is not None:
             res["respondent"] = self.current_respondent.nickname
 
         ranking = sorted(
@@ -272,7 +311,7 @@ class Room:
             res["nickname"] = player.nickname
             if res["game_state"] == "awaiting_answers" or res["game_state"] == "settling_round":
                 res["answer"] = player.answer
-            if res["game_state"] == "settling_round":
+            if res["game_state"] == "settling_round" and self.current_respondent is not None:
                 res["respond"] = self.current_respondent.id == id
                 if res["respond"]:
                     res["board"] = self.board_state.data.model_dump()
@@ -297,7 +336,7 @@ class Room:
                 res["answers"] = [(p.answer, p.nickname) for p in answers_sorted]
             if res["game_state"] == "awaiting_answers" or res["game_state"] == "settling_round":
                 res["board"] = self.board_state.data.model_dump()
-            if res["game_state"] == "settling_round":
+            if res["game_state"] == "settling_round" and self.current_respondent is not None:
                 res["answer"] = self.current_respondent.answer
             if res["game_state"] == "game_ended":
                 res["ranking"] = ranking
