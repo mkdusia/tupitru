@@ -17,6 +17,7 @@ const GameView = ({
   totalPlayers,
   players,
   countdownEnd,
+  boardData,
   handleCloseRoom,
   handleEndRound,
 }: GameViewProps) => {
