@@ -9,8 +9,9 @@ import time
 
 
 class Room:
-    def __init__(self, host: UUID) -> None:
+    def __init__(self, host: UUID, emitter: Emitter) -> None:
         self.host = host
+        self.emitter = emitter
 
         self.players: dict[UUID, Player] = {}
         self.state: RoomStatus = "awaiting_start"
@@ -18,7 +19,7 @@ class Room:
         self.announced_winner: bool = False
         self.ranking: list[Player] = []
         self.current_respondent: Player
-        self.change_state: dict[RoomStatus, Callable[[Emitter], Awaitable[None]]] = {
+        self.change_state: dict[RoomStatus, Callable[[], Awaitable[None]]] = {
             "awaiting_start": self.start_game,
             "awaiting_answers": self.settle_round,
             "settling_round": self.next_player,
@@ -32,18 +33,16 @@ class Room:
         """
         self.players[player] = Player(player, nickname)
 
-    def remove_player(self, player: UUID) -> None:
+    async def remove_player(self, player: UUID) -> None:
         """
         Remove a player from the room.
         """
         if player in self.players:
             self.players.pop(player)
         self.ranking = [p for p in self.ranking if p.id != player]
-        if (
-            getattr(self, "current_respondent", None) is not None
-            and self.current_respondent.id == player
-        ):
-            self.current_respondent = None
+        current_respondent = getattr(self, "current_respondent", None)
+        if current_respondent is not None and current_respondent.id == player:
+            await self.next_player()
 
     def get_player(self, player: UUID) -> Player:
         """
@@ -86,17 +85,17 @@ class Room:
         else:
             pl.answer_time = None
 
-    def kick(self, nickname: str) -> UUID | None:
+    async def kick(self, nickname: str) -> UUID | None:
         """
         Kick a player out of the room.
         """
         for key, player in list(self.players.items()):
             if player.nickname == nickname:
-                del self.players[key]
+                await self.remove_player(key)
                 return key
         return None
 
-    async def start_game(self, emitter: Emitter) -> None:
+    async def start_game(self) -> None:
         """
         Handle the start of the game.
         """
@@ -106,9 +105,11 @@ class Room:
             player.answer = 0
         to_notify = list(self.players.keys())
         to_notify.append(self.host)
-        await emitter({"type": "game_start", "notify": to_notify, "board": self.board_state.data})
+        await self.emitter(
+            {"type": "game_start", "notify": to_notify, "board": self.board_state.data}
+        )
 
-    async def settle_round(self, emitter: Emitter) -> None:
+    async def settle_round(self) -> None:
         """
         Move into the phase of showing solutions.
         """
@@ -120,11 +121,12 @@ class Room:
             key=lambda player: (
                 player.answer,
                 player.answer_time if player.answer_time is not None else float("inf"),
-            )
+            ),
+            reverse=True,
         )
-        await self.next_player(emitter)
+        await self.next_player()
 
-    async def next_player(self, emitter: Emitter) -> None:
+    async def next_player(self) -> None:
         """
         Allow the next player to show their solution.
         """
@@ -134,7 +136,7 @@ class Room:
             self.accepting_response = False
             if not self.announced_winner:
                 self.announced_winner = True
-                await emitter(
+                await self.emitter(
                     {
                         "type": "announce_winner",
                         "notify": to_notify,
@@ -149,21 +151,21 @@ class Room:
                     (player.points, player.nickname, player.id) for player in self.players.values()
                 ]
                 players.sort(key=lambda pr: pr[0], reverse=True)
-                await emitter({"type": "game_end", "host": self.host, "ranking": players})
+                await self.emitter({"type": "game_end", "host": self.host, "ranking": players})
             else:
-                await self.start_game(emitter)
+                await self.start_game()
             return
 
         self.current_respondent = self.ranking.pop()
         to_notify.remove(self.current_respondent.id)
-        await emitter(
+        await self.emitter(
             {
                 "type": "awaiting_response",
                 "notify": to_notify,
                 "respondent": self.current_respondent.nickname,
             }
         )
-        await emitter(
+        await self.emitter(
             {
                 "type": "respond",
                 "notify": self.current_respondent.id,
@@ -171,18 +173,18 @@ class Room:
             }
         )
 
-    async def restart_game(self, emitter: Emitter) -> None:
+    async def restart_game(self) -> None:
         """
         Start the ended game with a new board
         """
         self.board_state = BoardState()
-        await self.start_game(emitter)
+        await self.start_game()
 
-    async def next_stage(self, emitter: Emitter) -> None:
+    async def next_stage(self) -> None:
         """
         Change the state of the game
         """
-        await self.change_state[self.state](emitter)
+        await self.change_state[self.state]()
 
     def respond(self, player: UUID, mole: Mole, direction: Direction) -> bool:
         """
@@ -201,7 +203,7 @@ class Room:
         """
         return self.accepting_response and self.board_state.finish_state()
 
-    async def win_round(self, emitter: Emitter) -> None:
+    async def win_round(self) -> None:
         """
         Handle the end of a round.
         """
@@ -212,7 +214,7 @@ class Room:
             to_notify = list(self.players.keys())
             to_notify.append(self.host)
             to_notify.remove(self.current_respondent.id)
-            await emitter(
+            await self.emitter(
                 {
                     "type": "announce_winner",
                     "notify": to_notify,
@@ -223,14 +225,14 @@ class Room:
             self.board_state.flush()
             self.ranking = []
 
-    async def end_settling(self, emitter: Emitter) -> None:
+    async def end_settling(self) -> None:
         """
         End a round before the players provide their solutions.
         """
         if self.state == "settling_round":
             self.board_state.clear()
             self.ranking = []
-            await self.next_stage(emitter)
+            await self.next_stage()
 
     def give_up(self, player: UUID) -> bool:
         """
@@ -288,7 +290,7 @@ class Room:
                 answers_sorted = sorted(
                     self.players.values(),
                     key=lambda p: (
-                        -p.answer,
+                        p.answer,
                         p.answer_time if p.answer_time is not None else float("inf"),
                     ),
                 )

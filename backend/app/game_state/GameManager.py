@@ -48,7 +48,7 @@ class GameManager:
         if host_id in self.player_room:
             await self.player_disconnect(host_id)
         room_id = f"{randbelow(10**10):010}"
-        self.rooms[room_id] = Room(host_id)
+        self.rooms[room_id] = Room(host_id, self.emit_event)
         self.player_room[host_id] = room_id
         return room_id
 
@@ -96,7 +96,7 @@ class GameManager:
         if room is None or not room.can_change_state(host_id):
             await self._error(host_id, "You do not have permission to perform this action.")
             return
-        await room.next_stage(self.emit_event)
+        await room.next_stage()
 
     async def close_room(self, host: UUID) -> bool:
         room_id = self.player_room.get(host)
@@ -127,27 +127,15 @@ class GameManager:
             await self.close_room(player_id)
             return
 
-        player = room.players.get(player_id)
-        if player is None:
-            self.player_room.pop(player_id, None)
-            return
-
-        current_respondent_id = None
-        if getattr(room, "current_respondent", None) is not None:
-            current_respondent_id = room.current_respondent.id
-
-        self.player_room.pop(player_id, None)
+        player = room.get_player(player_id)
+        self.player_room.pop(player_id)
+        await room.remove_player(player_id)
         name = player.nickname
-        room.remove_player(player_id)
         to_notify = list(room.players.keys())
         to_notify.append(room.host)
         await self.emit_event(
             {"type": "player_disconnected", "nickname": name, "notify": to_notify}
         )
-
-        if room.state == "settling_round" and current_respondent_id == player_id:
-            room.board_state.clear()
-            await room.next_player(self.emit_event)
 
     async def answer(self, player_id: UUID, answer: int) -> None:
         """
@@ -186,7 +174,7 @@ class GameManager:
             }
         )
         if room.is_response_full():
-            await room.win_round(self.emit_event)
+            await room.win_round()
 
     async def give_up(self, player_id: UUID) -> None:
         """
@@ -204,7 +192,7 @@ class GameManager:
                 "board": room.board_state.data,
             }
         )
-        await room.next_stage(self.emit_event)
+        await room.next_stage()
 
     async def revert_move(self, player_id: UUID) -> None:
         """
@@ -231,7 +219,7 @@ class GameManager:
         if room is None or not room.can_skip_round(host_id):
             await self._error(host_id, "You do not have permission to perform this action.")
             return
-        await room.end_settling(self.emit_event)
+        await room.end_settling()
 
     async def kick(self, host_id: UUID, nickname: str) -> None:
         """
@@ -241,10 +229,12 @@ class GameManager:
         if room is None or not room.is_host(host_id):
             await self._error(host_id, "You cannot kick this player out.")
             return
-        id = room.kick(nickname)
-        await self.emit_event(
-            {"type": "kick", "notify": [host_id], "nickname": nickname, "player_id": id}
-        )
+        ii = await room.kick(nickname)
+        if ii is not None:
+            del self.player_room[ii]
+            await self.emit_event(
+                {"type": "kick", "notify": [host_id], "nickname": nickname, "player_id": ii}
+            )
 
     def get_state(self, id: UUID) -> dict[str, Any]:
         """

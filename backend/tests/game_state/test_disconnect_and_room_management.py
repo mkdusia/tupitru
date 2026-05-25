@@ -6,9 +6,9 @@ from app.game_state.GameManager import GameManager
 
 class DummyEmitter:
     def __init__(self) -> None:
-        self.events = []
+        self.events = []  # type: ignore
 
-    async def __call__(self, event) -> None:
+    async def __call__(self, event) -> None:  # type: ignore
         self.events.append(event)
 
 
@@ -65,10 +65,10 @@ async def test_disconnect_current_respondent_advances_round() -> None:
     await manager.join(player_a, room_id, "A")
     await manager.join(player_b, room_id, "B")
 
-    await room.start_game(emitter)
+    await room.start_game()
     room.set_answer(player_a, 3)
     room.set_answer(player_b, 2)
-    await room.settle_round(emitter)
+    await room.settle_round()
 
     current = room.current_respondent.id
     await manager.player_disconnect(current)
