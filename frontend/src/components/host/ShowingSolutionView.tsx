@@ -1,6 +1,7 @@
 import '../../App.css';
 import GameWrapper from './GameWrapper';
 import type { BoardData } from '../../types';
+import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
 
 interface ShowingSolutionViewProps {
   nickname: string;
@@ -8,6 +9,7 @@ interface ShowingSolutionViewProps {
 }
 
 const ShowingSolutionView = ({ nickname, boardData }: ShowingSolutionViewProps) => {
+  const { isPlaying, toggleMute } = useBackgroundMusic('/audio/ShowingMove.mp3');
   return (
     <div className="show-solution-container">
       {/* <h1 className='title'>Game View</h1> */}
@@ -18,7 +20,18 @@ const ShowingSolutionView = ({ nickname, boardData }: ShowingSolutionViewProps) 
           <GameWrapper boardData={boardData}></GameWrapper>
         </div>
       </div>
-      <div className="right-section"></div>
+      <div className="right-section">
+        <div className="side-controls wrapper">
+          <button className="button-circle" onClick={toggleMute}>
+            <img
+              src={isPlaying ? '/icons/mute.svg' : '/icons/unmute.svg'}
+              alt={isPlaying ? 'Mute' : 'Music'}
+              className="button-icon"
+            />
+          </button>
+          <button className="button-circle"></button>
+        </div>
+      </div>
     </div>
   );
 };

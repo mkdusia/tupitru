@@ -1,12 +1,17 @@
 import '../App.css';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+
+import { useWebSocket } from '../hooks/useWebSocket';
+import { usePlayerGame } from '../hooks/usePlayerGame';
 
 import WaitingView from '../components/player/WaitingView';
 import AnswerView from '../components/player/AnswerView';
 import RespondView from '../components/player/RespondView';
 import AwaitingResponseView from '../components/player/AwaitingResponseView';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import RoundWinnerView from '../components/player/RoundWinnerView';
 import WonRoundView from '../components/player/WonRoundView';
+import GameEndView from '../components/player/GameEndView';
 
 export default function PlayerRoute() {
   const navigate = useNavigate();
@@ -15,215 +20,88 @@ export default function PlayerRoute() {
   const [searchParams] = useSearchParams();
   const nick = searchParams.get('nick') || '';
 
-  const ws = useRef<WebSocket | null>(null);
-  const [status, setStatus] = useState('connecting');
-  const [countdown, setCountdown] = useState(5);
-  const [answer, setAnswer] = useState('');
-  const [current_answer, setCurrentAnswer] = useState(0);
+  const { state, setters, handleMessage } = usePlayerGame(nick);
 
-  const [respondent, setRespondent] = useState('');
-
-  const [mole, setMole] = useState(-1);
-  const [direction, setDirection] = useState('');
+  const sendMessage = useWebSocket({
+    url: baseUrl,
+    onMessage: (data) => {
+      if (data.type === 'success' && data.message === 'connect') {
+        sessionStorage.setItem('user_id', data.user_id);
+        sendMessage({ type: 'join', room_id: roomCode, nickname: nick });
+      } else {
+        handleMessage(data);
+      }
+    },
+  });
 
   useEffect(() => {
-    if (!nick || !roomCode) {
-      navigate('/');
-      return;
-    }
+    if (!nick || !roomCode) navigate('/');
+  }, [nick, roomCode, navigate]);
 
-    const socket = new WebSocket(baseUrl);
-    ws.current = socket;
-
-    const connectingTimeout = setTimeout(() => {
-      alert('Room not found or session has expired.');
-      navigate('/');
-    }, 5000);
-
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-
-    socket.onopen = () => {
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(
-          JSON.stringify({
-            type: 'join',
-            room_id: roomCode,
-            nickname: nick,
-          })
-        );
-      }
-    };
-
-    socket.onmessage = (event: { data: string }) => {
-      const data = JSON.parse(event.data);
-
-      console.log(data);
-
-      if (data.type === 'success' || data.type === 'error') {
-        clearTimeout(connectingTimeout);
-        clearInterval(countdownInterval);
-      }
-
-      if (data.type === 'success' && data.message === 'join') {
-        setStatus('waiting');
-      }
-
-      if (data.type === 'success' && data.message == 'answer') {
-        setAnswer('');
-        setCurrentAnswer(data.answer);
-      }
-
-      if (data.type === 'info' && data.message === 'room_destroyed') {
-        navigate('/', { state: { previousNick: nick } });
-        alert('Room was destroyed.');
-      }
-
-      if (data.type === 'info' && data.message === 'game_start') {
-        setAnswer('');
-        setCurrentAnswer(0);
-        setStatus('playing');
-      }
-
-      if (data.type === 'info' && data.message === 'awaiting_response') {
-        setRespondent(data.respondent);
-        setStatus('awaiting_response');
-      }
-
-      if (data.type === 'info' && data.message === 'respond') {
-        setStatus('showing_solution');
-      }
-
-      if (data.type === 'info' && data.message === 'won') {
-        setStatus('won');
-      }
-
-      if (data.type === 'error') {
-        alert('Error: ' + data.message);
-        if (data.message !== 'Invalid event format') {
-          navigate('/');
-        }
-      }
-
-      if (data.type === 'info' && data.message === 'kick') {
-        navigate('/', { state: { previousNick: nick } });
-        alert('You have been kicked out by host.');
-      }
-    };
-
-    socket.onclose = (event) => {
-      if (!event.wasClean) {
-        clearTimeout(connectingTimeout);
-        navigate('/');
-      }
-    };
-
-    return () => {
-      clearTimeout(connectingTimeout);
-      clearInterval(countdownInterval);
-      socket.close();
-      if (socket === ws.current) {
-        ws.current = null;
-      }
-    };
-  }, [roomCode, nick, navigate]);
-
-  const handleWaitingViewExit = () => {
+  const handleExit = () => {
     navigate('/', { state: { previousRoomCode: roomCode, previousNick: nick } });
   };
 
   const handleSendAnswer = () => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(
-        JSON.stringify({
-          type: 'answer',
-          answer: parseInt(answer),
-        })
-      );
-    }
+    sendMessage({ type: 'answer', answer: parseInt(state.answer) });
   };
 
   const handleResetAnswer = () => {
-    setAnswer('');
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(
-        JSON.stringify({
-          type: 'answer',
-          answer: -1,
-        })
-      );
-    }
+    setters.setAnswer('');
+    sendMessage({ type: 'answer', answer: -1 });
   };
 
   const handleSendStep = () => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(
-        JSON.stringify({
-          type: 'respond',
-          mole: mole,
-          direction: direction,
-        })
-      );
-    }
+    sendMessage({ type: 'respond', mole: state.mole, direction: state.direction });
   };
 
   const handleGiveUp = () => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(
-        JSON.stringify({
-          type: 'give_up',
-        })
-      );
-    }
+    sendMessage({ type: 'give_up' });
   };
 
   const handleRevert = () => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(
-        JSON.stringify({
-          type: 'revert',
-        })
-      );
-    }
+    sendMessage({ type: 'revert' });
   };
 
-  if (status === 'connecting')
+  if (state.status === 'connecting') {
     return (
       <div className="wrapper">
         <h1>Connecting...</h1>
         <p>
-          Remaining seconds to connect: <strong>{countdown}s</strong>
+          Remaining seconds to connect: <strong>{state.countdown}s</strong>
         </p>
       </div>
     );
+  }
 
-  if (status === 'playing') {
+  if (state.status === 'playing') {
     return (
       <AnswerView
-        answer={answer}
-        current_answer={current_answer}
-        setAnswer={setAnswer}
+        answer={state.answer}
+        current_answer={state.currentAnswer}
+        setAnswer={setters.setAnswer}
         handleSendAnswer={handleSendAnswer}
         handleResetAnswer={handleResetAnswer}
       />
     );
   }
 
-  if (status === 'waiting') {
-    return <WaitingView nick={nick} roomCode={roomCode} handleExit={handleWaitingViewExit} />;
+  if (state.status === 'waiting') {
+    return <WaitingView nick={nick} roomCode={roomCode} handleExit={handleExit} />;
   }
 
-  if (status === 'awaiting_response') {
-    return <AwaitingResponseView respondent={respondent} />;
+  if (state.status === 'awaiting_response') {
+    return <AwaitingResponseView respondent={state.respondent} />;
   }
 
-  if (status === 'showing_solution') {
+  if (state.status === 'showing_solution') {
     return (
       <RespondView
-        answer={current_answer}
-        setMole={setMole}
-        setDirection={setDirection}
+        answer={state.currentAnswer}
+        movesLeft={state.movesLeft}
+        setMovesLeft={setters.setMovesLeft}
+        setMole={setters.setMole}
+        setDirection={setters.setDirection}
         handleSendStep={handleSendStep}
         handleGiveUp={handleGiveUp}
         handleRevert={handleRevert}
@@ -231,7 +109,15 @@ export default function PlayerRoute() {
     );
   }
 
-  if (status === 'won') {
+  if (state.status === 'winner') {
+    return <RoundWinnerView nickname={state.winner} />;
+  }
+
+  if (state.status === 'won') {
     return <WonRoundView />;
+  }
+
+  if (state.status === 'game_end') {
+    return <GameEndView score={state.score} position={state.position} handleExit={handleExit} />;
   }
 }

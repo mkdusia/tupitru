@@ -4,6 +4,7 @@ import ArrowIcon from '../../assets/ArrowIcon';
 import Popup from '../PopUp';
 import Markdown from 'react-markdown';
 import Rules from '../../../../rules.md?raw';
+import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
 
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -28,19 +29,20 @@ function HostRoomView({
   handleKickPlayer,
   currentURL,
 }: HostRoomViewProps) {
+  const { isPlaying, toggleMute } = useBackgroundMusic('/audio/LetsPlay.mp3');
   return (
     <div className="main-container">
       <div className="left-section">
         <div className="wrapper">
-          <h2>
-            Already joined:
+          <div className="kick-button-container">
             <button
               className={`button button-circle ${isDeleteMode ? 'active' : ''}`}
               onClick={() => setIsDeleteMode(!isDeleteMode)}
             >
               {isDeleteMode ? 'X' : 'Kick'}
             </button>
-          </h2>
+          </div>
+          <h2>Already joined</h2>
 
           {players.length === 0 ? (
             <p>Waiting for players...</p>
@@ -105,7 +107,13 @@ function HostRoomView({
           </button>
         </div>
         <div className="side-controls wrapper">
-          <button className="button-circle"></button>
+          <button className="button-circle" onClick={toggleMute}>
+            <img
+              src={isPlaying ? '/icons/mute.svg' : '/icons/unmute.svg'}
+              alt={isPlaying ? 'Mute' : 'Music'}
+              className="button-icon"
+            />
+          </button>
           <button className="button-circle"></button>
           <Popup buttonText="Rules" buttonClassName="button-rules">
             <Markdown>{Rules}</Markdown>

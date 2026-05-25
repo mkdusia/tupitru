@@ -1,13 +1,15 @@
 import '../../App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../../RespondView.css';
 import CircleIcon from '../../assets/CircleIcon';
 import PadArrowIcon from '../../assets/PadArrowIcon';
 
 interface RespondViewProps {
   answer: number;
+  movesLeft: number;
   setMole: (num: number) => void;
   setDirection: (dir: string) => void;
+  setMovesLeft: (moves: number) => void;
   handleSendStep: () => void;
   handleGiveUp: () => void;
   handleRevert: () => void;
@@ -23,41 +25,48 @@ const MOLES = [
 
 function RespondView({
   answer,
+  movesLeft,
   setMole,
   setDirection,
+  setMovesLeft,
   handleSendStep,
   handleGiveUp,
   handleRevert,
 }: RespondViewProps) {
-  const [movesLeft, setMovesLeft] = useState<number>(answer);
-
   const [activeMole, setActiveMole] = useState<number | null>(null);
   const [activeDir, setActiveDir] = useState<string | null>(null);
 
   const handleMoleClick = (id: number) => {
-    setActiveMole(id);
-    setMole(id);
+    if (activeMole === id) {
+      setActiveMole(null);
+    } else {
+      setActiveMole(id);
+      setMole(id);
+    }
   };
 
   const handleDirClick = (dir: string) => {
-    setActiveDir(dir);
-    setDirection(dir);
-  };
-
-  const onSendClick = () => {
-    if (movesLeft > 0) {
-      handleSendStep();
-      setMovesLeft((prev) => prev - 1);
-
-      setActiveMole(null);
+    if (activeDir === dir) {
       setActiveDir(null);
+    } else {
+      setActiveDir(dir);
+      setDirection(dir);
     }
   };
+
+  useEffect(() => {
+    if (activeMole !== null && activeDir !== null && movesLeft > 0) {
+      handleSendStep();
+
+      setMovesLeft(movesLeft - 1);
+      setActiveDir(null);
+    }
+  }, [activeMole, activeDir, movesLeft]);
 
   const onRevertClick = () => {
     if (movesLeft < answer) {
       handleRevert();
-      setMovesLeft((prev) => prev + 1);
+      setMovesLeft(movesLeft + 1);
     }
   };
 
@@ -128,14 +137,6 @@ function RespondView({
         </div>
 
         <div className="actions-container">
-          <button
-            className="button-send"
-            style={{ backgroundColor: currentArrowColor }}
-            onClick={onSendClick}
-          >
-            Send
-          </button>
-
           <div className="bottom-actions">
             <button className="button-revert" onClick={onRevertClick}>
               <svg
