@@ -39,7 +39,10 @@ class Room:
         if player in self.players:
             self.players.pop(player)
         self.ranking = [p for p in self.ranking if p.id != player]
-        if getattr(self, "current_respondent", None) is not None and self.current_respondent.id == player:
+        if (
+            getattr(self, "current_respondent", None) is not None
+            and self.current_respondent.id == player
+        ):
             self.current_respondent = None
 
     def get_player(self, player: UUID) -> Player:
