@@ -130,19 +130,27 @@ export const useHostGame = () => {
         'info:player_answered': () => {
           setPlayersAnswered((prevPlayers) => {
             const tmpPlayersAnswered = [...prevPlayers];
+
             const playerIdx = tmpPlayersAnswered.findIndex(
               (player) => player.nick === data.nickname
             );
             if (playerIdx !== -1) {
-              if (data.answer <= 0) {
-                tmpPlayersAnswered.splice(playerIdx, 1);
-              } else {
-                tmpPlayersAnswered[playerIdx] = { nick: data.nickname, answer: data.answer };
-              }
-            } else if (data.answer > 0) {
-              tmpPlayersAnswered.push({ nick: data.nickname, answer: data.answer });
+              tmpPlayersAnswered.splice(playerIdx, 1);
             }
-            tmpPlayersAnswered.sort((a, b) => a.answer - b.answer);
+
+            if (data.answer > 0) {
+              const answerIdx = tmpPlayersAnswered.findIndex(
+                (player) => player.answer > data.answer
+              );
+              if (answerIdx === -1) {
+                tmpPlayersAnswered.push({ nick: data.nickname, answer: data.answer });
+              } else {
+                tmpPlayersAnswered.splice(answerIdx, 0, {
+                  nick: data.nickname,
+                  answer: data.answer,
+                });
+              }
+            }
 
             return tmpPlayersAnswered;
           });
