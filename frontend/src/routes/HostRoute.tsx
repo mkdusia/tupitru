@@ -98,8 +98,6 @@ export default function HostRoute() {
       setIsDeleteMode={setters.setIsDeleteMode}
       handleKickPlayer={handleKickPlayer}
       currentURL={QRUrl}
-      roundTime={state.roundTime}
-      setRoundTime={setters.setRoundTime}
     />
   );
 }

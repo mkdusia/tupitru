@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { PlayerAnswer } from '../types';
+
+const ROUND_TIME = 60;
 
 export const useHostGame = () => {
   const navigate = useNavigate();
@@ -30,12 +32,16 @@ export const useHostGame = () => {
   const [ranking, setRanking] = useState<PlayerAnswer[]>(() =>
     JSON.parse(sessionStorage.getItem('hostRanking') || '[]')
   );
-  const [roundTime, setRoundTime] = useState(
-    () => sessionStorage.getItem('hostRoundTime') || ''
-  );
-  const [countdownEnd, setCountdownEnd] = useState<number | null>(null);
+  // const [roundTime, setRoundTime] = useState(
+  //   () => sessionStorage.getItem('hostRoundTime') || ''
+  // );
+  const [countdownEnd, setCountdownEnd] = useState<number | null>(() => {
+    const saved = sessionStorage.getItem('hostCountdownEnd');
+    return saved ? parseInt(saved, 10) : null;
+  });
 
-  const roundTimeNumRef = useRef(0);
+  const roundTime = String(ROUND_TIME);
+  // const roundTimeNumRef = useRef(0);
 
   useEffect(() => {
     sessionStorage.setItem('hostStatus', status);
@@ -62,10 +68,12 @@ export const useHostGame = () => {
     sessionStorage.setItem('hostRanking', JSON.stringify(ranking));
   }, [ranking]);
   useEffect(() => {
-    sessionStorage.setItem('hostRoundTime', roundTime);
-    const n = parseInt(roundTime, 10);
-    roundTimeNumRef.current = Number.isFinite(n) && n > 0 ? n : 0;
-  }, [roundTime]);
+    if (countdownEnd !== null) {
+      sessionStorage.setItem('hostCountdownEnd', String(countdownEnd));
+    } else {
+      sessionStorage.removeItem('hostCountdownEnd');
+    }
+  }, [countdownEnd]);
 
   const handleMessage = useCallback(
     (data: any) => {
@@ -168,9 +176,7 @@ export const useHostGame = () => {
         },
         'info:awaiting_response': () => {
           setRespondent(data.respondent);
-          if (roundTimeNumRef.current > 0) {
-            setCountdownEnd(Date.now() + roundTimeNumRef.current * 1000);
-          }
+          setCountdownEnd(Date.now() + ROUND_TIME * 1000);
           setStatus('showing');
         },
         'info:winner': () => {
@@ -220,7 +226,7 @@ export const useHostGame = () => {
       roundTime,
       countdownEnd,
     },
-    setters: { setIsDeleteMode, setStatus, setPlayers, setRoundTime, setCountdownEnd },
+    setters: { setIsDeleteMode, setStatus, setPlayers, setCountdownEnd },
     handleMessage,
   };
 };

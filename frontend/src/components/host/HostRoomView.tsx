@@ -11,8 +11,6 @@ import { QRCodeSVG } from 'qrcode.react';
 interface HostRoomViewProps {
   roomCode: string | null;
   players: string[];
-  roundTime: string;
-  setRoundTime: (v: string) => void;
   handleStartGame: () => void;
   handleCloseRoom: () => void;
   isDeleteMode: boolean;
@@ -24,8 +22,6 @@ interface HostRoomViewProps {
 function HostRoomView({
   roomCode,
   players,
-  roundTime,
-  setRoundTime,
   handleStartGame,
   handleCloseRoom,
   isDeleteMode,
@@ -101,7 +97,7 @@ function HostRoomView({
           />
 
           <h3></h3>
-
+          {/* 
           <input
             className="inputtext"
             type="number"
@@ -109,7 +105,7 @@ function HostRoomView({
             value={roundTime}
             onChange={(e) => setRoundTime(e.target.value)}
             placeholder="Round time (s, optional)"
-          />
+          /> */}
 
           <button className="button button-white button-ret" onClick={handleStartGame}>
             Start Game
