@@ -11,7 +11,7 @@ from app.event_handler.schemas.external import (
 
 @external_event("host", HostEvent)
 async def handle_host(handler: EventHandlerProtocol, event: HostEvent) -> None:
-    room_id = handler.game_manager.host(event.id)
+    room_id = await handler.game_manager.host(event.id)
     await handler.con_manager.send(
         event.id, {"type": "success", "message": "host", "room_id": room_id}
     )

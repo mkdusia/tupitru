@@ -1,4 +1,5 @@
 from uuid import UUID
+from typing import Optional
 
 
 class Player:
@@ -6,4 +7,5 @@ class Player:
         self.nickname: str = nickname
         self.id: UUID = id
         self.answer: int = 0
+        self.answer_time: Optional[float] = None
         self.points = 0
