@@ -2,16 +2,23 @@ import Phaser from 'phaser';
 import type { BoardData } from '../../types';
 
 export default class BoardScene extends Phaser.Scene {
+
+  private moles: Phaser.GameObjects.Arc[] = [];
+  private moleTexts: Phaser.GameObjects.Text[] = []; 
+  
+  private boardGraphics!: Phaser.GameObjects.Graphics;
+  private targetRectangle!: Phaser.GameObjects.Rectangle;
+
   constructor() {
     super('BoardScene');
   }
 
   create() {
+    this.boardGraphics = this.add.graphics();
     this.game.events.on('UPDATE_BOARD', this.handleNewBoardData, this);
   }
 
   handleNewBoardData(data: BoardData) {
-    this.children.removeAll();
     this.renderBoard(data);
   }
 
@@ -43,19 +50,24 @@ export default class BoardScene extends Phaser.Scene {
     const fx = OFFSET_X + data.finish.x * CELL_SIZE;
     const fy = OFFSET_Y + data.finish.y * CELL_SIZE;
 
-    this.add
-      .rectangle(
-        fx + CELL_SIZE / 2,
-        fy + CELL_SIZE / 2,
-        CELL_SIZE * 0.6,
-        CELL_SIZE * 0.6,
-        targetColor,
-        0.5
-      )
-      .setStrokeStyle(4, targetColor);
+    if(!this.targetRectangle){
+      this.targetRectangle = this.add
+        .rectangle(
+          fx + CELL_SIZE / 2,
+          fy + CELL_SIZE / 2,
+          CELL_SIZE * 0.6,
+          CELL_SIZE * 0.6,
+          targetColor,
+          0.5
+        )
+    }
+    else {
+      this.targetRectangle.setPosition(fx + CELL_SIZE / 2, fy + CELL_SIZE / 2);
+      this.targetRectangle.setFillStyle(targetColor, 0.5);
+    }
+    this.targetRectangle.setStrokeStyle(4, targetColor);
 
-    const graphics = this.add.graphics();
-    graphics.lineStyle(3, 0xffffff, 1);
+    this.boardGraphics.clear()
 
     for (let y = 0; y < data.height; y++) {
       for (let x = 0; x < data.width; x++) {
@@ -63,15 +75,15 @@ export default class BoardScene extends Phaser.Scene {
         const px = OFFSET_X + x * CELL_SIZE;
         const py = OFFSET_Y + y * CELL_SIZE;
 
-        graphics.lineStyle(1, 0x444444, 0.5);
-        graphics.strokeRect(px, py, CELL_SIZE, CELL_SIZE);
+        this.boardGraphics.lineStyle(1, 0x444444, 0.5);
+        this.boardGraphics.strokeRect(px, py, CELL_SIZE, CELL_SIZE);
 
-        graphics.lineStyle(4, 0xffffff, 1);
+        this.boardGraphics.lineStyle(4, 0xffffff, 1);
 
-        if (cell.wall[0]) graphics.lineBetween(px, py, px + CELL_SIZE, py);
-        if (cell.wall[1]) graphics.lineBetween(px + CELL_SIZE, py, px + CELL_SIZE, py + CELL_SIZE);
-        if (cell.wall[2]) graphics.lineBetween(px, py + CELL_SIZE, px + CELL_SIZE, py + CELL_SIZE);
-        if (cell.wall[3]) graphics.lineBetween(px, py, px, py + CELL_SIZE);
+        if (cell.wall[0]) this.boardGraphics.lineBetween(px, py, px + CELL_SIZE, py);
+        if (cell.wall[1]) this.boardGraphics.lineBetween(px + CELL_SIZE, py, px + CELL_SIZE, py + CELL_SIZE);
+        if (cell.wall[2]) this.boardGraphics.lineBetween(px, py + CELL_SIZE, px + CELL_SIZE, py + CELL_SIZE);
+        if (cell.wall[3]) this.boardGraphics.lineBetween(px, py, px, py + CELL_SIZE);
       }
     }
 
@@ -79,20 +91,41 @@ export default class BoardScene extends Phaser.Scene {
       const mx = OFFSET_X + pos.x * CELL_SIZE + CELL_SIZE / 2;
       const my = OFFSET_Y + pos.y * CELL_SIZE + CELL_SIZE / 2;
 
-      const mole = this.add.circle(mx, my, CELL_SIZE * 0.35, MOLE_COLORS[index]);
-      mole.setStrokeStyle(2, 0x000000);
-
-      this.add
+      if(!this.moles[index]){
+        const mole = this.add.circle(mx, my, CELL_SIZE * 0.35, MOLE_COLORS[index]);
+        mole.setStrokeStyle(2, 0x000000);
+        this.moles[index] = mole;
+        this.moleTexts[index] = this.add
         .text(mx, my, index.toString(), {
           fontSize: '20px',
           color: '#ffffff',
           fontStyle: 'bold',
         })
         .setOrigin(0.5);
+      }
+      else {
+        this.tweens.add({
+          targets: this.moles[index],
+          x: mx,
+          y: my,
+          duration: 250,
+          ease: 'Power2.easeInOut'
+        })
+
+        this.tweens.add({
+          targets: this.moleTexts[index],
+          x: mx,
+          y: my,
+          duration: 250,
+          ease: 'Power2.easeInOut'
+        })
+      }
     });
   }
 
   shutdown() {
     this.game.events.off('UPDATE_BOARD', this.handleNewBoardData, this);
+    this.moles = [];
+    this.moleTexts = [];
   }
 }
