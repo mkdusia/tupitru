@@ -27,6 +27,9 @@ function AnswerView({
         <label className="label">Answer: </label>
         <input
           className="inputtext"
+          onKeyDown={(e) => {
+            if(e.key === 'Enter') handleSendAnswer;
+          }}
           value={answer}
           onChange={(event) => setAnswer(event.target.value)}
         />
@@ -35,7 +38,7 @@ function AnswerView({
           Send
         </button>
         <button className="button" onClick={handleResetAnswer}>
-          Reset
+          Reset 
         </button>
       </div>
     </div>
