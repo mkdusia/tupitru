@@ -28,7 +28,10 @@ function AnswerView({
         <input
           className="inputtext"
           onKeyDown={(e) => {
-            if (e.key === 'Enter') handleSendAnswer;
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSendAnswer();
+            }
           }}
           value={answer}
           onChange={(event) => setAnswer(event.target.value)}

@@ -26,7 +26,7 @@ const GameEndView = ({ ranking, handleStartGame, handleCloseRoom }: GameEndViewP
         height={window.innerHeight}
         recycle={false}
         numberOfPieces={670}
-      />  
+      />
       <TupitruTitle />
 
       <div className="game-end-content">
