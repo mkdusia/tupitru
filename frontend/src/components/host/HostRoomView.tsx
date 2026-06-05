@@ -85,7 +85,7 @@ function HostRoomView({
       </div>
 
       <div className="right-sectoin">
-        <h1 className="title">{roomCode}</h1>
+        <h1 className="title yellow-text">{roomCode}</h1>
 
         <div className="wrapper">
           <QRCodeSVG

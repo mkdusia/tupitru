@@ -36,9 +36,25 @@
   letter-spacing: 2px;
 
   text-shadow: 10px 22px 15px rgba(0, 0, 0, 0.4);
+  line-height: 1;
+}
+
+.yellow-text {
   margin-top: 7vh;
   margin-bottom: 5vh;
-  line-height: 1;
+}
+
+.title_img {
+  width: 25vw; 
+  height: auto;
+    margin-top: 1vh;
+  /* margin-bottom: 1vh; */
+}
+
+@media (max-width: 768px) {
+  .title_img {
+    width: 75vw;
+  }
 }
 
 .wrapper {
@@ -126,12 +142,17 @@
 }
 
 .button-container {
-  margin: 20px;
+  margin: 10px;
   display: flex;
   flex-direction: row;
   gap: clamp(10px, 2vw, 30px);
   justify-content: center;
   align-items: center;
+}
+
+.button-training {
+  font-size: clamp(10px, 1.5vw, 16px);
+  padding: clamp(6px, 1vh, 10px) 0; 
 }
 
 input::placeholder {
