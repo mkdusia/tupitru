@@ -45,9 +45,9 @@
 }
 
 .title_img {
-  width: 25vw; 
+  width: 25vw;
   height: auto;
-    margin-top: 1vh;
+  margin-top: 1vh;
   /* margin-bottom: 1vh; */
 }
 
@@ -155,7 +155,7 @@
 
 .button-training {
   font-size: clamp(10px, 1.5vw, 16px);
-  padding: clamp(6px, 1vh, 10px) 0; 
+  padding: clamp(6px, 1vh, 10px) 0;
 }
 
 input::placeholder {

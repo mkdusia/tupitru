@@ -2,6 +2,7 @@ import '../../App.css';
 import '../../Room.css';
 import type { PlayerAnswer } from '../../types';
 import TupitruTitle from '../Title';
+import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
 
 import Confetti from 'react-confetti';
 
@@ -18,6 +19,8 @@ interface GameEndViewProps {
 const GameEndView = ({ ranking, handleStartGame, handleCloseRoom }: GameEndViewProps) => {
   const top3 = ranking.slice(0, 3);
   const others = ranking.slice(3);
+
+  useBackgroundMusic('/audio/Fanfara.mp3', false);
 
   return (
     <div className="game-end-container">

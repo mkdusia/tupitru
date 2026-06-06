@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import '../App.css';
-import '../Mole.css'
-import Hole from '../graphics/hole1.png'
-import MoleRed from '../graphics/mole-red.png'
-import MoleBlue from '../graphics/mole-blue.png'
-import MoleGreen from '../graphics/mole-green.png'
-import MolePink from '../graphics/mole-pink.png'
-import MoleYellow from '../graphics/mole-yellow.png'
-
+import '../Mole.css';
+import Hole from '../graphics/hole1.png';
+import MoleRed from '../graphics/mole-red.png';
+import MoleBlue from '../graphics/mole-blue.png';
+import MoleGreen from '../graphics/mole-green.png';
+import MolePink from '../graphics/mole-pink.png';
+import MoleYellow from '../graphics/mole-yellow.png';
 
 function Molehill() {
   const [activeMole, setActiveMole] = useState<number | null>(null);
@@ -65,4 +64,4 @@ function Molehill() {
   );
 }
 
-export default Molehill
+export default Molehill;
