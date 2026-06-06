@@ -125,6 +125,11 @@ export const usePlayerGame = (nick: string) => {
           setCurrentAnswer(0);
           setStatus('playing');
         },
+        'info:return_to_lobby': () => {
+          setAnswer('');
+          setCurrentAnswer(0);
+          setStatus('waiting');
+        },
         'info:awaiting_response': () => {
           setRespondent(data.respondent);
           setStatus('awaiting_response');

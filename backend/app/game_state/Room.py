@@ -2,7 +2,7 @@ import asyncio
 from typing import Awaitable, Callable, Any
 from uuid import UUID
 
-from .BoardState import BoardState
+from .BoardState import BoardData, BoardState
 from .schemas import Direction, Mole, RoomStatus
 from .Player import Player
 from app.schemas import Emitter
@@ -12,9 +12,19 @@ _TimerAction = Callable[[], Awaitable[None]]
 
 
 class Room:
-    def __init__(self, host: UUID, emitter: Emitter) -> None:
+    def __init__(
+        self,
+        host: UUID,
+        emitter: Emitter,
+        board: BoardData,
+        pool_id: str,
+        seed: int,
+        rounds: int,
+    ) -> None:
         self.host: UUID = host
         self.emitter: Emitter = emitter
+        self.pool_id = pool_id
+        self.seed = seed
 
         self.players: dict[UUID, Player] = {}
         self.state: RoomStatus = "awaiting_start"
@@ -25,11 +35,19 @@ class Room:
             "awaiting_start": self.start_game,
             "awaiting_answers": self.settle_round,
             "settling_round": self.next_player,
-            "game_ended": self.restart_game,
+            "game_ended": self.return_to_lobby,
         }
-        self.board_state = BoardState()
+        self.board_state = BoardState(board, seed, rounds)
         self.round_time: int | None = None
         self.timer_task: asyncio.Task[None] | None = None
+
+    def load_board(self, board: BoardData, pool_id: str, seed: int, rounds: int) -> None:
+        """
+        Replace the room's board with a freshly generated one before a game starts.
+        """
+        self.pool_id = pool_id
+        self.seed = seed
+        self.board_state = BoardState(board, seed, rounds)
 
     def cancel_timer(self) -> None:
         if self.timer_task is not None:
@@ -184,7 +202,15 @@ class Room:
                     (player.points, player.nickname, player.id) for player in self.players.values()
                 ]
                 players.sort(key=lambda pr: pr[0], reverse=True)
-                await self.emitter({"type": "game_end", "host": self.host, "ranking": players})
+                await self.emitter(
+                    {
+                        "type": "game_end",
+                        "host": self.host,
+                        "ranking": players,
+                        "seed": self.seed,
+                        "pool_id": self.pool_id,
+                    }
+                )
             else:
                 await self.start_game()
             return
@@ -208,12 +234,23 @@ class Room:
         )
         self._start_timer(self._timeout_response)
 
-    async def restart_game(self) -> None:
+    async def return_to_lobby(self) -> None:
         """
-        Start the ended game with a new board
+        Send the room back to the lobby after a game ends so the host can pick a
+        fresh board/seed/round count; scores reset for the next game.
         """
-        self.board_state = BoardState()
-        await self.start_game()
+        self.cancel_timer()
+        self.state = "awaiting_start"
+        self.announced_winner = False
+        self.current_respondent = None
+        self.ranking = []
+        for player in self.players.values():
+            player.answer = 0
+            player.answer_time = None
+            player.points = 0
+        to_notify = list(self.players.keys())
+        to_notify.append(self.host)
+        await self.emitter({"type": "return_to_lobby", "notify": to_notify})
 
     async def next_stage(self) -> None:
         """
