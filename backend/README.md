@@ -23,8 +23,9 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 
 ### List of types
 #### Client-types
-- `host`: Host a room. The server returns `room_id` that is a 10 digit number.
-- `change_state`: Change the game state in the room you are a host of. Sends back an info to the host and the players or an error to the sender if the room doesn't exist or the sender isn't the host. Changing state means starting the game, ending the time for player's responses or changing the player who shows their answer. Accepts an optional `round_time` (positive integer, seconds) when starting the game; when set, the answering phase and each respondent's turn auto-advance when the time elapses (treated as the host ending the stage / respondent giving up). Omit or set to `null` for unlimited (manual-only) behaviour.
+- `host`: Host a room. The server returns `room_id` that is a 10 digit number and a list `pools` of available pools of boards to choose from. A single pool is an object with a string `id` and a `display_name`.
+- `start_game`: Start the game in a room. Requires a `pool_id` of the chosen pool and integers `seed` (non-negative, up to 2^32) and `rounds` (between 1 and 50) that represent the chosen random seed and number of rounds, respectively. Accepts an optional `round_time` (positive integer, seconds); when set, the answering phase and each respondent's turn auto-advance when the time elapses (treated as the host ending the stage / respondent giving up). Omit or set to `null` for unlimited (manual-only) behaviour.
+- `change_state`: Change the game state in the room you are a host of. Sends back an info to the host and the players or an error to the sender if the room doesn't exist or the sender isn't the host. Changing state means ending the time for player's responses, changing the player who shows their answer, advancing to the next round or returning to lobby after the game is finished.
 - `skip_round`: Skip the current round. Can only be performed by the host when the players present their solutions. Otherwise sends back an error.
 - `join`: Join a room. Requires appropriate `room_id` and `nickname`. Sends back an info to the host and the players or an error to the sender if the room doesn't exist. Sends back the `room_id` of the room.
 - `answer`: Give the answer to a game round. Requires `answer` that is an integer. Sends back an error to the sender if they aren't taking a part in a game. Sending a non-positive value clears the answer. Sends back the saved `answer` to the sender and informs the host.
@@ -39,7 +40,7 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `room_destroyed`: The host of your room disconnected or closed the room. This gets sent to the players.
 - `game_start`: The round in your room was started. `board` is the current game board. This gets sent to the players and the host.
 - `player_joined`: A player with the nickname `nickname` entered your room. This gets sent to the other players and the host.
-- `game_end`: The game in your room ended. If you are the host, `ranking` is a sorted list of pairs `(points, nickname)`. If you are a player, `score` is your score and `position` if your position in the ranking (starting with `0`).
+- `game_end`: The game in your room ended. If you are the host, `ranking` is a sorted list of pairs `(points, nickname)`. You also get the `seed` and `pool_id` you provided in the lobby. If you are a player, `score` is your score and `position` if your position in the ranking (starting with `0`).
 - `awaiting_response`: The game awaits a solution from the player with nickname `respondent` who claimed the best solution. This gets sent to the other players and the host.
 - `respond`: You are the player who claimed the best solution. You are expected to provide the solution. `board` is the current board.
 - `player_answered`: The player `nickname` gave answer `answer`. This gets sent to the host.
@@ -49,6 +50,7 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `winner`: The player `nickname` won the round. If `nickname` is `null`, no player won. This gets sent to the other players and the host.
 - `won`: You won the round.
 - `kick`: You were kicked out of your room.
+- `return_to_lobby`: The room returned to lobby after the game ended. This gets sent to both the host and the players.
 
 ### Board description
 The board data is sent as a JSON dictionary that contains the following fields:
