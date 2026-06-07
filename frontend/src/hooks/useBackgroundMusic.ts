@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 
-export const useBackgroundMusic = (audioPath: string, volume: number = 0.3) => {
+export const useBackgroundMusic = (
+  audioPath: string,
+  loop: boolean = true,
+  volume: number = 0.3
+) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const audio = new Audio(audioPath);
-    audio.loop = true;
+    audio.loop = loop;
     audio.volume = volume;
     audioRef.current = audio;
 
@@ -19,7 +23,7 @@ export const useBackgroundMusic = (audioPath: string, volume: number = 0.3) => {
       audio.pause();
       audio.currentTime = 0;
     };
-  }, [audioPath, volume]);
+  }, [audioPath, volume, loop]);
 
   const toggleMute = () => {
     if (audioRef.current) {

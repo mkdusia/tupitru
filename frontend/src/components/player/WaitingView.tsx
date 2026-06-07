@@ -1,5 +1,7 @@
 import '../../App.css';
+import '../../Mole.css';
 import TupitruTitle from '../Title';
+import Molehill from '../MoleHill';
 
 interface WaitingViewProps {
   nick: string | null;
@@ -23,7 +25,9 @@ function WaitingView({ nick, roomCode, handleExit }: WaitingViewProps) {
           <span className="value">{roomCode}</span>
         </div>
 
-        <h3 style={{ marginTop: '20px' }}>Waiting for host to start the game...</h3>
+        <h3 className="wrapper">Waiting for host to start the game...</h3>
+
+        <Molehill />
 
         <button className="button" onClick={handleExit}>
           Exit
