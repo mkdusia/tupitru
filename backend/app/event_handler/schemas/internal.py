@@ -44,6 +44,13 @@ class InternalGameEndEvent(BaseModel):
     type: Literal["game_end"]
     host: UUID
     ranking: list[tuple[int, str, UUID]]
+    seed: int
+    pool_id: str
+
+
+class ReturnToLobbyEvent(BaseModel):
+    type: Literal["return_to_lobby"]
+    notify: list[UUID]
 
 
 class AwaitingResponseEvent(BaseModel):

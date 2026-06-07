@@ -1,4 +1,5 @@
 import '../App.css';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { useWebSocket } from '../hooks/useWebSocket';
@@ -10,6 +11,8 @@ import ShowingSolutionView from '../components/host/ShowingSolutionView';
 import RoundWinnerView from '../components/host/RoundWinnerView';
 import GameEndView from '../components/host/GameEndView';
 
+const DEFAULT_ROUNDS = 5;
+
 export default function HostRoute() {
   const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -18,6 +21,11 @@ export default function HostRoute() {
   const { roomId: roomCode } = useParams();
 
   const { state, setters, handleMessage } = useHostGame();
+  const pools = state.pools;
+
+  const [selectedPoolId, setSelectedPoolId] = useState<string>('');
+  const [seedInput, setSeedInput] = useState<string>('');
+  const [roundsInput, setRoundsInput] = useState<string>(`${DEFAULT_ROUNDS}`);
 
   const sendMessage = useWebSocket({
     url: baseUrl,
@@ -34,10 +42,37 @@ export default function HostRoute() {
   });
 
   const handleStartGame = () => {
+    const poolId = selectedPoolId || pools?.[0]?.id;
+    if (!poolId) {
+      alert('No board pools are available.');
+      return;
+    }
+    const trimmedSeed = seedInput.trim();
+    let seed: number;
+    if (trimmedSeed === '') {
+      seed = Math.floor(Math.random() * 2 ** 32);
+    } else {
+      seed = Number(trimmedSeed);
+      if (!Number.isInteger(seed) || seed < 0 || seed >= 2 ** 32) {
+        alert('Seed must be a non-negative integer below 2^32.');
+        return;
+      }
+    }
+    const trimmedRounds = roundsInput.trim();
+    const rounds = trimmedRounds === '' ? DEFAULT_ROUNDS : Number(trimmedRounds);
+    if (!Number.isInteger(rounds) || rounds < 1 || rounds > 50) {
+      alert('Rounds must be an integer between 1 and 50.');
+      return;
+    }
     const rt = parseInt(state.roundTime, 10);
     const hasTimer = Number.isFinite(rt) && rt > 0;
-    sendMessage({ type: 'change_state', ...(hasTimer && { round_time: rt }) });
-    if (hasTimer) setters.setCountdownEnd(Date.now() + rt * 1000);
+    sendMessage({
+      type: 'start_game',
+      pool_id: poolId,
+      seed,
+      rounds,
+      ...(hasTimer && { round_time: rt }),
+    });
   };
 
   const handleCloseRoom = () => {
@@ -46,7 +81,8 @@ export default function HostRoute() {
     navigate('/');
   };
 
-  const handleEndRound = () => {
+  // Advance the room to its next stage (settle round, next responder, back to lobby).
+  const handleChangeState = () => {
     sendMessage({ type: 'change_state' });
   };
 
@@ -63,7 +99,7 @@ export default function HostRoute() {
         boardData={state.boardData}
         countdownEnd={state.countdownEnd}
         handleCloseRoom={handleCloseRoom}
-        handleEndRound={handleEndRound}
+        handleEndRound={handleChangeState}
       />
     );
   }
@@ -73,15 +109,21 @@ export default function HostRoute() {
   }
 
   if (state.status === 'winner') {
-    return <RoundWinnerView nickname={state.winner} handleStartGame={handleStartGame} />;
+    return <RoundWinnerView nickname={state.winner} handleStartGame={handleChangeState} />;
   }
 
   if (state.status === 'game_end') {
     return (
       <GameEndView
         ranking={state.ranking}
-        handleStartGame={handleStartGame}
+        handleStartGame={handleChangeState}
         handleCloseRoom={handleCloseRoom}
+        seed={state.endSeed ?? null}
+        poolDisplayName={
+          state.endPoolId && pools
+            ? (pools.find((p) => p.id === state.endPoolId)?.display_name ?? null)
+            : null
+        }
       />
     );
   }
@@ -98,6 +140,13 @@ export default function HostRoute() {
       setIsDeleteMode={setters.setIsDeleteMode}
       handleKickPlayer={handleKickPlayer}
       currentURL={QRUrl}
+      pools={pools}
+      selectedPoolId={selectedPoolId}
+      setSelectedPoolId={setSelectedPoolId}
+      seedInput={seedInput}
+      setSeedInput={setSeedInput}
+      roundsInput={roundsInput}
+      setRoundsInput={setRoundsInput}
     />
   );
 }
