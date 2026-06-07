@@ -220,6 +220,12 @@
   flex: 1;
 }
 
+.answer-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
 .answer-item {
   background-color: var(--background-dark);
 
@@ -237,7 +243,8 @@
 .board-config {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  font-size: 1.5rem;
+  gap: 20px;
   margin-bottom: 12px;
   align-items: center;
 }
@@ -251,4 +258,34 @@
 .board-config input,
 .board-config select {
   font-family: 'SpaceMono';
+  font-size: 1.25rem;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.rules-container {
+  text-align: left;
+  line-height: 1.6;
+}
+
+.rules-container h1,
+.rules-container h2,
+.rules-container h3 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.rules-container ul {
+  padding-left: 40px;
+  list-style-type: disc;
+  margin-bottom: 20px;
+}
+
+.rules-container li {
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.rules-container p {
+  margin-bottom: 16px;
 }

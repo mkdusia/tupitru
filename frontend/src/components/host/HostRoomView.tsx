@@ -131,6 +131,8 @@ function HostRoomView({
           <Popup
             buttonText={<img src="/icons/settings.svg" alt="Settings" className="button-icon" />}
             buttonClassName="button-circle"
+            width="400px"
+            height="auto"
           >
             <Settings
               pools={pools}
@@ -144,7 +146,9 @@ function HostRoomView({
           </Popup>
 
           <Popup buttonText="Rules" buttonClassName="button-rules">
-            <Markdown>{Rules}</Markdown>
+            <div className="rules-container">
+              <Markdown>{Rules}</Markdown>
+            </div>
           </Popup>
         </div>
       </div>
