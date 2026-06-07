@@ -28,6 +28,10 @@ export const useHostGame = () => {
   const [respondent, setRespondent] = useState(
     () => sessionStorage.getItem('hostRespondent') || ''
   );
+  const [respondentAnswer, setRespondentAnswer] = useState<number | null>(() => {
+    const saved = sessionStorage.getItem('hostRespondentAnswer');
+    return saved ? parseInt(saved, 10) : null;
+  });
 
   const [winner, setWinner] = useState(() => sessionStorage.getItem('hostWinner') || '');
   const [ranking, setRanking] = useState<PlayerAnswer[]>(() =>
@@ -70,6 +74,9 @@ export const useHostGame = () => {
     sessionStorage.setItem('hostRespondent', respondent);
   }, [respondent]);
   useEffect(() => {
+    sessionStorage.setItem('hostRespondentAnswer', String(respondentAnswer));
+  }, [respondentAnswer]);
+  useEffect(() => {
     sessionStorage.setItem('hostWinner', winner);
   }, [winner]);
   useEffect(() => {
@@ -109,7 +116,8 @@ export const useHostGame = () => {
 
       const actionHandlers: Record<string, () => void> = {
         'success:reconnect': () => {
-          const { game_state, room_id, nicknames, board, answers, respondent, ranking } = data;
+          const { game_state, room_id, nicknames, board, answers, respondent, answer, ranking } =
+            data;
 
           if (room_id) setCurrentRoomCode(room_id);
 
@@ -132,6 +140,7 @@ export const useHostGame = () => {
             if (board) setBoardData(board);
           } else if (game_state === 'settling_round') {
             setRespondent(respondent || '');
+            setRespondentAnswer(answer);
             if (board) setBoardData(board);
             setStatus('showing');
           } else if (game_state === 'game_ended') {
@@ -202,6 +211,7 @@ export const useHostGame = () => {
         },
         'info:awaiting_response': () => {
           setRespondent(data.respondent);
+          setRespondentAnswer(data.answer);
           setCountdownEnd(Date.now() + ROUND_TIME * 1000);
           setStatus('showing');
         },
@@ -247,6 +257,7 @@ export const useHostGame = () => {
       players,
       boardData,
       respondent,
+      respondentAnswer,
       winner,
       isDeleteMode,
       playersAnswered,
