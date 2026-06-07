@@ -44,7 +44,12 @@ async def awaiting_response_event(
 ) -> None:
     await handler.con_manager.broadcast(
         event.notify,
-        {"type": "info", "message": "awaiting_response", "respondent": event.respondent, "answer": event.answer},
+        {
+            "type": "info",
+            "message": "awaiting_response",
+            "respondent": event.respondent,
+            "answer": event.answer,
+        },
     )
 
 

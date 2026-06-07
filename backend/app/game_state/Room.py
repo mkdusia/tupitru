@@ -223,7 +223,7 @@ class Room:
                 "type": "awaiting_response",
                 "notify": to_notify,
                 "respondent": self.current_respondent.nickname,
-                "answer": self.current_respondent.answer
+                "answer": self.current_respondent.answer,
             }
         )
         await self.emitter(
@@ -281,6 +281,7 @@ class Room:
         Handle the end of a round.
         """
         if self.state == "settling_round" and self.current_respondent is not None:
+            self.cancel_timer()
             self.announced_winner = True
             self.current_respondent.points += 1
             to_notify = list(self.players.keys())
