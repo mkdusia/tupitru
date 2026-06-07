@@ -4,7 +4,7 @@ import { useState } from 'react';
 import '../App.css';
 
 interface PopupProps {
-  buttonText: string;
+  buttonText?: React.ReactNode;
   buttonClassName?: string;
   children: React.ReactNode;
 }

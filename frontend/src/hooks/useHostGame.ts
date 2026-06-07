@@ -28,6 +28,7 @@ export const useHostGame = () => {
   const [respondent, setRespondent] = useState(
     () => sessionStorage.getItem('hostRespondent') || ''
   );
+
   const [winner, setWinner] = useState(() => sessionStorage.getItem('hostWinner') || '');
   const [ranking, setRanking] = useState<PlayerAnswer[]>(() =>
     JSON.parse(sessionStorage.getItem('hostRanking') || '[]')
