@@ -14,23 +14,14 @@ interface GameEndViewProps {
   ranking: PlayerAnswer[];
   handleStartGame: () => void;
   handleCloseRoom: () => void;
-  seed: number | null;
-  poolDisplayName: string | null;
 }
 
-const GameEndView = ({
-  ranking,
-  handleStartGame,
-  handleCloseRoom,
-  seed,
-  poolDisplayName,
-}: GameEndViewProps) => {
-  
+const GameEndView = ({ ranking, handleStartGame, handleCloseRoom }: GameEndViewProps) => {
   const top3 = ranking.slice(0, 3);
   const others = ranking.slice(3);
 
   useBackgroundMusic('/audio/Fanfara.mp3', false);
-  
+
   return (
     <div className="game-end-container">
       <Confetti
@@ -79,12 +70,6 @@ const GameEndView = ({
             </div>
           )}
         </div>
-       
-        {seed !== null && poolDisplayName !== null && (
-          <p>
-            Pool: <strong>{poolDisplayName}</strong> — Seed: <strong>{seed}</strong>
-          </p>
-        )}
 
         <div className="action-buttons">
           <button className="button button-white button-ret" onClick={handleStartGame}>

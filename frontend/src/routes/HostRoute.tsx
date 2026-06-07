@@ -118,12 +118,6 @@ export default function HostRoute() {
         ranking={state.ranking}
         handleStartGame={handleChangeState}
         handleCloseRoom={handleCloseRoom}
-        seed={state.endSeed ?? null}
-        poolDisplayName={
-          state.endPoolId && pools
-            ? (pools.find((p) => p.id === state.endPoolId)?.display_name ?? null)
-            : null
-        }
       />
     );
   }
