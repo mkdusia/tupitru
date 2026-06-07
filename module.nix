@@ -111,6 +111,7 @@ in
         locations = {
           "/" = {
             root = "${this.frontend.package}";
+            tryFiles = "$uri $uri/ /index.html";
           };
           "/ws" = {
             recommendedProxySettings = true;
