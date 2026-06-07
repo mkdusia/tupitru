@@ -6,9 +6,17 @@ interface GameEndViewProps {
   ranking: PlayerAnswer[];
   handleStartGame: () => void;
   handleCloseRoom: () => void;
+  seed: number | null;
+  poolDisplayName: string | null;
 }
 
-const GameEndView = ({ ranking, handleStartGame, handleCloseRoom }: GameEndViewProps) => {
+const GameEndView = ({
+  ranking,
+  handleStartGame,
+  handleCloseRoom,
+  seed,
+  poolDisplayName,
+}: GameEndViewProps) => {
   return (
     <div className="app-container">
       <TupitruTitle />
@@ -21,6 +29,11 @@ const GameEndView = ({ ranking, handleStartGame, handleCloseRoom }: GameEndViewP
             </li>
           ))}
         </ul>
+        {seed !== null && poolDisplayName !== null && (
+          <p>
+            Pool: <strong>{poolDisplayName}</strong> — Seed: <strong>{seed}</strong>
+          </p>
+        )}
         <button className="button" onClick={handleStartGame}>
           Start another game
         </button>

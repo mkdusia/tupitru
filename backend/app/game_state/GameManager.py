@@ -1,9 +1,11 @@
-from uuid import UUID
 from secrets import randbelow
 from typing import Any
-from .Room import Room
+from uuid import UUID
+
 from app.schemas import Emitter
-from .schemas import Mole, Direction
+
+from .Room import Room
+from .schemas import Direction, Mole
 
 
 class GameManager:
@@ -43,12 +45,19 @@ class GameManager:
 
     async def host(self, host_id: UUID) -> str:
         """
-        Create a new room.
+        Create a new room. The board is generated later, when the host starts the
+        game, from the configuration chosen in the lobby; here we just seed the room
+        with the default pool so it has a valid board until then.
         """
+        from .BoardState import DEFAULT_ROUNDS
+        from .pools import CATALOG  # local import avoids circular import at module load
+
         if host_id in self.player_room:
             await self.player_disconnect(host_id)
+        entry = CATALOG[0]
+        board = entry.pool.generate(0)
         room_id = f"{randbelow(10**10):010}"
-        self.rooms[room_id] = Room(host_id, self.emit_event)
+        self.rooms[room_id] = Room(host_id, self.emit_event, board, entry.id, 0, DEFAULT_ROUNDS)
         self.player_room[host_id] = room_id
         return room_id
 
@@ -89,16 +98,47 @@ class GameManager:
             }
         )
 
-    async def change_game_state(self, host_id: UUID, round_time: int | None = None) -> None:
+    async def start_game(
+        self,
+        host_id: UUID,
+        pool_id: str,
+        seed: int,
+        rounds: int,
+        round_time: int | None = None,
+    ) -> None:
         """
-        Change the state of the game in the room with the given host.
+        Start a game from the lobby: generate the board from the chosen pool, seed
+        and round count, apply the round timer, and begin the first round.
+        """
+        from .pools import CATALOG_BY_ID  # local import avoids circular import at module load
+
+        room = self.get_room(host_id)
+        if room is None or not room.can_change_state(host_id):
+            await self._error(host_id, "You do not have permission to perform this action.")
+            return
+        if room.state != "awaiting_start":
+            await self._error(host_id, "The game has already started.")
+            return
+        entry = CATALOG_BY_ID.get(pool_id)
+        if entry is None:
+            await self._error(host_id, "The selected board pool does not exist.")
+            return
+        board = entry.pool.generate(seed)
+        room.load_board(board, pool_id, seed, rounds)
+        room.round_time = round_time
+        await room.next_stage()
+
+    async def change_game_state(self, host_id: UUID) -> None:
+        """
+        Advance the room to its next stage. The lobby start is handled by start_game.
         """
         room = self.get_room(host_id)
         if room is None or not room.can_change_state(host_id):
             await self._error(host_id, "You do not have permission to perform this action.")
             return
         if room.state == "awaiting_start":
-            room.round_time = round_time
+            await self._error(host_id, "Start the game from the lobby first.")
+            return
         await room.next_stage()
 
     async def close_room(self, host: UUID) -> bool:

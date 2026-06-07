@@ -6,20 +6,35 @@ from app.event_handler.schemas.external import (
     HostEvent,
     KickEvent,
     SkipEvent,
+    StartGameEvent,
 )
+from app.game_state.pools import CATALOG
 
 
 @external_event("host", HostEvent)
 async def handle_host(handler: EventHandlerProtocol, event: HostEvent) -> None:
     room_id = await handler.game_manager.host(event.id)
     await handler.con_manager.send(
-        event.id, {"type": "success", "message": "host", "room_id": room_id}
+        event.id,
+        {
+            "type": "success",
+            "message": "host",
+            "room_id": room_id,
+            "pools": [{"id": e.id, "display_name": e.display_name} for e in CATALOG],
+        },
+    )
+
+
+@external_event("start_game", StartGameEvent)
+async def handle_start_game(handler: EventHandlerProtocol, event: StartGameEvent) -> None:
+    await handler.game_manager.start_game(
+        event.id, event.pool_id, event.seed, event.rounds, event.round_time
     )
 
 
 @external_event("change_state", ChangeStateEvent)
-async def handle_game_start(handler: EventHandlerProtocol, event: ChangeStateEvent) -> None:
-    await handler.game_manager.change_game_state(event.id, event.round_time)
+async def handle_change_state(handler: EventHandlerProtocol, event: ChangeStateEvent) -> None:
+    await handler.game_manager.change_game_state(event.id)
 
 
 @external_event("skip_round", SkipEvent)

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { PlayerAnswer } from '../types';
+import type { PlayerAnswer, PoolOption } from '../types';
 
 const ROUND_TIME = 60;
 
@@ -32,16 +32,23 @@ export const useHostGame = () => {
   const [ranking, setRanking] = useState<PlayerAnswer[]>(() =>
     JSON.parse(sessionStorage.getItem('hostRanking') || '[]')
   );
-  // const [roundTime, setRoundTime] = useState(
-  //   () => sessionStorage.getItem('hostRoundTime') || ''
-  // );
   const [countdownEnd, setCountdownEnd] = useState<number | null>(() => {
     const saved = sessionStorage.getItem('hostCountdownEnd');
     return saved ? parseInt(saved, 10) : null;
   });
 
   const roundTime = String(ROUND_TIME);
-  // const roundTimeNumRef = useRef(0);
+
+  const [endSeed, setEndSeed] = useState<number | null>(() => {
+    const v = sessionStorage.getItem('hostEndSeed');
+    return v ? Number(v) : null;
+  });
+  const [endPoolId, setEndPoolId] = useState<string | null>(
+    () => sessionStorage.getItem('hostEndPoolId') || null
+  );
+  const [pools, setPools] = useState<PoolOption[] | null>(() =>
+    JSON.parse(sessionStorage.getItem('hostPools') || 'null')
+  );
 
   useEffect(() => {
     sessionStorage.setItem('hostStatus', status);
@@ -74,6 +81,15 @@ export const useHostGame = () => {
       sessionStorage.removeItem('hostCountdownEnd');
     }
   }, [countdownEnd]);
+  useEffect(() => {
+    if (endSeed !== null) sessionStorage.setItem('hostEndSeed', String(endSeed));
+  }, [endSeed]);
+  useEffect(() => {
+    if (endPoolId !== null) sessionStorage.setItem('hostEndPoolId', endPoolId);
+  }, [endPoolId]);
+  useEffect(() => {
+    if (pools !== null) sessionStorage.setItem('hostPools', JSON.stringify(pools));
+  }, [pools]);
 
   const handleMessage = useCallback(
     (data: any) => {
@@ -131,7 +147,15 @@ export const useHostGame = () => {
         },
         'success:host': () => {
           setCurrentRoomCode(data.room_id);
+          if (data.pools) setPools(data.pools);
           navigate(`/host/${data.room_id}`, { replace: true });
+        },
+        'info:return_to_lobby': () => {
+          setPlayersAnswered([]);
+          setRanking([]);
+          setBoardData(null);
+          setCountdownEnd(null);
+          setStatus('waiting_for_players');
         },
         'info:player_joined': () => {
           setPlayers((prevPlayers) =>
@@ -144,6 +168,7 @@ export const useHostGame = () => {
         'info:game_start': () => {
           setPlayersAnswered([]);
           setRanking([]);
+          setCountdownEnd(Date.now() + ROUND_TIME * 1000);
           setStatus('start_game');
         },
         'info:player_answered': () => {
@@ -189,6 +214,8 @@ export const useHostGame = () => {
           }
         },
         'info:game_end': () => {
+          if (typeof data.seed === 'number') setEndSeed(data.seed);
+          if (typeof data.pool_id === 'string') setEndPoolId(data.pool_id);
           setRanking(() => {
             return data.ranking.map(([points, nickname]: [number, string]) => ({
               nick: nickname,
@@ -225,6 +252,9 @@ export const useHostGame = () => {
       ranking,
       roundTime,
       countdownEnd,
+      endSeed,
+      endPoolId,
+      pools,
     },
     setters: { setIsDeleteMode, setStatus, setPlayers, setCountdownEnd },
     handleMessage,

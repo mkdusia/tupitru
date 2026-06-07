@@ -3,6 +3,11 @@ export type PlayerAnswer = {
   answer: number;
 };
 
+export interface PoolOption {
+  id: string;
+  display_name: string;
+}
+
 export interface Position {
   x: number;
   y: number;

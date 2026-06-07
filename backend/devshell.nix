@@ -2,6 +2,7 @@
   lib,
   mkShell,
   uv2nix,
+  uv,
   python313,
   callPackage,
   pyproject-nix,
@@ -31,7 +32,10 @@ let
 in
 
 mkShell {
-  buildInputs = [ devVenv ];
+  buildInputs = [
+    devVenv
+    uv
+  ];
   inputsFrom = if flakeRoot != null then [ flakeRoot ] else [ ];
   shellHook = ''
     if [ -n "$FLAKE_ROOT" ]; then
