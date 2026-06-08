@@ -10,8 +10,6 @@ _MAX_SEED = 2**32
 
 
 class TrainingSession:
-
-
     def __init__(self, board: BoardData, pool_id: str, seed: int) -> None:
         self.pool_id = pool_id
         self.seed = seed
@@ -44,8 +42,6 @@ class TrainingSession:
 
 
 class TrainingManager:
-
-
     def __init__(self) -> None:
         self.sessions: dict[UUID, TrainingSession] = {}
 
@@ -99,7 +95,7 @@ class TrainingManager:
         return session.board
 
     def stop(self, user_id: UUID) -> None:
- 
+
         self.sessions.pop(user_id, None)
 
     def get_session(self, user_id: UUID) -> TrainingSession | None:
