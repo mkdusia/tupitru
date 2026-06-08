@@ -16,11 +16,11 @@ interface RespondViewProps {
 }
 
 const MOLES = [
-  { id: 0, color: '#ff9933' },
-  { id: 1, color: '#99cc66' },
-  { id: 2, color: '#66ccff' },
-  { id: 3, color: '#ffcc33' },
-  { id: 4, color: '#ff66cc' },
+  { id: 0, color: '#1975ff' },
+  { id: 1, color: '#376637' },
+  { id: 2, color: '#c00000' },
+  { id: 3, color: '#ff6ed8' },
+  { id: 4, color: '#ffc60b' },
 ];
 
 function RespondView({

@@ -1,4 +1,4 @@
-import tupitruImage from '../graphics/tupitru_title.png';
+import tupitruImage from '/graphics/tupitru_title.png';
 
 const TupitruTitle = () => {
   return (

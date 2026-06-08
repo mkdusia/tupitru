@@ -330,3 +330,30 @@ input::placeholder {
     transform: translateY(0);
   }
 }
+
+.phaser-wrapper {
+  margin: 20px auto;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phaser-wrapper canvas {
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.showing-solution {
+  max-width: calc(85vw);
+  max-height: calc(85vh);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.showing-solution canvas {
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}

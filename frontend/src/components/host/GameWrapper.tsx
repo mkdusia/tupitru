@@ -5,13 +5,14 @@ import type { BoardData } from '../../types';
 
 interface GameWrapperProps {
   boardData: BoardData | null;
+  className?: string;
 }
 
-const GameWrapper = ({ boardData }: GameWrapperProps) => {
+const GameWrapper = ({ boardData, className = 'phaser-wrapper' }: GameWrapperProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
 
-  const [isReady, setIsReady] = useState(false);
+  const [isSceneReady, setIsSceneReady] = useState(false);
 
   useEffect(() => {
     if (!gameRef.current && containerRef.current) {
@@ -25,13 +26,14 @@ const GameWrapper = ({ boardData }: GameWrapperProps) => {
         },
       });
 
-      gameRef.current.events.once('ready', () => {
-        setIsReady(true);
+      gameRef.current.events.once('BOARD_SCENE_READY', () => {
+        setIsSceneReady(true);
       });
     }
 
     return () => {
       if (gameRef.current) {
+        gameRef.current.events.off('BOARD_SCENE_READY');
         gameRef.current.destroy(true);
         gameRef.current = null;
       }
@@ -39,12 +41,12 @@ const GameWrapper = ({ boardData }: GameWrapperProps) => {
   }, []);
 
   useEffect(() => {
-    if (isReady && gameRef.current && boardData) {
+    if (isSceneReady && gameRef.current && boardData) {
       gameRef.current.events.emit('UPDATE_BOARD', boardData);
     }
-  }, [boardData, isReady]);
+  }, [boardData, isSceneReady]);
 
-  return <div ref={containerRef} className="phaser-wrapper" />;
+  return <div ref={containerRef} className={`${className}`} />;
 };
 
 export default GameWrapper;

@@ -31,7 +31,7 @@ const ShowingSolutionView = ({ nickname, answer, boardData }: ShowingSolutionVie
               className="button-icon"
             />
           </button>
-          <button className="button-circle"></button>
+          {/* <button className="button-circle"></button> */}
         </div>
       </div>
     </div>

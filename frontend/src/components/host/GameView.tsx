@@ -5,7 +5,6 @@ import type { PlayerAnswer, BoardData } from '../../types';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
 
 interface GameViewProps {
-  totalPlayers: number;
   players: PlayerAnswer[];
   boardData: BoardData | null;
   countdownEnd: number | null;
@@ -14,7 +13,6 @@ interface GameViewProps {
 }
 
 const GameView = ({
-  totalPlayers,
   players,
   countdownEnd,
   boardData,
@@ -51,7 +49,7 @@ const GameView = ({
               className="button-icon"
             />
           </button>
-          <button className="button-circle"></button>
+          {/* <button className="button-circle"></button> */}
         </div>
         <div className="wrapper answer-list">
           {remaining !== null && <h2 className="counter">{remaining}s</h2>}
@@ -69,10 +67,10 @@ const GameView = ({
           )}
         </div>
 
-        <h2 className="counter">
-          {players.length} / {totalPlayers}
-          {/*some type of placeholder */}
-        </h2>
+        {/* <h2 className="counter"> */}
+        {/* {players.length} / {totalPlayers} */}
+        {/*some type of placeholder */}
+        {/* </h2> */}
         <button className="button" onClick={handleEndRound}>
           End Round
         </button>

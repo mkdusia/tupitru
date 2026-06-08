@@ -94,7 +94,6 @@ export default function HostRoute() {
   if (state.status === 'start_game') {
     return (
       <GameView
-        totalPlayers={state.players.length}
         players={state.playersAnswered}
         boardData={state.boardData}
         countdownEnd={state.countdownEnd}
