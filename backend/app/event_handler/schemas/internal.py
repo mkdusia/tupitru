@@ -57,6 +57,7 @@ class AwaitingResponseEvent(BaseModel):
     type: Literal["awaiting_response"]
     notify: list[UUID]
     respondent: str
+    answer: int
 
 
 class RespondEvent(BaseModel):
