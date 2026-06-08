@@ -5,7 +5,6 @@ import type { PlayerAnswer, BoardData } from '../../types';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
 
 interface GameViewProps {
-  totalPlayers: number;
   players: PlayerAnswer[];
   boardData: BoardData | null;
   countdownEnd: number | null;
@@ -14,7 +13,6 @@ interface GameViewProps {
 }
 
 const GameView = ({
-  totalPlayers,
   players,
   countdownEnd,
   boardData,
