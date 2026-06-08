@@ -105,11 +105,11 @@ export default class BoardScene extends Phaser.Scene {
         this.boardGraphics.lineStyle(2, 0x3c1022, 0.5);
         this.boardGraphics.strokeRect(px, py, CELL_SIZE, CELL_SIZE);
 
-        this.boardGraphics.lineStyle(16, 0xffffff, 1);
+        this.boardGraphics.lineStyle(10, 0xffffff, 1);
 
         const totalGridWidth = data.width * CELL_SIZE;
         const totalGridHeight = data.height * CELL_SIZE;
-        this.boardGraphics.lineStyle(16, 0xffffff, 1);
+        this.boardGraphics.lineStyle(10, 0xffffff, 1);
         this.boardGraphics.strokeRect(OFFSET_X, OFFSET_Y, totalGridWidth, totalGridHeight);
 
         if (cell.wall[0]) this.boardGraphics.lineBetween(px, py, px + CELL_SIZE, py);

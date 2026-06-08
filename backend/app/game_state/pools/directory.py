@@ -1,4 +1,3 @@
-import json
 import random
 from pathlib import Path
 
@@ -24,5 +23,6 @@ class DirectoryPool(Pool):
     def generate(self, seed: int) -> BoardData:
         rng = random.Random(seed)
         path = rng.choice(self.files)
-        data = json.loads(path.read_text())
-        return BoardData(**data)
+        json_string = path.read_text()
+        print(json_string)
+        return BoardData.model_validate_json(json_string)
