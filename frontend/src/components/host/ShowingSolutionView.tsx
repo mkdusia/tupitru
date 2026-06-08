@@ -17,9 +17,9 @@ const ShowingSolutionView = ({ nickname, answer, boardData }: ShowingSolutionVie
       <div className="left-section"></div>
       <div className="middle-section">
         <div className="wrapper header-text">
-          <h1 className="title"> Player {nickname} showing their solution: </h1>
+          <h2 className="title"> Player {nickname} showing their solution</h2>
           <h2> {answer !== null ? answer - (boardData?.moves || 0) : 0} moves left </h2>
-          <GameWrapper boardData={boardData}></GameWrapper>
+          <GameWrapper boardData={boardData} className='showing-solution'></GameWrapper>
         </div>
       </div>
       <div className="right-section">

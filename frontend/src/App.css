@@ -346,6 +346,7 @@ input::placeholder {
 }
 
 .showing-solution {
+  margin: 10px auto;
   max-width: calc(85vw);
   max-height: calc(85vh);
   display: flex;
