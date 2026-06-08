@@ -27,31 +27,30 @@ class RandomPool(Pool):
         n_walls = rng.randint(self.min_walls, self.max_walls)
         grid = [[Cell() for _ in range(self.size)] for _ in range(self.size)]
 
-        # Interior edges as (x, y, direction) — only "up" (0) and "left" (3) half-edges
-        # to avoid duplicates.
+        # We generate walls in L-shapes
+        # Each L-shape is represented as (x, y, type) — type is 0,1,2,3
         edges: list[tuple[int, int, int]] = []
         for y in range(self.size):
             for x in range(self.size):
-                if y > 0:
-                    edges.append((x, y, 0))  # wall on top of (x, y) == bottom of (x, y-1)
-                if x > 0:
-                    edges.append((x, y, 3))  # wall on left of (x, y) == right of (x-1, y)
+                edges.append((x, y, rng.randint(0, 3)))
         rng.shuffle(edges)
 
         placed = 0
-        for x, y, d in edges:
+        target_positions: list[tuple[int, int]] = []
+        for x, y, t in edges:
             if placed == n_walls:
                 break
-            # Mirror onto neighbour
-            if d == 0:
-                nx, ny, nd = x, y - 1, 2
-            else:  # d == 3
-                nx, ny, nd = x - 1, y, 1
-            new_a = _with_wall(grid[y][x], d)
-            new_b = _with_wall(grid[ny][nx], nd)
-            grid[y][x] = new_a
-            grid[ny][nx] = new_b
+            grid[y][x] = _with_walls(grid[y][x], t)
+            if y > 0 and (t == 0 or t == 3):
+                grid[y - 1][x] = _with_wall(grid[y - 1][x], 2)
+            if y < self.size - 1 and (t == 1 or t == 2):
+                grid[y + 1][x] = _with_wall(grid[y + 1][x], 0)
+            if x > 0 and (t == 2 or t == 3):
+                grid[y][x - 1] = _with_wall(grid[y][x - 1], 1)
+            if x < self.size - 1 and (t == 0 or t == 1):
+                grid[y][x + 1] = _with_wall(grid[y][x + 1], 3)
             placed += 1
+            target_positions.append((x, y))
 
         cells = [(x, y) for y in range(self.size) for x in range(self.size)]
         rng.shuffle(cells)
@@ -62,6 +61,7 @@ class RandomPool(Pool):
             height=self.size,
             grid=grid,
             mole_position=mole_positions,  # type: ignore[arg-type]
+            target_positions=list(Position(x=x, y=y) for x, y in target_positions),
             moves=0,
         )
 
@@ -69,4 +69,11 @@ class RandomPool(Pool):
 def _with_wall(cell: Cell, direction: int) -> Cell:
     walls = list(cell.wall)
     walls[direction] = True
+    return Cell(wall=tuple(walls))  # type: ignore[arg-type]
+
+
+def _with_walls(cell: Cell, direction: int) -> Cell:
+    walls = list(cell.wall)
+    walls[direction] = True
+    walls[(direction + 1) % 4] = True
     return Cell(wall=tuple(walls))  # type: ignore[arg-type]

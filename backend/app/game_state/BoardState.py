@@ -26,6 +26,7 @@ class BoardData(BaseModel):
     height: int
     grid: list[list[Cell]]
     mole_position: tuple[Position, Position, Position, Position, Position]
+    target_positions: list[Position]
     moves: int
     finish: Position | None = None
     finish_mole: Mole | Literal[-1] = -1
@@ -88,12 +89,7 @@ class BoardState:
         mole (so it can never start the round already blocked), for a specific mole or
         any mole (universal).
         """
-        free = [
-            Position(x=x, y=y)
-            for y in range(self.board.height)
-            for x in range(self.board.width)
-            if not self.board.contains_mole(Position(x=x, y=y))
-        ]
+        free = [p for p in self.board.target_positions if not self.board.contains_mole(p)]
         self.board.finish = self._rng.choice(free)
         if self._rng.random() < UNIVERSAL_TARGET_PROB:
             self.board.finish_mole = -1

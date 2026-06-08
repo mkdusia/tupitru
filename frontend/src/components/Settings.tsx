@@ -23,7 +23,7 @@ const Settings = ({
   return (
     <div className="board-config">
       <label>
-        Pool:{' '}
+        Level:{' '}
         <select
           value={selectedPoolId || pools?.[0]?.id || ''}
           onChange={(e) => setSelectedPoolId(e.target.value)}

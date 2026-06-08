@@ -15,6 +15,7 @@ def _board() -> BoardData:
             Position(x=2, y=2),
             Position(x=1, y=1),
         ),
+        target_positions=list(Position(x=x, y=y) for x in range(3) for y in range(3)),
         moves=0,
     )
 

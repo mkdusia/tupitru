@@ -29,7 +29,7 @@ const Popup: React.FC<PopupProps> = ({
         <div className="popup-overlay">
           <div className="popup-content" style={{ width: width, height: height }}>
             <button className="button-close button-circle" onClick={() => setIsOpen(false)}>
-              X
+              {<img src="/icons/close-x.svg" alt="Close" className="button-icon" />}
             </button>
             {children}
           </div>
