@@ -108,6 +108,7 @@ function HostRoomView({
             value={currentURL}
             size={300}
             marginSize={1}
+            className="qr-code"
             // imageSettings={} <-- to not forget to place our logo here
             // level='H'
           />

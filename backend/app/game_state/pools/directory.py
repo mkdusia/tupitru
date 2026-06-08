@@ -24,5 +24,4 @@ class DirectoryPool(Pool):
         rng = random.Random(seed)
         path = rng.choice(self.files)
         json_string = path.read_text()
-        print(json_string)
         return BoardData.model_validate_json(json_string)

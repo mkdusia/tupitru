@@ -23,10 +23,12 @@
 }
 
 .button-close {
-  font-size: large;
   position: sticky;
   top: 0;
   float: right;
   margin-bottom: 10px;
   cursor: pointer;
+
+  width: 32px;
+  height: 32px;
 }
