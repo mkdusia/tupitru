@@ -5,9 +5,6 @@ const MOLE_COLOR_NAMES = ['blue', 'green', 'red', 'pink', 'yellow'];
 
 export default class BoardScene extends Phaser.Scene {
   private moles: Phaser.GameObjects.Sprite[] = [];
-
-  private activeMoleIndex: number | null = null;
-
   private boardGraphics!: Phaser.GameObjects.Graphics;
   private target!: Phaser.GameObjects.Image;
 
@@ -122,6 +119,7 @@ export default class BoardScene extends Phaser.Scene {
     }
 
     data.mole_position.forEach((pos, index) => {
+      console.log(`Rendering mole ${index} at (${pos.x}, ${pos.y})`);
       const mx = OFFSET_X + pos.x * CELL_SIZE + CELL_SIZE / 2;
       const my = OFFSET_Y + pos.y * CELL_SIZE + CELL_SIZE / 2;
       const colorName = MOLE_COLOR_NAMES[index];
@@ -131,6 +129,7 @@ export default class BoardScene extends Phaser.Scene {
         mole.setDisplaySize(CELL_SIZE * 0.8, CELL_SIZE * 0.8);
         this.moles[index] = mole;
       } else {
+        console.log(`Updating mole ${index} position to (${mx}, ${my})`);
         const mole = this.moles[index];
         const currX = mole.x;
         const currY = mole.y;
@@ -139,29 +138,8 @@ export default class BoardScene extends Phaser.Scene {
         const dy = my - currY;
 
         if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-          // reverseTrans
-          if (this.activeMoleIndex !== null && this.activeMoleIndex !== index) {
-            const prevMole = this.moles[this.activeMoleIndex];
-            const prevColor = MOLE_COLOR_NAMES[this.activeMoleIndex];
-
-            this.tweens.killTweensOf(prevMole);
-            prevMole.anims.stop();
-            prevMole.off(Phaser.Animations.Events.ANIMATION_COMPLETE);
-            prevMole.off(Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + `${prevColor}-trans`);
-
-            prevMole.playReverse(`${prevColor}-trans`);
-            prevMole.once(
-              Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + `${prevColor}-trans`,
-              () => {
-                prevMole.setRotation(0);
-                prevMole.setFlipX(false);
-                prevMole.setFrame(0);
-              }
-            );
-          }
-
-          const isContinuing = this.activeMoleIndex === index;
-          this.activeMoleIndex = index;
+          // FIX: Check if this specific mole is already playing its walk cycle
+          const isContinuing = mole.anims.currentAnim?.key === `${colorName}-walk`;
 
           this.tweens.killTweensOf(mole);
           mole.anims.stop();
@@ -234,6 +212,5 @@ export default class BoardScene extends Phaser.Scene {
   shutdown() {
     this.game.events.off('UPDATE_BOARD', this.handleNewBoardData, this);
     this.moles = [];
-    this.activeMoleIndex = null;
   }
 }
