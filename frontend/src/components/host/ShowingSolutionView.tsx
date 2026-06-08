@@ -17,7 +17,7 @@ const ShowingSolutionView = ({ nickname, boardData }: ShowingSolutionViewProps) 
       <div className="middle-section">
         <div className="wrapper" style={{ marginTop: -50 }}>
           <h3>Player {nickname} showing their solution:</h3>
-          <GameWrapper boardData={boardData}></GameWrapper>
+          <GameWrapper boardData={boardData} className="showing-solution"></GameWrapper>
         </div>
       </div>
       <div className="right-section">
@@ -29,7 +29,7 @@ const ShowingSolutionView = ({ nickname, boardData }: ShowingSolutionViewProps) 
               className="button-icon"
             />
           </button>
-          <button className="button-circle"></button>
+          {/* <button className="button-circle"></button> */}
         </div>
       </div>
     </div>
