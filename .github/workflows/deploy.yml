@@ -19,4 +19,4 @@ jobs:
     - name: Build the container
       run: ssh tupitru@${{ secrets.DEPLOY_HOST }} 'nix build --refresh github:mkdusia/tupitru/main#nixosConfigurations._cicd.config.system.build.toplevel'
     - name: Deploy the container
-      run: ssh tupitru@${{ secrets.DEPLOY_HOST }} 'sudo /run/current-system/sw/bin/extra-container create /srv/pub/tupitru/deploy.nix -s -u'
+      run: ssh tupitru@${{ secrets.DEPLOY_HOST }} 'sudo /run/current-system/sw/bin/extra-container create --nixpkgs-path "<nixpkgs-old>" /srv/pub/tupitru/deploy.nix -s -u'

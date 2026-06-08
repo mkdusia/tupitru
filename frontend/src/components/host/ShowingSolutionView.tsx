@@ -1,23 +1,25 @@
 import '../../App.css';
+import '../../ShowingSolution.css';
 import GameWrapper from './GameWrapper';
 import type { BoardData } from '../../types';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
 
 interface ShowingSolutionViewProps {
   nickname: string;
+  answer: number | null;
   boardData: BoardData | null;
 }
 
-const ShowingSolutionView = ({ nickname, boardData }: ShowingSolutionViewProps) => {
+const ShowingSolutionView = ({ nickname, answer, boardData }: ShowingSolutionViewProps) => {
   const { isPlaying, toggleMute } = useBackgroundMusic('/audio/ShowingMove.mp3');
   return (
     <div className="show-solution-container">
-      {/* <h1 className='title'>Game View</h1> */}
       <div className="left-section"></div>
       <div className="middle-section">
-        <div className="wrapper" style={{ marginTop: -50 }}>
-          <h3>Player {nickname} showing their solution:</h3>
-          <GameWrapper boardData={boardData} className="showing-solution"></GameWrapper>
+        <div className="wrapper header-text">
+          <h1 className="title"> Player {nickname} showing their solution: </h1>
+          <h2> {answer !== null ? answer - (boardData?.moves || 0) : 0} moves left </h2>
+          <GameWrapper boardData={boardData}></GameWrapper>
         </div>
       </div>
       <div className="right-section">

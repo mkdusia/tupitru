@@ -14,10 +14,8 @@
 .popup-content {
   background: black;
   padding: 20px;
-  border-radius: 8px;
-
-  width: 80vw;
-  height: 80vh;
+  border-radius: 12px;
+  border: 2px solid white;
 
   overflow-y: auto;
   box-sizing: border-box;

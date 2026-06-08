@@ -5,6 +5,7 @@ import Popup from '../PopUp';
 import Markdown from 'react-markdown';
 import Rules from '../../../../rules.md?raw';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
+import Settings from '../Settings.tsx';
 
 import { QRCodeSVG } from 'qrcode.react';
 import type { PoolOption } from '../../types';
@@ -111,59 +112,6 @@ function HostRoomView({
             // level='H'
           />
 
-          <h3></h3>
-          {/*
-          <input
-            className="inputtext"
-            type="number"
-            min={1}
-            value={roundTime}
-            onChange={(e) => setRoundTime(e.target.value)}
-            placeholder="Round time (s, optional)"
-          /> */}
-
-          <div className="board-config">
-            <label>
-              Pool:{' '}
-              <select
-                value={selectedPoolId || pools?.[0]?.id || ''}
-                onChange={(e) => setSelectedPoolId(e.target.value)}
-                disabled={!pools || pools.length === 0}
-              >
-                {pools && pools.length > 0 ? (
-                  pools.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.display_name}
-                    </option>
-                  ))
-                ) : (
-                  <option value="">No pools available</option>
-                )}
-              </select>
-            </label>
-            <label>
-              Seed:{' '}
-              <input
-                type="number"
-                min={0}
-                max={2 ** 32 - 1}
-                placeholder="Random"
-                value={seedInput}
-                onChange={(e) => setSeedInput(e.target.value)}
-              />
-            </label>
-            <label>
-              Rounds:{' '}
-              <input
-                type="number"
-                min={1}
-                max={50}
-                value={roundsInput}
-                onChange={(e) => setRoundsInput(e.target.value)}
-              />
-            </label>
-          </div>
-
           <button className="button button-white button-ret" onClick={handleStartGame}>
             Start Game
           </button>
@@ -180,9 +128,27 @@ function HostRoomView({
               className="button-icon"
             />
           </button>
-          <button className="button-circle"></button>
+          <Popup
+            buttonText={<img src="/icons/settings.svg" alt="Settings" className="button-icon" />}
+            buttonClassName="button-circle"
+            width="400px"
+            height="auto"
+          >
+            <Settings
+              pools={pools}
+              selectedPoolId={selectedPoolId}
+              setSelectedPoolId={setSelectedPoolId}
+              seedInput={seedInput}
+              setSeedInput={setSeedInput}
+              roundsInput={roundsInput}
+              setRoundsInput={setRoundsInput}
+            />
+          </Popup>
+
           <Popup buttonText="Rules" buttonClassName="button-rules">
-            <Markdown>{Rules}</Markdown>
+            <div className="rules-container">
+              <Markdown>{Rules}</Markdown>
+            </div>
           </Popup>
         </div>
       </div>

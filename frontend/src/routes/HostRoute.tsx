@@ -104,7 +104,13 @@ export default function HostRoute() {
   }
 
   if (state.status === 'showing') {
-    return <ShowingSolutionView nickname={state.respondent} boardData={state.boardData} />;
+    return (
+      <ShowingSolutionView
+        nickname={state.respondent}
+        answer={state.respondentAnswer}
+        boardData={state.boardData}
+      />
+    );
   }
 
   if (state.status === 'winner') {

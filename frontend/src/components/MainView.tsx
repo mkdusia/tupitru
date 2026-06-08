@@ -79,7 +79,9 @@ function MainView({
           <button className="button-circle"></button>
           <button className="button-circle"></button>
           <Popup buttonText="Rules" buttonClassName="button-rules">
-            <Markdown>{Rules}</Markdown>
+            <div className="rules-container">
+              <Markdown>{Rules}</Markdown>
+            </div>
           </Popup>
         </div>
 
