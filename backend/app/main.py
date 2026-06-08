@@ -4,13 +4,15 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from .ConnectionManager import ConnectionManager
 from .event_handler import EventHandler
 from .game_state.GameManager import GameManager
+from .game_state.Training import TrainingManager
 
 app = FastAPI()
 
 
 con_manager = ConnectionManager()
 game_manager = GameManager()
-event_handler = EventHandler(con_manager, game_manager)
+training_manager = TrainingManager()
+event_handler = EventHandler(con_manager, game_manager, training_manager)
 game_manager.set_emitter(lambda event: event_handler.handle(event, "internal"))
 
 

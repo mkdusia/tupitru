@@ -3,13 +3,20 @@ from typing import Any
 from pydantic import ValidationError
 from app.ConnectionManager import ConnectionManager
 from app.game_state.GameManager import GameManager
+from app.game_state.Training import TrainingManager
 from app.event_handler.router import external_registry, internal_registry
 
 
 class EventHandler:
-    def __init__(self, con_manager: ConnectionManager, game_manager: GameManager) -> None:
+    def __init__(
+        self,
+        con_manager: ConnectionManager,
+        game_manager: GameManager,
+        training_manager: TrainingManager,
+    ) -> None:
         self.con_manager = con_manager
         self.game_manager = game_manager
+        self.training_manager = training_manager
 
     async def handle(self, event: dict[str, Any], source: str) -> None:
         tp = event.get("type")

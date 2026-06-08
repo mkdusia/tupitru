@@ -26,3 +26,6 @@ async def kick_player(handler: EventHandlerProtocol, event: KickEvent) -> None:
         event.notify, {"type": "success", "message": "kick", "nickname": event.nickname}
     )
     await handler.con_manager.send(event.player_id, {"type": "info", "message": "kick"})
+    # Fully terminate the kicked player's connection so their session does not linger
+    # (their user_id is invalidated and they cannot reconnect into a stale slot).
+    await handler.con_manager.disconnect_player(event.player_id)

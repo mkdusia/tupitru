@@ -32,8 +32,18 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `respond`: Give a step of your response. Takes `mole` and `direction`. `mole` is the index of the moving mole, i.e. index in the `mole_position` array (see [Board description](#board-description)). `direction` is one of the characters `U`, `R`, `D`, `L`. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `give_up`: Give up trying to prove your answer. Sends back an error if the action is not permitted. Sends back the current `board`.
 - `revert`: Revert the previous step in your response. Sends back an error if the action is not permitted. Sends back the current `board`.
-- `kick`: Kick the player with nickname `nickname` out of your room.
+- `kick`: Kick the player with nickname `nickname` out of your room. The kicked player is fully disconnected (their connection is closed and their `user_id` invalidated) and their nickname is freed immediately, so it can be reused right away (including by the kicked player rejoining).
 - `close`: Close the room you are the host of. Sends `room_destroyed` to the players in the room.
+
+#### Training-types
+Training mode is a single-player sandbox, completely independent of rooms: a user can practice sliding moles on a board on their own, without hosting, joining, bidding or opponents. It reuses the same board and movement rules as a real game. All training communication is request/response over the same `/ws` connection (the server replies directly to the sender; nothing is broadcast).
+- `train_start`: Begin (or restart) a training session. Accepts an optional `pool_id` (defaults to the first catalog pool) and an optional `seed` (non-negative, up to 2^32; a random one is chosen when omitted). Returns a `success` of type `train_start` with the `board`, the chosen `pool_id` and `seed`, and the list of available `pools` (same shape as for `host`).
+- `train_move`: Slide a mole. Takes `mole` (the index in `mole_position`) and `direction` (one of `U`, `R`, `D`, `L`), exactly like `respond`. Moves that change nothing (the mole is already against an obstacle) are ignored and do not increase the move counter. Returns a `success` of type `train_move` with the updated `board` (its `moves` field is the move counter) and a boolean `finished` that is `true` once the target has been reached. Sends back an error if the sender has no active training session.
+- `train_reset`: Put every mole back to the board's starting layout and reset the move counter, keeping the same target so the same puzzle can be retried. Returns a `success` of type `train_reset` with the `board` and `finished` set to `false`. Sends back an error if the sender has no active training session.
+- `train_new`: Hand the user a brand new board. Accepts an optional `pool_id` (defaults to the pool the user is already training on) and an optional `seed` (random when omitted). Returns a `success` of type `train_new` with the new `board`, `pool_id` and `seed`. Use this for the "give me another board" option once a puzzle is `finished`.
+- `train_exit`: End the training session. Returns a `success` of type `train_exit`.
+
+A training session is dropped automatically when the user's connection is permanently lost.
 
 #### Server-types (messages)
 - `player_disconnected`: A player has disconnected from your room. Sends their `nickname`. This gets sent to the other players and the host.

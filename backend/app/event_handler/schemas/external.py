@@ -62,3 +62,29 @@ class KickEvent(ExternalEvent):
 
 class CloseRoomEvent(ExternalEvent):
     type: Literal["close"]
+
+
+class TrainStartEvent(ExternalEvent):
+    type: Literal["train_start"]
+    pool_id: str | None = None
+    seed: int | None = Field(default=None, ge=0, lt=2**32)
+
+
+class TrainMoveEvent(ExternalEvent):
+    type: Literal["train_move"]
+    mole: Mole
+    direction: Literal["U", "R", "D", "L"]
+
+
+class TrainResetEvent(ExternalEvent):
+    type: Literal["train_reset"]
+
+
+class TrainNewEvent(ExternalEvent):
+    type: Literal["train_new"]
+    pool_id: str | None = None
+    seed: int | None = Field(default=None, ge=0, lt=2**32)
+
+
+class TrainExitEvent(ExternalEvent):
+    type: Literal["train_exit"]

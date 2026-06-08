@@ -62,6 +62,22 @@ class ConnectionManager:
         self.connected.pop(id)
         self.locks.pop(id)
 
+    async def disconnect_player(self, id: UUID) -> None:
+        """
+        Forcefully terminate a user's connection (e.g. when the host kicks them):
+        close the socket and drop all of their bookkeeping so their user_id becomes
+        invalid and no ghost session lingers behind.
+        """
+        socket = self.sockets.get(id)
+        if socket is not None:
+            try:
+                await socket.close()
+            except Exception:
+                pass
+        self.sockets.pop(id, None)
+        self.connected.pop(id, None)
+        self.locks.pop(id, None)
+
     async def send(self, id: UUID | None, data: Data) -> None:
         """
         Send a JSON message to a specific connected user.

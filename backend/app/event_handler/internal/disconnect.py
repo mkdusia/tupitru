@@ -22,6 +22,7 @@ async def internal_disconnect(handler: EventHandlerProtocol, event: DisconnectEv
             handler.con_manager.remove(event.id)
         else:
             return
+    handler.training_manager.stop(event.id)
     await handler.game_manager.player_disconnect(event.id)
 
 
