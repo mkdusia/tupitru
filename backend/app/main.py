@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, WebSocketException, status
 
 from .ConnectionManager import ConnectionManager
 from .event_handler import EventHandler
@@ -17,6 +17,7 @@ game_manager.set_emitter(lambda event: event_handler.handle(event, "internal"))
 @app.websocket("/ws")
 async def user_endpoint(socket: WebSocket) -> None:
     user_id = socket.query_params.get("user_id")
+    await socket.accept()
 
     if user_id is None:
         id = await con_manager.connect(socket)
@@ -29,10 +30,11 @@ async def user_endpoint(socket: WebSocket) -> None:
             async with lock:
                 good = await con_manager.reconnect(id, socket)
             if not good:
-                return
+                raise ValueError
         except ValueError:
-            await socket.close()
-            return
+            raise WebSocketException(
+                code=status.WS_1008_POLICY_VIOLATION, reason="Authentication failed"
+            )
         data = game_manager.get_state(id)
         data["type"] = "success"
         data["info"] = "reconnect"

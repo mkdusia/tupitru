@@ -28,7 +28,6 @@ class ConnectionManager:
         """
         Accept a brand new WebSocket connection.
         """
-        await socket.accept()
         id = uuid4()
         self.sockets[id] = socket
         self.connected[id] = True
@@ -41,9 +40,7 @@ class ConnectionManager:
         Restore a previously disconnected user connection.
         """
         if id not in self.sockets or self.is_connected(id):
-            await socket.close()
             return False
-        await socket.accept()
         self.sockets[id] = socket
         self.connected[id] = True
         return True
@@ -58,9 +55,10 @@ class ConnectionManager:
         """
         Permanently remove a user.
         """
-        self.sockets.pop(id)
-        self.connected.pop(id)
-        self.locks.pop(id)
+        if id in self.sockets:
+            self.sockets.pop(id)
+            self.connected.pop(id)
+            self.locks.pop(id)
 
     async def send(self, id: UUID | None, data: Data) -> None:
         """

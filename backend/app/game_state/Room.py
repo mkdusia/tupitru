@@ -224,6 +224,7 @@ class Room:
                 "notify": to_notify,
                 "respondent": self.current_respondent.nickname,
                 "answer": self.current_respondent.answer,
+                "board": self.board_state.data,
             }
         )
         await self.emitter(
