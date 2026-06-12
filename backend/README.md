@@ -41,7 +41,7 @@ All communication happens via the `/ws?user_id=<id>` endpoint. If `user_id` is n
 - `game_start`: The round in your room was started. `board` is the current game board. This gets sent to the players and the host.
 - `player_joined`: A player with the nickname `nickname` entered your room. This gets sent to the other players and the host.
 - `game_end`: The game in your room ended. If you are the host, `ranking` is a sorted list of pairs `(points, nickname)`. You also get the `seed` and `pool_id` you provided in the lobby. If you are a player, `score` is your score and `position` if your position in the ranking (starting with `0`).
-- `awaiting_response`: The game awaits a solution from the player with nickname `respondent` who claimed the best solution in `answer` moves. This gets sent to the other players and the host.
+- `awaiting_response`: The game awaits a solution from the player with nickname `respondent` who claimed the best solution in `answer` moves. The board is `board`. This gets sent to the other players and the host.
 - `respond`: You are the player who claimed the best solution. You are expected to provide the solution. `board` is the current board.
 - `player_answered`: The player `nickname` gave answer `answer`. This gets sent to the host.
 - `player_responded`: A step of the response was given by the appropriate player. `board` is the current board. This gets sent to the host.

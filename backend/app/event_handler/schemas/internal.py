@@ -58,6 +58,7 @@ class AwaitingResponseEvent(BaseModel):
     notify: list[UUID]
     respondent: str
     answer: int
+    board: BoardData
 
 
 class RespondEvent(BaseModel):

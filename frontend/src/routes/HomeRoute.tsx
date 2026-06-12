@@ -30,6 +30,7 @@ export default function HomeRoute() {
 
   const handleJoinGame = () => {
     if (!roomCode || !nick) return alert('Enter the code and the nickname');
+    sessionStorage.clear();
     navigate(`/play/${roomCode}?nick=${encodeURIComponent(nick)}`);
   };
 

@@ -49,6 +49,7 @@ async def awaiting_response_event(
             "message": "awaiting_response",
             "respondent": event.respondent,
             "answer": event.answer,
+            "board": event.board.model_dump(),
         },
     )
 

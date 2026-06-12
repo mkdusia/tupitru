@@ -55,7 +55,11 @@ function HostRoomView({
               className={`button button-circle ${isDeleteMode ? 'active' : ''}`}
               onClick={() => setIsDeleteMode(!isDeleteMode)}
             >
-              {isDeleteMode ? 'X' : 'Kick'}
+              {isDeleteMode ? (
+                <img src="/icons/close-x.svg" alt="Delete" className="button-icon" />
+              ) : (
+                'Kick'
+              )}
             </button>
           </div>
           <h2>Already joined</h2>
