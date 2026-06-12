@@ -84,8 +84,6 @@ function MainView({
             </div>
           </Popup>
         </div>
-
-        <button className="button button-orange button-training">Training mode</button>
       </div>
     </div>
   );

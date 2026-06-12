@@ -113,8 +113,8 @@ function HostRoomView({
             size={300}
             marginSize={1}
             className="qr-code"
-            // imageSettings={} <-- to not forget to place our logo here
-            // level='H'
+            imageSettings={{ src: '/graphics/favicon-tupitru.png', x: 110, y: 110, width: 60, height: 60, excavate: true }}
+            level='H'
           />
 
           <button className="button button-white button-ret" onClick={handleStartGame}>
