@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface UseWebSocketProps {
   url: string;
@@ -11,6 +12,7 @@ export const useWebSocket = ({ url, onOpen, onMessage, onClose }: UseWebSocketPr
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeout = useRef<number | null>(null);
   const isMounted = useRef(true);
+  const navigate = useNavigate();
 
   const onOpenRef = useRef(onOpen);
   const onMessageRef = useRef(onMessage);
@@ -57,6 +59,7 @@ export const useWebSocket = ({ url, onOpen, onMessage, onClose }: UseWebSocketPr
       if (event.code === 1008) {
         console.warn('WebSocket closed (1008): Unauthenticated. Removing user_id.');
         sessionStorage.removeItem('user_id');
+        navigate('/');
         return;
       }
 
