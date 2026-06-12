@@ -54,17 +54,21 @@ export const useWebSocket = ({ url, onOpen, onMessage, onClose }: UseWebSocketPr
     socket.onclose = (event) => {
       if (onCloseRef.current) onCloseRef.current(event);
 
+      if (event.code === 1008) {
+        console.warn('WebSocket closed (1008): Unauthenticated. Removing user_id.');
+        sessionStorage.removeItem('user_id');
+        return;
+      }
+
       if (isMounted.current && !event.wasClean) {
         reconnectTimeout.current = window.setTimeout(() => {
           connect();
-        }, 2000);
+        }, 200);
       }
     };
 
     socket.onerror = (error) => {
       console.error('WebSocket error:', error);
-      sessionStorage.removeItem('user_id');
-      socket.close();
     };
   }, [url]);
 

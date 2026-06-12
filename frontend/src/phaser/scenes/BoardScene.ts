@@ -138,7 +138,6 @@ export default class BoardScene extends Phaser.Scene {
         const dy = my - currY;
 
         if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-          // FIX: Check if this specific mole is already playing its walk cycle
           const isContinuing = mole.anims.currentAnim?.key === `${colorName}-walk`;
 
           this.tweens.killTweensOf(mole);
@@ -180,7 +179,15 @@ export default class BoardScene extends Phaser.Scene {
               ease: 'Power2.easeInOut',
               onComplete: () => {
                 mole.stop();
-                mole.setFrame(6);
+                mole.playReverse(`${colorName}-trans`);
+                mole.once(
+                  Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + `${colorName}-trans`,
+                  () => {
+                    mole.setRotation(0);
+                    mole.setFlipX(false);
+                    mole.setFrame(0);
+                  }
+                );
               },
             });
           } else {
@@ -198,7 +205,15 @@ export default class BoardScene extends Phaser.Scene {
                   ease: 'Power2.easeInOut',
                   onComplete: () => {
                     mole.stop();
-                    mole.setFrame(6);
+                    mole.playReverse(`${colorName}-trans`);
+                    mole.once(
+                      Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + `${colorName}-trans`,
+                      () => {
+                        mole.setRotation(0);
+                        mole.setFlipX(false);
+                        mole.setFrame(0);
+                      }
+                    );
                   },
                 });
               }

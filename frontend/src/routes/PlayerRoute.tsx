@@ -39,6 +39,7 @@ export default function PlayerRoute() {
   }, [nick, roomCode, navigate]);
 
   const handleExit = () => {
+    sessionStorage.removeItem('user_id');
     navigate('/', { state: { previousRoomCode: roomCode, previousNick: nick } });
   };
 
